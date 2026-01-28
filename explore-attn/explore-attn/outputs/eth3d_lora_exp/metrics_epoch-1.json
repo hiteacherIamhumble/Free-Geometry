@@ -1,0 +1,1454 @@
+{
+  "courtyard": [
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.6313703060150146,
+        "L2_token": 0.2427910566329956,
+        "cos_token": 0.8449275493621826
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.6313703060150146,
+        "L2_token": 0.2427910566329956,
+        "cos_token": 0.8449275493621826
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.357645869255066,
+        "L2_token": 0.2518192529678345,
+        "cos_token": 0.8458607792854309
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.357645869255066,
+        "L2_token": 0.2518192529678345,
+        "cos_token": 0.8458607792854309
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 5.517337799072266,
+        "L2_token": 0.5979572534561157,
+        "cos_token": 0.5912142395973206
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 5.517337799072266,
+        "L2_token": 0.5979572534561157,
+        "cos_token": 0.5912142395973206
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 4.3377227783203125,
+        "L2_token": 0.4408019185066223,
+        "cos_token": 0.6994372606277466
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 4.3377227783203125,
+        "L2_token": 0.4408019185066223,
+        "cos_token": 0.6994372606277466
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 0.4307253062725067,
+        "L2_token": 0.10269037634134293,
+        "cos_token": 0.9407493472099304
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 0.4307253062725067,
+        "L2_token": 0.10269037634134293,
+        "cos_token": 0.9407493472099304
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ]
+  ],
+  "electro": [
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 3.4528119564056396,
+        "L2_token": 0.41929104924201965,
+        "cos_token": 0.7119737863540649
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 3.4528119564056396,
+        "L2_token": 0.41929104924201965,
+        "cos_token": 0.7119737863540649
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 3.451251745223999,
+        "L2_token": 0.3752468526363373,
+        "cos_token": 0.7457576990127563
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 3.451251745223999,
+        "L2_token": 0.3752468526363373,
+        "cos_token": 0.7457576990127563
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 0.9397889375686646,
+        "L2_token": 0.13856340944766998,
+        "cos_token": 0.9098637700080872
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 0.9397889375686646,
+        "L2_token": 0.13856340944766998,
+        "cos_token": 0.9098637700080872
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 2.0769922733306885,
+        "L2_token": 0.3218967020511627,
+        "cos_token": 0.7900363206863403
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 2.0769922733306885,
+        "L2_token": 0.3218967020511627,
+        "cos_token": 0.7900363206863403
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.5487273931503296,
+        "L2_token": 0.2460326999425888,
+        "cos_token": 0.8453584313392639
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.5487273931503296,
+        "L2_token": 0.2460326999425888,
+        "cos_token": 0.8453584313392639
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ]
+  ],
+  "kicker": [
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.7268753051757812,
+        "L2_token": 0.29506659507751465,
+        "cos_token": 0.8107330799102783
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.7268753051757812,
+        "L2_token": 0.29506659507751465,
+        "cos_token": 0.8107330799102783
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 0.8178203701972961,
+        "L2_token": 0.19118934869766235,
+        "cos_token": 0.8900077939033508
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 0.8178203701972961,
+        "L2_token": 0.19118934869766235,
+        "cos_token": 0.8900077939033508
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 3.1535160541534424,
+        "L2_token": 0.373970627784729,
+        "cos_token": 0.7506401538848877
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 3.1535160541534424,
+        "L2_token": 0.373970627784729,
+        "cos_token": 0.7506401538848877
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 0.48125526309013367,
+        "L2_token": 0.0926562175154686,
+        "cos_token": 0.9452695250511169
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 0.48125526309013367,
+        "L2_token": 0.0926562175154686,
+        "cos_token": 0.9452695250511169
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.049400806427002,
+        "L2_token": 0.20643852651119232,
+        "cos_token": 0.8746963739395142
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.049400806427002,
+        "L2_token": 0.20643852651119232,
+        "cos_token": 0.8746963739395142
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ]
+  ],
+  "pipes": [
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.8100520372390747,
+        "L2_token": 0.2682720124721527,
+        "cos_token": 0.8267192840576172
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.8100520372390747,
+        "L2_token": 0.2682720124721527,
+        "cos_token": 0.8267192840576172
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 0.875142514705658,
+        "L2_token": 0.18973921239376068,
+        "cos_token": 0.8902640342712402
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 0.875142514705658,
+        "L2_token": 0.18973921239376068,
+        "cos_token": 0.8902640342712402
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.4982562065124512,
+        "L2_token": 0.2822524607181549,
+        "cos_token": 0.8214671015739441
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.4982562065124512,
+        "L2_token": 0.2822524607181549,
+        "cos_token": 0.8214671015739441
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 2.742617607116699,
+        "L2_token": 0.4141925871372223,
+        "cos_token": 0.7172279357910156
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 2.742617607116699,
+        "L2_token": 0.4141925871372223,
+        "cos_token": 0.7172279357910156
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.5507563352584839,
+        "L2_token": 0.30645042657852173,
+        "cos_token": 0.8091824054718018
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.5507563352584839,
+        "L2_token": 0.30645042657852173,
+        "cos_token": 0.8091824054718018
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ]
+  ],
+  "relief": [
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 2.2337875366210938,
+        "L2_token": 0.2515691816806793,
+        "cos_token": 0.836389422416687
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 2.2337875366210938,
+        "L2_token": 0.2515691816806793,
+        "cos_token": 0.836389422416687
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 2.0153064727783203,
+        "L2_token": 0.3591185212135315,
+        "cos_token": 0.7674497365951538
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 2.0153064727783203,
+        "L2_token": 0.3591185212135315,
+        "cos_token": 0.7674497365951538
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 2.2074787616729736,
+        "L2_token": 0.3839998245239258,
+        "cos_token": 0.7501621842384338
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 2.2074787616729736,
+        "L2_token": 0.3839998245239258,
+        "cos_token": 0.7501621842384338
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 0.714215099811554,
+        "L2_token": 0.20652852952480316,
+        "cos_token": 0.8859385251998901
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 0.714215099811554,
+        "L2_token": 0.20652852952480316,
+        "cos_token": 0.8859385251998901
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.5682076215744019,
+        "L2_token": 0.2518002688884735,
+        "cos_token": 0.8366323113441467
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.5682076215744019,
+        "L2_token": 0.2518002688884735,
+        "cos_token": 0.8366323113441467
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ]
+  ],
+  "delivery_area": [
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 0.8876219391822815,
+        "L2_token": 0.1522321254014969,
+        "cos_token": 0.9049372673034668
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 0.8876219391822815,
+        "L2_token": 0.1522321254014969,
+        "cos_token": 0.9049372673034668
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 0.6699761152267456,
+        "L2_token": 0.12561358511447906,
+        "cos_token": 0.9238500595092773
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 0.6699761152267456,
+        "L2_token": 0.12561358511447906,
+        "cos_token": 0.9238500595092773
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.0147897005081177,
+        "L2_token": 0.21902447938919067,
+        "cos_token": 0.8678359389305115
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.0147897005081177,
+        "L2_token": 0.21902447938919067,
+        "cos_token": 0.8678359389305115
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.136892557144165,
+        "L2_token": 0.2143799513578415,
+        "cos_token": 0.865731954574585
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.136892557144165,
+        "L2_token": 0.2143799513578415,
+        "cos_token": 0.865731954574585
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.6125147342681885,
+        "L2_token": 0.23525361716747284,
+        "cos_token": 0.844889223575592
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.6125147342681885,
+        "L2_token": 0.23525361716747284,
+        "cos_token": 0.844889223575592
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ]
+  ],
+  "facade": [
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 0.5767802596092224,
+        "L2_token": 0.17440538108348846,
+        "cos_token": 0.9045385122299194
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 0.5767802596092224,
+        "L2_token": 0.17440538108348846,
+        "cos_token": 0.9045385122299194
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 0.6859537363052368,
+        "L2_token": 0.09653006494045258,
+        "cos_token": 0.9394826292991638
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 0.6859537363052368,
+        "L2_token": 0.09653006494045258,
+        "cos_token": 0.9394826292991638
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 3.742424964904785,
+        "L2_token": 0.4991593360900879,
+        "cos_token": 0.6655488610267639
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 3.742424964904785,
+        "L2_token": 0.4991593360900879,
+        "cos_token": 0.6655488610267639
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.0673764944076538,
+        "L2_token": 0.25955796241760254,
+        "cos_token": 0.8416126370429993
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.0673764944076538,
+        "L2_token": 0.25955796241760254,
+        "cos_token": 0.8416126370429993
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.738199234008789,
+        "L2_token": 0.2575117349624634,
+        "cos_token": 0.8352555632591248
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.738199234008789,
+        "L2_token": 0.2575117349624634,
+        "cos_token": 0.8352555632591248
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ]
+  ],
+  "office": [
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.9805082082748413,
+        "L2_token": 0.2814948856830597,
+        "cos_token": 0.8110320568084717
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.9805082082748413,
+        "L2_token": 0.2814948856830597,
+        "cos_token": 0.8110320568084717
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 2.5673465728759766,
+        "L2_token": 0.34282562136650085,
+        "cos_token": 0.7772977352142334
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 2.5673465728759766,
+        "L2_token": 0.34282562136650085,
+        "cos_token": 0.7772977352142334
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.5419586896896362,
+        "L2_token": 0.2682313621044159,
+        "cos_token": 0.8288791179656982
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.5419586896896362,
+        "L2_token": 0.2682313621044159,
+        "cos_token": 0.8288791179656982
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 2.014528751373291,
+        "L2_token": 0.33223918080329895,
+        "cos_token": 0.786168098449707
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 2.014528751373291,
+        "L2_token": 0.33223918080329895,
+        "cos_token": 0.786168098449707
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 2.709738254547119,
+        "L2_token": 0.3634575307369232,
+        "cos_token": 0.759719729423523
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 2.709738254547119,
+        "L2_token": 0.3634575307369232,
+        "cos_token": 0.759719729423523
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ]
+  ],
+  "playground": [
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 3.5367255210876465,
+        "L2_token": 0.45859766006469727,
+        "cos_token": 0.6896371841430664
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 3.5367255210876465,
+        "L2_token": 0.45859766006469727,
+        "cos_token": 0.6896371841430664
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 1.479748249053955,
+        "L2_token": 0.2438742220401764,
+        "cos_token": 0.8452845811843872
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 1.479748249053955,
+        "L2_token": 0.2438742220401764,
+        "cos_token": 0.8452845811843872
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 3.7444794178009033,
+        "L2_token": 0.5353971123695374,
+        "cos_token": 0.6383492946624756
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 3.7444794178009033,
+        "L2_token": 0.5353971123695374,
+        "cos_token": 0.6383492946624756
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 9.467893600463867,
+        "L2_token": 0.8781542778015137,
+        "cos_token": 0.39007189869880676
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 9.467893600463867,
+        "L2_token": 0.8781542778015137,
+        "cos_token": 0.39007189869880676
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 9.262274742126465,
+        "L2_token": 0.9195748567581177,
+        "cos_token": 0.35377371311187744
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 9.262274742126465,
+        "L2_token": 0.9195748567581177,
+        "cos_token": 0.35377371311187744
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ]
+  ],
+  "relief_2": [
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 2.5541634559631348,
+        "L2_token": 0.374124675989151,
+        "cos_token": 0.7510339617729187
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 2.5541634559631348,
+        "L2_token": 0.374124675989151,
+        "cos_token": 0.7510339617729187
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 3.99652099609375,
+        "L2_token": 0.4404098391532898,
+        "cos_token": 0.6983563899993896
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 3.99652099609375,
+        "L2_token": 0.4404098391532898,
+        "cos_token": 0.6983563899993896
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 5.3845415115356445,
+        "L2_token": 0.617925763130188,
+        "cos_token": 0.5774753093719482
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 5.3845415115356445,
+        "L2_token": 0.617925763130188,
+        "cos_token": 0.5774753093719482
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 3.2149765491485596,
+        "L2_token": 0.4185892343521118,
+        "cos_token": 0.71779465675354
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 3.2149765491485596,
+        "L2_token": 0.4185892343521118,
+        "cos_token": 0.71779465675354
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 2.7706000804901123,
+        "L2_token": 0.41096749901771545,
+        "cos_token": 0.7323763966560364
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 2.7706000804901123,
+        "L2_token": 0.41096749901771545,
+        "cos_token": 0.7323763966560364
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ]
+  ],
+  "terrains": [
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 4.152111053466797,
+        "L2_token": 0.46910902857780457,
+        "cos_token": 0.6809059381484985
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 4.152111053466797,
+        "L2_token": 0.46910902857780457,
+        "cos_token": 0.6809059381484985
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 8.32922649383545,
+        "L2_token": 0.7946038842201233,
+        "cos_token": 0.45058631896972656
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 8.32922649383545,
+        "L2_token": 0.7946038842201233,
+        "cos_token": 0.45058631896972656
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 6.025389194488525,
+        "L2_token": 0.5416399836540222,
+        "cos_token": 0.6176013350486755
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 6.025389194488525,
+        "L2_token": 0.5416399836540222,
+        "cos_token": 0.6176013350486755
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 2.9665517807006836,
+        "L2_token": 0.44910871982574463,
+        "cos_token": 0.697107195854187
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 2.9665517807006836,
+        "L2_token": 0.44910871982574463,
+        "cos_token": 0.697107195854187
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ],
+    [
+      {
+        "pair": "baseline_8even vs baseline_4v",
+        "KL_token": 0.7146002054214478,
+        "L2_token": 0.13343079388141632,
+        "cos_token": 0.9199720025062561
+      },
+      {
+        "pair": "baseline_8even vs lora_4v",
+        "KL_token": 0.7146002054214478,
+        "L2_token": 0.13343079388141632,
+        "cos_token": 0.9199720025062561
+      },
+      {
+        "pair": "baseline_4v vs lora_4v",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      },
+      {
+        "pair": "lora_8even vs baseline_8even",
+        "KL_token": 0.0,
+        "L2_token": 0.0,
+        "cos_token": 1.0
+      }
+    ]
+  ]
+}

@@ -44,7 +44,7 @@ class Attention(nn.Module):
         self.proj_drop = nn.Dropout(proj_drop)
         self.rope = rope
 
-    def forward(self, x: Tensor, pos=None, attn_mask=None) -> Tensor:
+    def forward(self, x: Tensor, pos=None, attn_mask=None, return_attn_weights=False) -> Tensor:
         B, N, C = x.shape
         qkv = (
             self.qkv(x)
@@ -56,7 +56,18 @@ class Attention(nn.Module):
         if self.rope is not None and pos is not None:
             q = self.rope(q, pos)
             k = self.rope(k, pos)
-        if self.fused_attn:
+
+        # If we need attention weights, use non-fused path
+        if return_attn_weights or not self.fused_attn:
+            q = q * self.scale
+            attn = q @ k.transpose(-2, -1)
+            if attn_mask is not None:
+                attn = attn + (attn_mask)[:, None].repeat(1, self.num_heads, 1, 1)
+            attn = attn.softmax(dim=-1)
+            attn_weights = attn.clone()  # Save before dropout
+            attn = self.attn_drop(attn)
+            x = attn @ v
+        else:
             x = F.scaled_dot_product_attention(
                 q,
                 k,
@@ -68,16 +79,14 @@ class Attention(nn.Module):
                     else None
                 ),
             )
-        else:
-            q = q * self.scale
-            attn = q @ k.transpose(-2, -1)
-            attn = attn.softmax(dim=-1)
-            attn = self.attn_drop(attn)
-            x = attn @ v
+            attn_weights = None
 
         x = x.transpose(1, 2).reshape(B, N, C)
         x = self.proj(x)
         x = self.proj_drop(x)
+
+        if return_attn_weights:
+            return x, attn_weights
         return x
 
     def _forward(self, x: Tensor) -> Tensor:

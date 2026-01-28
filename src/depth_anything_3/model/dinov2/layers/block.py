@@ -74,14 +74,22 @@ class Block(nn.Module):
 
         self.sample_drop_ratio = drop_path
 
-    def forward(self, x: Tensor, pos=None, attn_mask=None) -> Tensor:
+    def forward(self, x: Tensor, pos=None, attn_mask=None, return_attn_weights=False) -> Tensor:
         def attn_residual_func(x: Tensor, pos=None, attn_mask=None) -> Tensor:
             return self.ls1(self.attn(self.norm1(x), pos=pos, attn_mask=attn_mask))
 
         def ffn_residual_func(x: Tensor) -> Tensor:
             return self.ls2(self.mlp(self.norm2(x)))
 
-        if self.training and self.sample_drop_ratio > 0.1:
+        attn_weights = None
+        if return_attn_weights:
+            # Use non-fused path to get attention weights
+            attn_out = self.attn(self.norm1(x), pos=pos, attn_mask=attn_mask, return_attn_weights=True)
+            attn_residual = self.ls1(attn_out[0])
+            attn_weights = attn_out[1]
+            x = x + attn_residual
+            x = x + ffn_residual_func(x)
+        elif self.training and self.sample_drop_ratio > 0.1:
             # the overhead is compensated only for a drop path rate larger than 0.1
             x = drop_add_residual_stochastic_depth(
                 x,
@@ -100,6 +108,9 @@ class Block(nn.Module):
         else:
             x = x + attn_residual_func(x, pos=pos, attn_mask=attn_mask)
             x = x + ffn_residual_func(x)
+
+        if return_attn_weights:
+            return x, attn_weights
         return x
 
 

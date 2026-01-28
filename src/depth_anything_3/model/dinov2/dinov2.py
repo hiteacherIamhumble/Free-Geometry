@@ -62,3 +62,22 @@ class DinoV2(nn.Module):
             self.out_layers,
             **kwargs,
         )
+
+    def forward_with_attention(self, x, attn_layers=[38, 39], **kwargs):
+        """
+        Forward pass that returns attention weights from specified layers.
+
+        Args:
+            x: Input tensor
+            attn_layers: List of layer indices to collect attention weights from
+            **kwargs: Additional arguments
+
+        Returns:
+            Tuple of (outputs, attention_weights_dict)
+        """
+        return self.pretrained.get_intermediate_layers_with_attention(
+            x,
+            self.out_layers,
+            attn_layers=attn_layers,
+            **kwargs,
+        )

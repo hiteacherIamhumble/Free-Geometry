@@ -304,6 +304,129 @@ class DepthAnything3Net(nn.Module):
 
         return aux_features
 
+    def forward_backbone_only(
+        self,
+        x: torch.Tensor,
+        extrinsics: torch.Tensor | None = None,
+        intrinsics: torch.Tensor | None = None,
+        ref_view_strategy: str = "first",
+    ) -> tuple[list, list, int, int]:
+        """
+        Run only the backbone to extract intermediate features.
+
+        This is useful for experiments that need to manipulate features
+        before passing them to the prediction head.
+
+        Args:
+            x: Input images (B, N, 3, H, W)
+            extrinsics: Camera extrinsics (B, N, 4, 4)
+            intrinsics: Camera intrinsics (B, N, 3, 3)
+            ref_view_strategy: Strategy for selecting reference view
+
+        Returns:
+            Tuple of (feats, camera_tokens, H, W) where:
+            - feats: List of (features, camera_token) tuples from backbone output layers
+            - camera_tokens: List of camera tokens from each output layer
+            - H, W: Original image dimensions
+        """
+        # Extract features using backbone
+        if extrinsics is not None and self.cam_enc is not None:
+            with torch.autocast(device_type=x.device.type, enabled=False):
+                cam_token = self.cam_enc(extrinsics, intrinsics, x.shape[-2:])
+        else:
+            cam_token = None
+
+        feats, aux_feats = self.backbone(
+            x, cam_token=cam_token, export_feat_layers=[], ref_view_strategy=ref_view_strategy
+        )
+
+        H, W = x.shape[-2], x.shape[-1]
+        return feats, aux_feats, H, W
+
+    def forward_head_only(
+        self,
+        feats: list,
+        H: int,
+        W: int,
+        process_camera: bool = True,
+        process_sky: bool = True,
+    ) -> Dict[str, torch.Tensor]:
+        """
+        Run only the prediction head with pre-computed features.
+
+        This is useful for experiments that manipulate features
+        (e.g., token averaging) before prediction.
+
+        Args:
+            feats: List of (features, camera_token) tuples from backbone
+            H: Original image height
+            W: Original image width
+            process_camera: Whether to process camera estimation
+            process_sky: Whether to process sky estimation
+
+        Returns:
+            Dictionary containing predictions (depth, depth_conf, extrinsics, intrinsics, etc.)
+        """
+        # Process features through depth head
+        output = self._process_depth_head(feats, H, W)
+
+        # Process camera estimation
+        if process_camera and self.cam_dec is not None:
+            output = self._process_camera_estimation(feats, H, W, output)
+
+        # Process sky estimation
+        if process_sky:
+            output = self._process_mono_sky_estimation(output)
+
+        return output
+
+    def forward_with_attention(
+        self,
+        x: torch.Tensor,
+        extrinsics: torch.Tensor | None = None,
+        intrinsics: torch.Tensor | None = None,
+        attn_layers: list[int] = [38, 39],
+        ref_view_strategy: str = "saddle_balanced",
+    ) -> tuple[Dict[str, torch.Tensor], Dict[int, torch.Tensor]]:
+        """
+        Forward pass that returns both predictions and attention weights from specified layers.
+
+        Args:
+            x: Input images (B, N, 3, H, W)
+            extrinsics: Camera extrinsics (B, N, 4, 4)
+            intrinsics: Camera intrinsics (B, N, 3, 3)
+            attn_layers: List of layer indices to collect attention weights from (default: [38, 39])
+            ref_view_strategy: Strategy for selecting reference view
+
+        Returns:
+            Tuple of (output_dict, attention_weights_dict) where:
+            - output_dict: Dictionary containing predictions (depth, depth_conf, extrinsics, intrinsics, etc.)
+            - attention_weights_dict: Dict mapping layer index to attention weights
+              For layer 38 (local attention): Shape (B*S, num_heads, N, N) where N = patches_per_view + 1
+              For layer 39 (global attention): Shape (B, num_heads, S*N, S*N) where S = num_views
+        """
+        # Extract features using backbone with attention weights
+        if extrinsics is not None:
+            with torch.autocast(device_type=x.device.type, enabled=False):
+                cam_token = self.cam_enc(extrinsics, intrinsics, x.shape[-2:])
+        else:
+            cam_token = None
+
+        feats, attention_weights = self.backbone.forward_with_attention(
+            x, cam_token=cam_token, attn_layers=attn_layers, ref_view_strategy=ref_view_strategy
+        )
+
+        H, W = x.shape[-2], x.shape[-1]
+
+        # Process features through depth head
+        with torch.autocast(device_type=x.device.type, enabled=False):
+            output = self._process_depth_head(feats, H, W)
+            output = self._process_camera_estimation(feats, H, W, output)
+
+        output = self._process_mono_sky_estimation(output)
+
+        return output, attention_weights
+
 
 class NestedDepthAnything3Net(nn.Module):
     """

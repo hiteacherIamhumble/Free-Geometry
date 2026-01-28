@@ -111,7 +111,7 @@ DTU64_SCENES = [
 # -----------------------------------------------------------------------------
 
 # Root directory for ETH3D evaluation data
-ETH3D_EVAL_DATA_ROOT = "workspace/benchmark_dataset/eth3d"
+ETH3D_EVAL_DATA_ROOT = "/home/22097845d/Depth-Anything-3/workspace/benchmark_dataset/eth3d"
 
 # List of ETH3D evaluation scenes (indoor and outdoor)
 ETH3D_SCENES = [
