@@ -12,12 +12,10 @@ This module provides components for knowledge distillation training:
 from depth_anything_3.distillation.config import DistillConfig
 from depth_anything_3.distillation.dataset import ScanNetPPDistillDataset
 from depth_anything_3.distillation.losses import (
-    DA3DistillationLoss,
-    RobustRegressionLoss,
-    CosineDistillLoss,
-    CameraTokenOnlyLoss,
-    CameraTokenMSELoss,
-    CameraTokenCosineLoss,
+    LocalTokenSoftmaxKLCosineLoss,
+    GlobalTokenSoftmaxKLCosineLoss,
+    CombinedTokenSoftmaxKLCosineLoss,
+    AllTokenSoftmaxKLCosineLoss,
 )
 from depth_anything_3.distillation.models import (
     TeacherModel,
@@ -36,12 +34,10 @@ __all__ = [
     # Dataset
     'ScanNetPPDistillDataset',
     # Losses
-    'DA3DistillationLoss',
-    'RobustRegressionLoss',
-    'CosineDistillLoss',
-    'CameraTokenOnlyLoss',
-    'CameraTokenMSELoss',
-    'CameraTokenCosineLoss',
+    'LocalTokenSoftmaxKLCosineLoss',
+    'GlobalTokenSoftmaxKLCosineLoss',
+    'CombinedTokenSoftmaxKLCosineLoss',
+    'AllTokenSoftmaxKLCosineLoss',
     # Models
     'TeacherModel',
     'StudentModel',

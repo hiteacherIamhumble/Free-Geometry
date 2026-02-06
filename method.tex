@@ -1,0 +1,125 @@
+\section{Methodology}
+\label{sec:method}
+
+\subsection{Problem Formulation}
+
+Given a pre-trained multi-view 3D reconstruction model $\mathcal{M}$ and a set of test images $\{I_1, I_2, \ldots, I_N\}$ from a novel domain, our goal is to adapt $\mathcal{M}$ to improve reconstruction quality without access to ground-truth depth or camera poses. We formulate this as a self-supervised learning problem where supervision signals are derived from the internal representations of the model itself. Specifically, we leverage the observation that processing more views provides richer geometric constraints, and use this asymmetry to create a natural teacher-student distillation framework.
+
+\subsection{Framework Overview}
+
+Our framework consists of two networks sharing the same architecture: a frozen teacher $\mathcal{T}$ processing $N$ views and a student $\mathcal{S}$ with trainable Low-Rank Adaptation (LoRA) modules processing $M < N$ views. The teacher network, having access to more views, produces feature representations that encode richer multi-view geometric information. The student network learns to approximate these representations despite observing fewer views, effectively learning to hallucinate the geometric understanding that would come from additional viewpoints. During training, only the LoRA parameters in the student network are updated, preserving the pre-trained knowledge while enabling efficient domain adaptation.
+
+% Architecture Figure
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{}
+\caption{Overview of our self-supervised test-time adaptation framework. The teacher network processes $N=8$ views while the student processes $M=4$ views (every second frame from the teacher set). Both networks share the same frozen backbone, with only LoRA modules in the student being trainable. Feature tokens from layer 39 are extracted and aligned through our distillation loss, which combines KL divergence on softmax-normalized features with cosine similarity on the raw representations.}
+\label{fig:framework}
+\end{figure}
+
+\subsection{Low-Rank Adaptation Integration}
+
+We integrate LoRA modules into the transformer layers of the student network to enable parameter-efficient adaptation. For a pre-trained weight matrix $W_0 \in \mathbb{R}^{d \times k}$, LoRA introduces a low-rank decomposition:
+\begin{equation}
+W = W_0 + \Delta W = W_0 + BA,
+\label{eq:lora}
+\end{equation}
+where $B \in \mathbb{R}^{d \times r}$ and $A \in \mathbb{R}^{r \times k}$ are the trainable low-rank matrices, and $r \ll \min(d, k)$ is the rank. The modified forward pass becomes:
+\begin{equation}
+h = W_0 x + \frac{\alpha}{r} BAx,
+\label{eq:lora_forward}
+\end{equation}
+where $\alpha$ is a scaling factor that controls the magnitude of the adaptation. We apply LoRA to the attention projection matrices in transformer layers 13 through 39, which correspond to the layers where cross-view attention mechanisms operate. With rank $r=16$ and scaling factor $\alpha=16$, we achieve effective adaptation while training only approximately 0.1\% of the total model parameters.
+
+\subsection{Feature Extraction}
+
+The transformer encoder produces feature tokens at intermediate layers that encode both local appearance information and global geometric context. At layer $l$, the model outputs feature tensors $\mathbf{F}^{(l)} \in \mathbb{R}^{B \times S \times (P+1) \times C}$, where $B$ denotes the batch size, $S$ is the number of input views, $P$ represents the number of spatial patch tokens, and $C$ is the channel dimension. The additional token beyond the $P$ spatial patches corresponds to the CLS token that aggregates global information across each view. In our architecture based on the Giant variant, the channel dimension is $C = 3072$, which results from concatenating two complementary feature streams: the first 1536 channels encode local per-patch information related to depth and surface properties, while the second 1536 channels encode global information including camera pose and scene-level geometry.
+
+For distillation, we extract features from layer 39, which serves as the input to the camera pose decoder and contains the most refined multi-view representations. Given teacher features $\mathbf{F}^{\mathcal{T}} \in \mathbb{R}^{B \times N \times (P+1) \times C}$ from $N$ views and student features $\mathbf{F}^{\mathcal{S}} \in \mathbb{R}^{B \times M \times (P+1) \times C}$ from $M$ views, we first select the corresponding teacher features at the student view indices to obtain $\mathbf{F}^{\mathcal{T}}_{\text{sel}} \in \mathbb{R}^{B \times M \times (P+1) \times C}$. Each token $\mathbf{f}_{b,s,p} \in \mathbb{R}^{C}$ at batch index $b$, view $s$, and spatial position $p$ represents a unified encoding that jointly captures local depth cues and global geometric context. Rather than treating the two channel halves separately, we operate on the full concatenated representation to allow gradients to flow jointly across both components during training.
+
+\subsection{Self-Supervised Distillation Loss}
+
+We propose a distillation loss that combines distributional alignment through KL divergence with directional alignment through cosine similarity. This combination ensures that the student learns both the relative importance of different feature channels and the overall direction of the feature vectors in the high-dimensional space. Given the selected teacher features $\mathbf{F}^{\mathcal{T}}_{\text{sel}} \in \mathbb{R}^{B \times M \times (P+1) \times C}$ and student features $\mathbf{F}^{\mathcal{S}} \in \mathbb{R}^{B \times M \times (P+1) \times C}$, we compute the loss over all tokens across batches, views, and spatial positions.
+
+\subsubsection{KL Divergence Loss}
+
+The KL divergence component measures how well the student's channel-wise activation distribution matches that of the teacher. We first apply a softmax transformation along the channel dimension to convert raw feature activations into probability distributions, which is the standard formulation for computing KL divergence between continuous feature vectors. For a feature token $\mathbf{f} \in \mathbb{R}^{C}$, the softmax-normalized representation is:
+\begin{equation}
+\hat{f}_c = \frac{\exp(f_c)}{\sum_{j=1}^{C} \exp(f_j)},
+\label{eq:softmax}
+\end{equation}
+where $f_c$ denotes the $c$-th channel. Applying this transformation to both teacher and student features yields $\hat{\mathbf{F}}^{\mathcal{T}}_{\text{sel}} = \text{softmax}(\mathbf{F}^{\mathcal{T}}_{\text{sel}}, \text{dim}=-1)$ and $\hat{\mathbf{F}}^{\mathcal{S}} = \text{softmax}(\mathbf{F}^{\mathcal{S}}, \text{dim}=-1)$, each of shape $\mathbb{R}^{B \times M \times (P+1) \times C}$. The KL divergence loss is then computed as the mean over all tokens:
+\begin{equation}
+\mathcal{L}_{\text{KL}} = \frac{1}{BM(P+1)} \sum_{b,s,p} \sum_{c=1}^{C} \hat{f}^{\mathcal{T}}_{b,s,p,c} \left( \log \hat{f}^{\mathcal{T}}_{b,s,p,c} - \log \hat{f}^{\mathcal{S}}_{b,s,p,c} \right),
+\label{eq:kl_loss}
+\end{equation}
+where the outer summation runs over batch index $b \in [1, B]$, view index $s \in [1, M]$, and token position $p \in [0, P]$. This loss encourages the student to produce feature activations with similar relative magnitudes across channels as the teacher, which is important for preserving the semantic structure encoded in the feature space.
+
+\subsubsection{Cosine Similarity Loss}
+
+While KL divergence captures distributional properties, it does not directly constrain the direction of feature vectors in the embedding space. To address this, we include a cosine similarity loss that operates on the raw features without softmax normalization. We first apply L2 normalization along the channel dimension to obtain unit vectors $\bar{\mathbf{F}}^{\mathcal{T}}_{\text{sel}} = \mathbf{F}^{\mathcal{T}}_{\text{sel}} / \|\mathbf{F}^{\mathcal{T}}_{\text{sel}}\|_2$ and $\bar{\mathbf{F}}^{\mathcal{S}} = \mathbf{F}^{\mathcal{S}} / \|\mathbf{F}^{\mathcal{S}}\|_2$, where the normalization is applied independently to each token. The cosine similarity between corresponding tokens is computed as the dot product of these normalized vectors:
+\begin{equation}
+\text{sim}(\mathbf{f}^{\mathcal{T}}, \mathbf{f}^{\mathcal{S}}) = \frac{\mathbf{f}^{\mathcal{T}} \cdot \mathbf{f}^{\mathcal{S}}}{\|\mathbf{f}^{\mathcal{T}}\| \|\mathbf{f}^{\mathcal{S}}\|} = \bar{\mathbf{f}}^{\mathcal{T}} \cdot \bar{\mathbf{f}}^{\mathcal{S}},
+\label{eq:cosine_sim}
+\end{equation}
+and the cosine loss is defined as the mean over all tokens:
+\begin{equation}
+\mathcal{L}_{\text{cos}} = 1 - \frac{1}{BM(P+1)} \sum_{b,s,p} \left( \bar{\mathbf{f}}^{\mathcal{T}}_{b,s,p} \cdot \bar{\mathbf{f}}^{\mathcal{S}}_{b,s,p} \right).
+\label{eq:cos_loss}
+\end{equation}
+This loss directly maximizes the alignment between teacher and student feature directions, ensuring that semantically similar inputs produce similarly oriented representations regardless of their absolute magnitudes.
+
+\subsubsection{Combined Loss Function}
+
+The total distillation loss combines the KL divergence and cosine similarity components with respective weights:
+\begin{equation}
+\mathcal{L}_{\text{total}} = \lambda_{\text{KL}} \mathcal{L}_{\text{KL}} + \lambda_{\text{cos}} \mathcal{L}_{\text{cos}},
+\label{eq:total_loss}
+\end{equation}
+where $\lambda_{\text{KL}} = 1$ and $\lambda_{\text{cos}} = 2$ in our experiments. The KL divergence term operates on softmax-normalized features to align the channel-wise activation distributions, while the cosine term operates on L2-normalized features to align the directional structure of the representations. The higher weight on the cosine term reflects the importance of directional alignment for downstream tasks such as camera pose estimation, where the orientation of feature vectors in the learned space directly influences the quality of geometric predictions.
+
+\subsection{Training Procedure}
+
+The complete training procedure is summarized in \cref{alg:training}. We sample $N=8$ views for the teacher and select $M=4$ views for the student by taking every second frame (indices 0, 2, 4, 6), ensuring that the student views form a proper subset of the teacher views. To generate sufficient training samples from a limited number of scenes, we use multiple random seeds to sample different view sequences from each scene, resulting in approximately 60 training samples across the dataset. This sampling strategy maintains temporal diversity while creating a consistent correspondence between teacher and student observations.
+
+\begin{algorithm}[t]
+\caption{Self-Supervised Test-Time Adaptation}
+\label{alg:training}
+\begin{algorithmic}[1]
+\REQUIRE Pre-trained model $\mathcal{M}$, dataset $\mathcal{D}$ with scenes, seeds $\mathcal{K} = \{k_1, \ldots, k_K\}$, teacher views $N=8$, student views $M=4$
+\ENSURE Adapted LoRA weights $\theta_{\text{LoRA}}$
+\STATE Initialize teacher $\mathcal{T} \leftarrow \mathcal{M}$ (frozen)
+\STATE Initialize student $\mathcal{S} \leftarrow \mathcal{M}$ with LoRA modules (rank $r=16$, $\alpha=16$)
+\STATE Initialize LoRA weights: $A \sim \mathcal{N}(0, \frac{1}{r})$, $B \leftarrow 0$ \COMMENT{PEFT default}
+\FOR{epoch $= 1$ to $E$}
+    \FOR{each scene $s$ in $\mathcal{D}$}
+        \FOR{each seed $k$ in $\mathcal{K}$}
+            \STATE Sample $N$ views using seed $k$: $\mathcal{V}_T = \{I_{i_1}, \ldots, I_{i_N}\}$
+            \STATE Select student views: $\mathcal{V}_S = \{I_{i_1}, I_{i_3}, I_{i_5}, I_{i_7}\}$ \COMMENT{Every 2nd frame}
+            \STATE \textcolor{gray}{// Teacher forward pass (no gradient)}
+            \STATE $\mathbf{F}^{\mathcal{T}} \leftarrow \mathcal{T}(\mathcal{V}_T)$ \COMMENT{Layer 39 features, shape $[1, N, P+1, C]$}
+            \STATE \textcolor{gray}{// Student forward pass}
+            \STATE $\mathbf{F}^{\mathcal{S}} \leftarrow \mathcal{S}(\mathcal{V}_S; \theta_{\text{LoRA}})$ \COMMENT{Shape $[1, M, P+1, C]$}
+            \STATE \textcolor{gray}{// Select teacher features at student view indices}
+            \STATE $\mathbf{F}^{\mathcal{T}}_{\text{sel}} \leftarrow \mathbf{F}^{\mathcal{T}}[:, [0,2,4,6], :, :]$ \COMMENT{Shape $[1, M, P+1, C]$}
+            \STATE \textcolor{gray}{// Compute KL loss with channel-wise softmax}
+            \STATE $\hat{\mathbf{F}}^{\mathcal{T}} \leftarrow \text{softmax}(\mathbf{F}^{\mathcal{T}}_{\text{sel}}, \text{dim}=-1)$
+            \STATE $\hat{\mathbf{F}}^{\mathcal{S}} \leftarrow \text{softmax}(\mathbf{F}^{\mathcal{S}}, \text{dim}=-1)$
+            \STATE $\mathcal{L}_{\text{KL}} \leftarrow \text{mean}\left(\sum_c \hat{F}^{\mathcal{T}}_c \cdot (\log \hat{F}^{\mathcal{T}}_c - \log \hat{F}^{\mathcal{S}}_c)\right)$
+            \STATE \textcolor{gray}{// Compute cosine loss with L2 normalization}
+            \STATE $\mathcal{L}_{\text{cos}} \leftarrow 1 - \text{mean}\left(\text{cosine\_sim}(\mathbf{F}^{\mathcal{T}}_{\text{sel}}, \mathbf{F}^{\mathcal{S}})\right)$
+            \STATE $\mathcal{L} \leftarrow \lambda_{\text{KL}} \mathcal{L}_{\text{KL}} + \lambda_{\text{cos}} \mathcal{L}_{\text{cos}}$
+            \STATE \textcolor{gray}{// Update LoRA parameters only}
+            \STATE $\theta_{\text{LoRA}} \leftarrow \text{AdamW}(\theta_{\text{LoRA}}, \nabla_{\theta_{\text{LoRA}}} \mathcal{L})$
+        \ENDFOR
+    \ENDFOR
+\ENDFOR
+\RETURN $\theta_{\text{LoRA}}$
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{LoRA Configuration.} We use the PEFT library to apply Low-Rank Adaptation to the transformer backbone. LoRA modules are inserted into the attention projection matrices (qkv and output projections) and MLP layers (w12 and w3 for SwiGLU activation) in layers 13 through 39. Following the PEFT default initialization, the down-projection matrix $A$ is initialized from a normal distribution with variance $1/r$ where $r$ is the rank, while the up-projection matrix $B$ is initialized to zero, ensuring that the LoRA contribution starts at zero and gradually learns the adaptation. With rank $r=16$ and scaling factor $\alpha=16$, the effective scaling is $\alpha/r = 1$, meaning the LoRA updates are applied without additional scaling.
+
+\textbf{Optimization Details.} We use the AdamW optimizer with a learning rate of $10^{-4}$ and weight decay of $10^{-5}$. Training proceeds for 1 epoch with a batch size of 1, without learning rate scheduling. Mixed precision training with FP16 is employed to reduce memory consumption and accelerate computation. Gradient clipping with a maximum norm of 1.0 prevents training instabilities that may arise from the KL divergence term when student predictions diverge significantly from the teacher.
+
+\textbf{View Sampling Strategy.} For each training scene, we sample views using multiple random seeds (e.g., seeds 39, 40, 41) to generate diverse training samples from the same scene. With 3 seeds per scene and approximately 20 scenes in a typical benchmark dataset, this yields roughly 60 training samples per epoch. The first frame in each sampled sequence serves as the reference view for maintaining geometric consistency. Student views are deterministically selected as every second frame from the teacher sequence, which provides sufficient baseline separation for stereo matching while maintaining overlap for feature correspondence.

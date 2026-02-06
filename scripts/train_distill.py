@@ -38,37 +38,8 @@ from depth_anything_3.distillation.dataset import ScanNetPPDistillDataset
 from depth_anything_3.distillation.benchmark_dataset import BenchmarkDistillDataset
 from depth_anything_3.distillation.multi_dataset import create_multi_dataset
 from depth_anything_3.distillation.losses import (
-    DA3DistillationLoss,
-    CameraTokenOnlyLoss,
-    CameraTokenMSELoss,
-    CameraTokenCosineLoss,
-    CombinedPatchCameraCosineLoss,
-    GlobalFeatureMSELoss,
-    GlobalFeatureCosineLoss,
-    GlobalFeatureMSECosineLoss,
-    LocalGlobalFeatureMSELoss,
-    CosineWithOptionLoss,
-    SeparateCosineOptionALoss,
-    LocalTokenCosineLoss,
-    LocalTokenMSELoss,
-    LocalTokenNormMSELoss,
-    LocalTokenNormMSECosineLoss,
-    LocalTokenRobustLoss,
-    LocalTokenNormRobustLoss,
-    LocalTokenSoftmaxKLCosineLoss,
-    LocalTokenNormKLCosineLoss,
-    GlobalTokenSoftmaxKLCosineLoss,
     CombinedTokenSoftmaxKLCosineLoss,
     AllTokenSoftmaxKLCosineLoss,
-    LocalGlobalRobustCosineLoss,
-    LocalGlobalNormRobustCosineLoss,
-    LocalGlobalNormCosineLoss,
-    MultiLayerNormRobustCosineLoss,
-    CrossViewSimilarityDistillationLoss,
-    CombinedCrossViewLoss,
-    AttentionDistillationLoss,
-    CombinedAttentionLoss,
-    LocalRobustWithAttentionLoss,
 )
 from depth_anything_3.distillation.models import TeacherModel, StudentModel
 
@@ -203,7 +174,7 @@ def train_epoch(
     teacher: TeacherModel,
     student: StudentModel,
     train_loader: DataLoader,
-    criterion: DA3DistillationLoss,
+    criterion: nn.Module,
     optimizer: torch.optim.Optimizer,
     scheduler: Optional[torch.optim.lr_scheduler._LRScheduler],
     scaler: GradScaler,
@@ -316,7 +287,7 @@ def evaluate(
     teacher: TeacherModel,
     student: StudentModel,
     val_loader: DataLoader,
-    criterion: DA3DistillationLoss,
+    criterion: nn.Module,
     config: DistillConfig,
 ) -> Dict[str, float]:
     """Evaluate on validation set."""
@@ -412,153 +383,26 @@ def main():
                         help='Random seed')
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode (small batch, few steps)')
-    parser.add_argument('--camera_token_only', action='store_true',
-                        help='Use camera token only loss (disable feature/KL losses)')
-    parser.add_argument('--mse_only', action='store_true',
-                        help='Use simple MSE loss for camera tokens only')
-    parser.add_argument('--cosine_only', action='store_true',
-                        help='Use cosine similarity loss for camera tokens only (no MSE)')
-    parser.add_argument('--patch_camera_cosine', action='store_true',
-                        help='Use combined patch feature + camera token cosine loss')
-    parser.add_argument('--patch_weight', type=float, default=1.0,
-                        help='Weight for patch feature loss (with --patch_camera_cosine)')
-    parser.add_argument('--camera_weight', type=float, default=0.1,
-                        help='Weight for camera token loss (with --patch_camera_cosine)')
     parser.add_argument('--ref_view_strategy', type=str, default='first',
                         help='Reference view strategy (first, saddle_balanced, etc.)')
-    # New loss options A, B, C
-    parser.add_argument('--option_a', action='store_true',
-                        help='Option A: Global features MSE only')
-    parser.add_argument('--option_b', action='store_true',
-                        help='Option B: Local + Global features MSE')
-    parser.add_argument('--option_c', action='store_true',
-                        help='Option C: Camera token MSE (same as --mse_only)')
-    parser.add_argument('--cosine_option_a', action='store_true',
-                        help='Cosine loss + Option A (Global features MSE)')
-    parser.add_argument('--cosine_option_b', action='store_true',
-                        help='Cosine loss + Option B (Local + Global MSE)')
-    parser.add_argument('--cosine_option_c', action='store_true',
-                        help='Cosine loss + Option C (Camera token MSE)')
-    parser.add_argument('--local_weight', type=float, default=0.5,
-                        help='Weight for local feature loss in Option B (default 0.5)')
-    parser.add_argument('--global_weight', type=float, default=1.0,
-                        help='Weight for global feature loss in Option B (default 1.0)')
-    parser.add_argument('--cosine_weight_loss', type=float, default=1.0,
-                        help='Weight for cosine loss in combined losses (default 1.0)')
-    parser.add_argument('--option_weight', type=float, default=1.0,
-                        help='Weight for option loss in combined losses (default 1.0)')
-    # New global feature losses
-    parser.add_argument('--global_cosine', action='store_true',
-                        help='Global features cosine loss only')
-    parser.add_argument('--global_mse_cosine', action='store_true',
-                        help='Global features MSE + Cosine combined loss')
-    parser.add_argument('--mse_weight', type=float, default=1.0,
-                        help='Weight for MSE in global_mse_cosine (default 1.0)')
-    # Separate cosine option A loss
-    parser.add_argument('--separate_cosine_option_a', action='store_true',
-                        help='Separate local/global cosine + global MSE loss')
-    parser.add_argument('--local_cosine_weight', type=float, default=1.0,
-                        help='Weight for local cosine loss (default 1.0)')
-    parser.add_argument('--global_cosine_weight', type=float, default=1.0,
-                        help='Weight for global cosine loss (default 1.0)')
-    parser.add_argument('--global_mse_weight', type=float, default=1.0,
-                        help='Weight for global MSE loss (default 1.0)')
-    # Local token only losses
-    parser.add_argument('--local_cosine', action='store_true',
-                        help='Local token cosine loss only')
-    parser.add_argument('--local_mse', action='store_true',
-                        help='Local token MSE loss only')
-    parser.add_argument('--local_norm_mse', action='store_true',
-                        help='Local token L2-normalized MSE loss')
-    parser.add_argument('--local_norm_mse_cosine', action='store_true',
-                        help='Local token L2-normalized MSE + cosine loss')
-    parser.add_argument('--local_norm_mse_weight', type=float, default=1.0,
-                        help='Weight for L2-norm MSE in combined loss')
-    # Local token robust losses
-    parser.add_argument('--local_robust', action='store_true',
-                        help='Local token Robust Regression loss')
-    parser.add_argument('--local_norm_robust', action='store_true',
-                        help='Local token L2-normalized Robust Regression loss')
-    parser.add_argument('--robust_alpha', type=float, default=0.5,
-                        help='Robust loss alpha parameter (default 0.5)')
-    parser.add_argument('--robust_scaling_c', type=float, default=0.25,
-                        help='Robust loss scaling_c parameter (default 0.25)')
-    parser.add_argument('--local_global_robust_cosine', action='store_true',
-                        help='Local(norm robust+cosine) + Global(robust+cosine) loss')
-    parser.add_argument('--local_global_norm_robust', action='store_true',
-                        help='Local(norm robust) + Global(norm robust) loss - NO cosine')
-    parser.add_argument('--local_global_norm_cosine', action='store_true',
-                        help='Local(norm cosine) + Global(norm cosine) loss - NO robust')
-    parser.add_argument('--local_global_norm_robust_cosine', action='store_true',
-                        help='Local(norm robust+cosine) + Global(norm robust+cosine) loss')
-    parser.add_argument('--multi_layer_norm_robust_cosine', action='store_true',
-                        help='Multi-layer (39+33) norm robust+cosine loss')
-    parser.add_argument('--layer33_weight', type=float, default=0.1,
-                        help='Weight for layer 33 loss (default 0.1)')
-    parser.add_argument('--local_token_softmax_kl_cosine', action='store_true',
-                        help='Local per-token channel softmax KL + cosine loss')
-    parser.add_argument('--local_token_softmax_kl_weight', type=float, default=1.0,
-                        help='Weight for local softmax KL term')
-    parser.add_argument('--local_token_softmax_cos_weight', type=float, default=1.0,
-                        help='Weight for local softmax cosine term')
+
+    # Loss function arguments
     parser.add_argument('--all_token_softmax_kl_cosine', action='store_true',
                         help='Full 3072-dim token softmax KL + cosine loss (no local/global split)')
     parser.add_argument('--all_token_softmax_kl_weight', type=float, default=1.0,
                         help='Weight for full-token softmax KL term')
     parser.add_argument('--all_token_softmax_cos_weight', type=float, default=1.0,
                         help='Weight for full-token softmax cosine term')
-    parser.add_argument('--local_norm_kl_cosine', action='store_true',
-                        help='Local tokens L2-normalized + channel softmax KL + cosine')
-    parser.add_argument('--local_norm_kl_weight', type=float, default=1.0,
-                        help='Weight for local norm KL term')
-    parser.add_argument('--local_norm_cos_weight', type=float, default=1.0,
-                        help='Weight for local norm cosine term')
-    parser.add_argument('--global_token_softmax_kl_cosine', action='store_true',
-                        help='Global per-token channel softmax KL + cosine loss')
+    parser.add_argument('--combined_token_softmax_kl_cosine', action='store_true',
+                        help='Use combined local+global per-token softmax KL + cosine (sum of both)')
+    parser.add_argument('--local_token_softmax_kl_weight', type=float, default=1.0,
+                        help='Weight for local softmax KL term')
+    parser.add_argument('--local_token_softmax_cos_weight', type=float, default=1.0,
+                        help='Weight for local softmax cosine term')
     parser.add_argument('--global_token_softmax_kl_weight', type=float, default=1.0,
                         help='Weight for global softmax KL term')
     parser.add_argument('--global_token_softmax_cos_weight', type=float, default=1.0,
                         help='Weight for global softmax cosine term')
-    parser.add_argument('--combined_token_softmax_kl_cosine', action='store_true',
-                        help='Use combined local+global per-token softmax KL + cosine (sum of both)')
-    # Cross-view similarity distillation loss options
-    parser.add_argument('--cross_view_sim', action='store_true',
-                        help='Use cross-view similarity distillation loss only')
-    parser.add_argument('--cross_view_sim_with_cosine', action='store_true',
-                        help='Cross-view similarity + cosine loss combined')
-    parser.add_argument('--cross_view_sim_with_mse', action='store_true',
-                        help='Cross-view similarity + MSE loss combined')
-    parser.add_argument('--cross_view_sim_with_global_mse', action='store_true',
-                        help='Cross-view similarity + global MSE loss combined')
-    parser.add_argument('--cross_view_sim_with_global_mse_cosine', action='store_true',
-                        help='Cross-view similarity + global MSE + Cosine loss combined')
-    parser.add_argument('--cross_view_weight', type=float, default=1.0,
-                        help='Weight for cross-view similarity loss (default 1.0)')
-    parser.add_argument('--cross_view_normalize', action='store_true',
-                        help='Normalize features before matrix multiplication')
-    parser.add_argument('--cross_view_magnitude', action='store_true',
-                        help='Use magnitude (MSE) loss on similarity matrices')
-    parser.add_argument('--cross_view_direction', action='store_true',
-                        help='Use direction (cosine) loss on similarity matrices')
-    parser.add_argument('--cross_view_magnitude_weight', type=float, default=1.0,
-                        help='Weight for magnitude loss (default 1.0)')
-    parser.add_argument('--cross_view_direction_weight', type=float, default=1.0,
-                        help='Weight for direction loss (default 1.0)')
-    # Attention distillation loss options
-    parser.add_argument('--attn_distill', action='store_true',
-                        help='Use attention distillation loss only')
-    parser.add_argument('--attn_distill_with_cosine', action='store_true',
-                        help='Attention distillation + cosine loss combined')
-    parser.add_argument('--attn_distill_with_mse', action='store_true',
-                        help='Attention distillation + MSE loss combined')
-    parser.add_argument('--attn_distill_with_local_robust', action='store_true',
-                        help='Attention distillation + local_robust_3_others_1 combined')
-    parser.add_argument('--attn_weight', type=float, default=1.0,
-                        help='Weight for attention distillation loss (default 1.0)')
-    parser.add_argument('--attn_top_k', type=int, default=10,
-                        help='Top-k attention positions to use (default 10)')
-    parser.add_argument('--attn_temperature', type=float, default=0.07,
-                        help='Temperature for attention computation (default 0.07)')
 
     args = parser.parse_args()
 
@@ -591,7 +435,6 @@ def main():
         config.training.weight_decay = args.weight_decay
     config.training.output_dir = args.output_dir
     config.training.seed = args.seed
-    config.loss.camera_token_only = args.camera_token_only
 
     # Set seed
     set_seed(config.training.seed)
@@ -607,7 +450,6 @@ def main():
     print(f"\nConfiguration:")
     print(f"  Teacher views: {config.data.num_views}")
     print(f"  Student views: 4 (indices: {config.data.student_indices})")
-    print(f"  Camera token only: {config.loss.camera_token_only}")
 
     # Create datasets
     print("\nCreating datasets...")
@@ -758,397 +600,15 @@ def main():
             global_kl_weight=args.global_token_softmax_kl_weight,
             global_cos_weight=args.global_token_softmax_cos_weight,
         )
-    elif args.local_token_softmax_kl_cosine:
-        print("\nUsing LocalTokenSoftmaxKLCosineLoss (per-token channel softmax KL + cosine)")
-        criterion = LocalTokenSoftmaxKLCosineLoss(
-            student_frame_indices=config.data.student_indices,
-            kl_weight=args.local_token_softmax_kl_weight,
-            cos_weight=args.local_token_softmax_cos_weight,
-        )
-    elif args.local_norm_kl_cosine:
-        print("\nUsing LocalTokenNormKLCosineLoss (normalized tokens + channel softmax KL + cosine)")
-        criterion = LocalTokenNormKLCosineLoss(
-            student_frame_indices=config.data.student_indices,
-            kl_weight=args.local_norm_kl_weight,
-            cos_weight=args.local_norm_cos_weight,
-        )
-    elif args.global_token_softmax_kl_cosine:
-        print("\nUsing GlobalTokenSoftmaxKLCosineLoss (per-token channel softmax KL + cosine on globals)")
-        criterion = GlobalTokenSoftmaxKLCosineLoss(
-            student_frame_indices=config.data.student_indices,
-            kl_weight=args.global_token_softmax_kl_weight,
-            cos_weight=args.global_token_softmax_cos_weight,
-        )
-    elif args.global_cosine:
-        print("\nUsing GlobalFeatureCosineLoss (Global features cosine only)")
-        criterion = GlobalFeatureCosineLoss(
-            student_frame_indices=config.data.student_indices,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.global_mse_cosine:
-        print("\nUsing GlobalFeatureMSECosineLoss (Global features MSE + Cosine)")
-        criterion = GlobalFeatureMSECosineLoss(
-            student_frame_indices=config.data.student_indices,
-            mse_weight=args.mse_weight,
-            cosine_weight=args.cosine_weight_loss,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.separate_cosine_option_a:
-        print("\nUsing SeparateCosineOptionALoss (Separate local/global cosine + global MSE)")
-        criterion = SeparateCosineOptionALoss(
-            student_frame_indices=config.data.student_indices,
-            local_cosine_weight=args.local_cosine_weight,
-            global_cosine_weight=args.global_cosine_weight,
-            global_mse_weight=args.global_mse_weight,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.local_cosine:
-        print("\nUsing LocalTokenCosineLoss (Local token cosine only)")
-        criterion = LocalTokenCosineLoss(
-            student_frame_indices=config.data.student_indices,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.local_mse:
-        print("\nUsing LocalTokenMSELoss (Local token MSE only)")
-        criterion = LocalTokenMSELoss(
-            student_frame_indices=config.data.student_indices,
-        )
-    elif args.local_norm_mse:
-        print("\nUsing LocalTokenNormMSELoss (Local token L2-normalized MSE)")
-        criterion = LocalTokenNormMSELoss(
-            student_frame_indices=config.data.student_indices,
-        )
-    elif args.local_norm_mse_cosine:
-        print("\nUsing LocalTokenNormMSECosineLoss (Local L2-norm MSE + Cosine)")
-        criterion = LocalTokenNormMSECosineLoss(
-            student_frame_indices=config.data.student_indices,
-            mse_weight=args.local_norm_mse_weight,
-            cosine_weight=args.local_cosine_weight,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.local_robust:
-        print("\nUsing LocalTokenRobustLoss (Local Robust Regression)")
-        criterion = LocalTokenRobustLoss(
-            student_frame_indices=config.data.student_indices,
-            alpha=args.robust_alpha,
-            scaling_c=args.robust_scaling_c,
-        )
-    elif args.local_norm_robust:
-        print("\nUsing LocalTokenNormRobustLoss (Local L2-norm Robust)")
-        criterion = LocalTokenNormRobustLoss(
-            student_frame_indices=config.data.student_indices,
-            alpha=args.robust_alpha,
-            scaling_c=args.robust_scaling_c,
-        )
-    elif args.local_global_robust_cosine:
-        print("\nUsing LocalGlobalRobustCosineLoss")
-        criterion = LocalGlobalRobustCosineLoss(
-            student_frame_indices=config.data.student_indices,
-            local_norm_robust_weight=1.0,
-            local_cosine_weight=1.0,
-            global_robust_weight=1.0,
-            global_cosine_weight=1.0,
-            alpha=args.robust_alpha,
-            scaling_c=args.robust_scaling_c,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.local_global_norm_robust:
-        print("\nUsing LocalGlobalNormRobustCosineLoss (NO cosine, only robust)")
-        criterion = LocalGlobalNormRobustCosineLoss(
-            student_frame_indices=config.data.student_indices,
-            local_norm_robust_weight=1.0,
-            local_cosine_weight=0.0,  # Disable cosine
-            global_norm_robust_weight=1.0,
-            global_cosine_weight=0.0,  # Disable cosine
-            alpha=args.robust_alpha,
-            scaling_c=args.robust_scaling_c,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.local_global_norm_cosine:
-        print("\nUsing LocalGlobalNormCosineLoss (NO robust, only cosine)")
-        criterion = LocalGlobalNormCosineLoss(
-            student_frame_indices=config.data.student_indices,
-            local_weight=1.0,
-            global_weight=1.0,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.local_global_norm_robust_cosine:
-        print("\nUsing LocalGlobalNormRobustCosineLoss (local_robust=3, others=1)")
-        criterion = LocalGlobalNormRobustCosineLoss(
-            student_frame_indices=config.data.student_indices,
-            local_norm_robust_weight=3.0,
-            local_cosine_weight=1.0,
-            global_norm_robust_weight=1.0,
-            global_cosine_weight=1.0,
-            alpha=args.robust_alpha,
-            scaling_c=args.robust_scaling_c,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.multi_layer_norm_robust_cosine:
-        print(f"\nUsing MultiLayerNormRobustCosineLoss (L39 + L33*{args.layer33_weight})")
-        criterion = MultiLayerNormRobustCosineLoss(
-            student_frame_indices=config.data.student_indices,
-            local_norm_robust_weight=3.0,
-            local_cosine_weight=1.0,
-            global_norm_robust_weight=1.0,
-            global_cosine_weight=1.0,
-            layer33_weight=args.layer33_weight,
-            alpha=args.robust_alpha,
-            scaling_c=args.robust_scaling_c,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.option_a:
-        print("\nUsing GlobalFeatureMSELoss (Option A)")
-        criterion = GlobalFeatureMSELoss(
-            student_frame_indices=config.data.student_indices,
-        )
-    elif args.option_b:
-        print("\nUsing LocalGlobalFeatureMSELoss (Option B)")
-        criterion = LocalGlobalFeatureMSELoss(
-            student_frame_indices=config.data.student_indices,
-            local_weight=args.local_weight,
-            global_weight=args.global_weight,
-        )
-    elif args.option_c:
-        print("\nUsing CameraTokenMSELoss (Option C)")
-        criterion = CameraTokenMSELoss(
-            student_frame_indices=config.data.student_indices,
-        )
-    elif args.cosine_option_a:
-        print("\nUsing CosineWithOptionLoss (Cosine + Option A)")
-        criterion = CosineWithOptionLoss(
-            student_frame_indices=config.data.student_indices,
-            option='A',
-            cosine_weight=args.cosine_weight_loss,
-            option_weight=args.option_weight,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.cosine_option_b:
-        print("\nUsing CosineWithOptionLoss (Cosine + Option B)")
-        criterion = CosineWithOptionLoss(
-            student_frame_indices=config.data.student_indices,
-            option='B',
-            cosine_weight=args.cosine_weight_loss,
-            option_weight=args.option_weight,
-            local_weight=args.local_weight,
-            global_weight=args.global_weight,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.cosine_option_c:
-        print("\nUsing CosineWithOptionLoss (Cosine + Option C)")
-        criterion = CosineWithOptionLoss(
-            student_frame_indices=config.data.student_indices,
-            option='C',
-            cosine_weight=args.cosine_weight_loss,
-            option_weight=args.option_weight,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.patch_camera_cosine:
-        print("\nUsing CombinedPatchCameraCosineLoss (patch + camera cosine)")
-        print("  - Layer 39 only (camera decoder input)")
-        print("  - Patch features: [B, S, P, 3072]")
-        print("  - Camera tokens: [B, S, 3072]")
-        print(f"  - Patch weight: {args.patch_weight}")
-        print(f"  - Camera weight: {args.camera_weight}")
-        criterion = CombinedPatchCameraCosineLoss(
-            student_frame_indices=config.data.student_indices,
-            patch_weight=args.patch_weight,
-            camera_weight=args.camera_weight,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.cosine_only:
-        print("\nUsing CameraTokenCosineLoss (cosine similarity only)")
-        print("  - Layer 39 only (camera decoder input)")
-        print("  - Full 3072-dim token [local_x, x]")
-        print("  - Cosine similarity loss only (no MSE)")
-        criterion = CameraTokenCosineLoss(
-            student_frame_indices=config.data.student_indices,
-            temperature=config.loss.cosine_temperature,
-        )
-    elif args.cross_view_sim:
-        # Determine which loss components to use
-        use_mag = args.cross_view_magnitude
-        use_dir = args.cross_view_direction
-        # Default to magnitude if neither specified
-        if not use_mag and not use_dir:
-            use_mag = True
-        print("\nUsing CrossViewSimilarityDistillationLoss (cross-view similarity only)")
-        print("  - Uses global tokens only (1536-dim)")
-        print(f"  - Normalize before mm: {args.cross_view_normalize}")
-        print(f"  - Use magnitude (MSE): {use_mag}")
-        print(f"  - Use direction (Cosine): {use_dir}")
-        criterion = CrossViewSimilarityDistillationLoss(
-            student_frame_indices=config.data.student_indices,
-            normalize_before_mm=args.cross_view_normalize,
-            use_magnitude=use_mag,
-            use_direction=use_dir,
-            magnitude_weight=args.cross_view_magnitude_weight,
-            direction_weight=args.cross_view_direction_weight,
-        )
-    elif args.cross_view_sim_with_cosine:
-        use_mag = args.cross_view_magnitude
-        use_dir = args.cross_view_direction
-        if not use_mag and not use_dir:
-            use_mag = True
-        print("\nUsing CombinedCrossViewLoss (cross-view + cosine)")
-        criterion = CombinedCrossViewLoss(
-            student_frame_indices=config.data.student_indices,
-            base_loss_type='cosine',
-            cross_view_weight=args.cross_view_weight,
-            base_weight=args.cosine_weight_loss,
-            temperature=config.loss.cosine_temperature,
-            normalize_before_mm=args.cross_view_normalize,
-            use_magnitude=use_mag,
-            use_direction=use_dir,
-            magnitude_weight=args.cross_view_magnitude_weight,
-            direction_weight=args.cross_view_direction_weight,
-        )
-    elif args.cross_view_sim_with_mse:
-        use_mag = args.cross_view_magnitude
-        use_dir = args.cross_view_direction
-        if not use_mag and not use_dir:
-            use_mag = True
-        print("\nUsing CombinedCrossViewLoss (cross-view + MSE)")
-        criterion = CombinedCrossViewLoss(
-            student_frame_indices=config.data.student_indices,
-            base_loss_type='mse',
-            cross_view_weight=args.cross_view_weight,
-            base_weight=args.mse_weight,
-            temperature=config.loss.cosine_temperature,
-            normalize_before_mm=args.cross_view_normalize,
-            use_magnitude=use_mag,
-            use_direction=use_dir,
-            magnitude_weight=args.cross_view_magnitude_weight,
-            direction_weight=args.cross_view_direction_weight,
-        )
-    elif args.cross_view_sim_with_global_mse:
-        use_mag = args.cross_view_magnitude
-        use_dir = args.cross_view_direction
-        if not use_mag and not use_dir:
-            use_mag = True
-        print("\nUsing CombinedCrossViewLoss (cross-view + global MSE)")
-        criterion = CombinedCrossViewLoss(
-            student_frame_indices=config.data.student_indices,
-            base_loss_type='global_mse',
-            cross_view_weight=args.cross_view_weight,
-            base_weight=args.global_weight,
-            temperature=config.loss.cosine_temperature,
-            normalize_before_mm=args.cross_view_normalize,
-            use_magnitude=use_mag,
-            use_direction=use_dir,
-            magnitude_weight=args.cross_view_magnitude_weight,
-            direction_weight=args.cross_view_direction_weight,
-        )
-    elif args.cross_view_sim_with_global_mse_cosine:
-        use_mag = args.cross_view_magnitude
-        use_dir = args.cross_view_direction
-        if not use_mag and not use_dir:
-            use_mag = True
-        print("\nUsing CombinedCrossViewLoss (cross-view + global MSE + Cosine)")
-        print(f"  MSE weight: {args.mse_weight}")
-        print(f"  Cosine weight: {args.cosine_weight_loss}")
-        criterion = CombinedCrossViewLoss(
-            student_frame_indices=config.data.student_indices,
-            base_loss_type='global_mse_cosine',
-            cross_view_weight=args.cross_view_weight,
-            base_weight=1.0,  # base_weight applies to combined MSE+Cosine
-            temperature=config.loss.cosine_temperature,
-            normalize_before_mm=args.cross_view_normalize,
-            use_magnitude=use_mag,
-            use_direction=use_dir,
-            magnitude_weight=args.cross_view_magnitude_weight,
-            direction_weight=args.cross_view_direction_weight,
-            mse_weight=args.mse_weight,
-            cosine_weight=args.cosine_weight_loss,
-        )
-    elif args.attn_distill:
-        print("\nUsing AttentionDistillationLoss (attention distillation only)")
-        print(f"  Top-k: {args.attn_top_k}")
-        print(f"  Temperature: {args.attn_temperature}")
-        criterion = AttentionDistillationLoss(
-            student_frame_indices=config.data.student_indices,
-            top_k=args.attn_top_k,
-            temperature=args.attn_temperature,
-        )
-    elif args.attn_distill_with_cosine:
-        print("\nUsing CombinedAttentionLoss (attention + cosine)")
-        print(f"  Attention weight: {args.attn_weight}")
-        print(f"  Base weight: {args.cosine_weight_loss}")
-        print(f"  Top-k: {args.attn_top_k}")
-        criterion = CombinedAttentionLoss(
-            student_frame_indices=config.data.student_indices,
-            base_loss_type='cosine',
-            attn_weight=args.attn_weight,
-            base_weight=args.cosine_weight_loss,
-            top_k=args.attn_top_k,
-            temperature=args.attn_temperature,
-            cosine_temperature=config.loss.cosine_temperature,
-        )
-    elif args.attn_distill_with_mse:
-        print("\nUsing CombinedAttentionLoss (attention + MSE)")
-        print(f"  Attention weight: {args.attn_weight}")
-        print(f"  Base weight: {args.mse_weight}")
-        print(f"  Top-k: {args.attn_top_k}")
-        criterion = CombinedAttentionLoss(
-            student_frame_indices=config.data.student_indices,
-            base_loss_type='mse',
-            attn_weight=args.attn_weight,
-            base_weight=args.mse_weight,
-            top_k=args.attn_top_k,
-            temperature=args.attn_temperature,
-            cosine_temperature=config.loss.cosine_temperature,
-        )
-    elif args.attn_distill_with_local_robust:
-        print("\nUsing LocalRobustWithAttentionLoss (combined)")
-        print(f"  Local: norm_robust_w=3.0, cosine_w=1.0")
-        print(f"  Global: norm_robust_w=1.0, cosine_w=1.0")
-        print(f"  Attention: weight={args.attn_weight}, top_k={args.attn_top_k}")
-        criterion = LocalRobustWithAttentionLoss(
-            student_frame_indices=config.data.student_indices,
-            local_norm_robust_weight=3.0,
-            local_cosine_weight=1.0,
-            global_norm_robust_weight=1.0,
-            global_cosine_weight=1.0,
-            attn_top_k=args.attn_top_k,
-            attn_temperature=args.attn_temperature,
-            attn_loss_weight=args.attn_weight,
-        )
-    elif args.mse_only:
-        print("\nUsing CameraTokenMSELoss (simple MSE loss on camera tokens)")
-        print("  - Layer 39 only (camera decoder input)")
-        print("  - Full 3072-dim token [local_x, x]")
-        print("  - MSE loss only")
-        criterion = CameraTokenMSELoss(
-            student_frame_indices=config.data.student_indices,
-        )
-    elif config.loss.camera_token_only:
-        print("\nUsing CameraTokenOnlyLoss (feature/KL losses disabled)")
-        print("  - Layer 39 only (camera decoder input)")
-        print("  - Full 3072-dim token [local_x, x]")
-        criterion = CameraTokenOnlyLoss(
-            student_frame_indices=config.data.student_indices,
-            robust_alpha=config.loss.robust_alpha,
-            robust_scaling_c=config.loss.robust_scaling_c,
-            cosine_temperature=config.loss.cosine_temperature,
-            robust_weight=config.loss.robust_weight,
-            cosine_weight=config.loss.cosine_weight,
-        )
     else:
-        criterion = DA3DistillationLoss(
-            output_layers=config.model.output_layers,
+        # Default to combined_token_softmax_kl_cosine
+        print("\nUsing CombinedTokenSoftmaxKLCosineLoss (default)")
+        criterion = CombinedTokenSoftmaxKLCosineLoss(
             student_frame_indices=config.data.student_indices,
-            feature_loss_weights={
-                'robust': config.loss.robust_weight,
-                'cosine': config.loss.cosine_weight,
-                'kl': config.loss.kl_weight,
-            },
-            camera_token_weight=config.loss.camera_token_weight,
-            robust_alpha=config.loss.robust_alpha,
-            robust_scaling_c=config.loss.robust_scaling_c,
-            cosine_temperature=config.loss.cosine_temperature,
-            kl_temperature=config.loss.kl_temperature,
-            robust_cosine_layers=config.loss.robust_cosine_layers,
-            kl_layers=config.loss.kl_layers,
+            local_kl_weight=args.local_token_softmax_kl_weight,
+            local_cos_weight=args.local_token_softmax_cos_weight,
+            global_kl_weight=args.global_token_softmax_kl_weight,
+            global_cos_weight=args.global_token_softmax_cos_weight,
         )
 
     # Create optimizer (only LoRA params)

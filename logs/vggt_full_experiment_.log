@@ -1,0 +1,140 @@
+nohup: ignoring input
+
+============================================================
+STEP 1: Training on all datasets
+============================================================
+
+============================================================
+Training on eth3d
+  Samples per scene: 3
+  Seeds: 10 11 12
+  Data root: /home/22097845d/Depth-Anything-3/workspace/benchmark_dataset/eth3d
+============================================================
+/home/22097845d/Depth-Anything-3/./scripts/train_distill_vggt.py:658: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = GradScaler(enabled=args.use_amp)
+Using device: cuda
+
+Configuration:
+  Teacher views: 8
+  Student views: 4 (indices: [0, 2, 4, 6])
+  Output layers: [19, 23]
+  LoRA rank: 16, alpha: 16.0
+  LoRA layers: 12-23
+
+Creating dataset...
+Loaded 11 scenes for eth3d (all scenes for training)
+Generating 3 samples per scene = 33 total samples
+Train samples: 33
+
+Creating models...
+Loading teacher model: facebook/vggt-1b
+Teacher parameters: 1,256,537,516 total, 0 trainable
+Loading student model: facebook/vggt-1b
+Applying PEFT LoRA (rank=16, alpha=16.0) to layers 12-23
+Total PEFT LoRA parameters: 6,291,456
+Camera token is trainable
+Student parameters: 1,262,828,972 total, 6,293,504 trainable
+
+Using VGGTAllTokenSoftmaxKLCosineLoss (full 2048-dim softmax KL + cosine)
+VGGTAllTokenSoftmaxKLCosineLoss: layer=23, kl_w=1.0, cos_w=2.0
+  Uses full 2048-dim token (no frame/global split)
+
+Starting training...
+
+============================================================
+Epoch 1/1
+============================================================
+/home/22097845d/Depth-Anything-3/./scripts/train_distill_vggt.py:330: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(enabled=args.use_amp):
+[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
+[ETH3D] electro: 39/45 images (filtered 6, missing 0)
+[ETH3D] relief: 19/31 images (filtered 12, missing 0)
+[ETH3D] playground: 32/38 images (filtered 6, missing 0)
+[ETH3D] facade: 76/76 images (filtered 0, missing 0)
+[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
+[ETH3D] office: 26/26 images (filtered 0, missing 0)
+[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
+[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
+[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
+[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
+[ETH3D] office: 26/26 images (filtered 0, missing 0)
+[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
+[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
+[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
+[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
+[ETH3D] relief: 19/31 images (filtered 12, missing 0)
+[ETH3D] electro: 39/45 images (filtered 6, missing 0)
+[ETH3D] playground: 32/38 images (filtered 6, missing 0)
+Epoch 0 | Step 1 | Batch 1/33 | Loss: 2.1986 | LR: 1.00e-04 | Speed: 0.3 samples/s
+  Loss details: all_softmax_kl: 1.5589 | all_softmax_cos: 0.6802 | all_softmax_total: 2.1986
+Epoch 0 | Step 2 | Batch 2/33 | Loss: 2.7031 | LR: 1.00e-04 | Speed: 0.4 samples/s
+  Loss details: all_softmax_kl: 2.5727 | all_softmax_cos: 0.6826 | all_softmax_total: 3.2076
+Epoch 0 | Step 3 | Batch 3/33 | Loss: 1.9282 | LR: 1.00e-04 | Speed: 0.5 samples/s
+  Loss details: all_softmax_kl: 0.2611 | all_softmax_cos: 0.9413 | all_softmax_total: 0.3784
+Epoch 0 | Step 4 | Batch 4/33 | Loss: 2.1670 | LR: 1.00e-04 | Speed: 0.6 samples/s
+  Loss details: all_softmax_kl: 2.4161 | all_softmax_cos: 0.7664 | all_softmax_total: 2.8833
+Epoch 0 | Step 5 | Batch 5/33 | Loss: 1.9320 | LR: 1.00e-04 | Speed: 0.6 samples/s
+  Loss details: all_softmax_kl: 0.7202 | all_softmax_cos: 0.8640 | all_softmax_total: 0.9923
+Epoch 0 | Step 6 | Batch 6/33 | Loss: 2.2947 | LR: 1.00e-04 | Speed: 0.7 samples/s
+  Loss details: all_softmax_kl: 3.1338 | all_softmax_cos: 0.5130 | all_softmax_total: 4.1078
+Epoch 0 | Step 7 | Batch 7/33 | Loss: 2.2877 | LR: 1.00e-04 | Speed: 0.7 samples/s
+  Loss details: all_softmax_kl: 1.8796 | all_softmax_cos: 0.8168 | all_softmax_total: 2.2460
+Epoch 0 | Step 8 | Batch 8/33 | Loss: 2.0552 | LR: 1.00e-04 | Speed: 0.7 samples/s
+  Loss details: all_softmax_kl: 0.3236 | all_softmax_cos: 0.9479 | all_softmax_total: 0.4278
+Epoch 0 | Step 9 | Batch 9/33 | Loss: 1.9197 | LR: 1.00e-04 | Speed: 0.8 samples/s
+  Loss details: all_softmax_kl: 0.6309 | all_softmax_cos: 0.8976 | all_softmax_total: 0.8358
+Epoch 0 | Step 10 | Batch 10/33 | Loss: 1.7760 | LR: 1.00e-04 | Speed: 0.8 samples/s
+  Loss details: all_softmax_kl: 0.3886 | all_softmax_cos: 0.9529 | all_softmax_total: 0.4828
+Epoch 0 | Step 11 | Batch 11/33 | Loss: 1.6417 | LR: 1.00e-04 | Speed: 0.8 samples/s
+  Loss details: all_softmax_kl: 0.2163 | all_softmax_cos: 0.9591 | all_softmax_total: 0.2981
+Epoch 0 | Step 12 | Batch 12/33 | Loss: 1.5489 | LR: 1.00e-04 | Speed: 0.8 samples/s
+  Loss details: all_softmax_kl: 0.3415 | all_softmax_cos: 0.9064 | all_softmax_total: 0.5288
+Epoch 0 | Step 13 | Batch 13/33 | Loss: 1.5462 | LR: 1.00e-04 | Speed: 0.8 samples/s
+  Loss details: all_softmax_kl: 1.2471 | all_softmax_cos: 0.8667 | all_softmax_total: 1.5137
+Epoch 0 | Step 14 | Batch 14/33 | Loss: 1.6079 | LR: 1.00e-04 | Speed: 0.8 samples/s
+  Loss details: all_softmax_kl: 1.7335 | all_softmax_cos: 0.6618 | all_softmax_total: 2.4098
+Epoch 0 | Step 15 | Batch 15/33 | Loss: 1.5420 | LR: 1.00e-04 | Speed: 0.8 samples/s
+  Loss details: all_softmax_kl: 0.4717 | all_softmax_cos: 0.9265 | all_softmax_total: 0.6187
+Epoch 0 | Step 16 | Batch 16/33 | Loss: 1.5357 | LR: 1.00e-04 | Speed: 0.8 samples/s
+  Loss details: all_softmax_kl: 1.0183 | all_softmax_cos: 0.7879 | all_softmax_total: 1.4425
+Epoch 0 | Step 17 | Batch 17/33 | Loss: 1.4610 | LR: 1.00e-04 | Speed: 0.8 samples/s
+  Loss details: all_softmax_kl: 0.2185 | all_softmax_cos: 0.9771 | all_softmax_total: 0.2643
+Epoch 0 | Step 18 | Batch 18/33 | Loss: 1.3880 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 0.1140 | all_softmax_cos: 0.9835 | all_softmax_total: 0.1469
+Epoch 0 | Step 19 | Batch 19/33 | Loss: 1.6205 | LR: 1.00e-04 | Speed: 0.8 samples/s
+  Loss details: all_softmax_kl: 4.8289 | all_softmax_cos: 0.5113 | all_softmax_total: 5.8064
+Epoch 0 | Step 20 | Batch 20/33 | Loss: 1.6589 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 1.7796 | all_softmax_cos: 0.6956 | all_softmax_total: 2.3884
+Epoch 0 | Step 21 | Batch 21/33 | Loss: 1.5949 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 0.2535 | all_softmax_cos: 0.9687 | all_softmax_total: 0.3160
+Epoch 0 | Step 22 | Batch 22/33 | Loss: 1.6443 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 2.2540 | all_softmax_cos: 0.7867 | all_softmax_total: 2.6806
+Epoch 0 | Step 23 | Batch 23/33 | Loss: 1.5794 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 0.1158 | all_softmax_cos: 0.9820 | all_softmax_total: 0.1518
+Epoch 0 | Step 24 | Batch 24/33 | Loss: 1.6119 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 1.7991 | all_softmax_cos: 0.7202 | all_softmax_total: 2.3586
+Epoch 0 | Step 25 | Batch 25/33 | Loss: 1.5956 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 0.8306 | all_softmax_cos: 0.8127 | all_softmax_total: 1.2053
+Epoch 0 | Step 26 | Batch 26/33 | Loss: 1.5499 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 0.3001 | all_softmax_cos: 0.9461 | all_softmax_total: 0.4079
+Epoch 0 | Step 27 | Batch 27/33 | Loss: 1.5020 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 0.1789 | all_softmax_cos: 0.9612 | all_softmax_total: 0.2566
+Epoch 0 | Step 28 | Batch 28/33 | Loss: 1.4664 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 0.3363 | all_softmax_cos: 0.9161 | all_softmax_total: 0.5041
+Epoch 0 | Step 29 | Batch 29/33 | Loss: 1.4348 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 0.4688 | all_softmax_cos: 0.9599 | all_softmax_total: 0.5490
+Epoch 0 | Step 30 | Batch 30/33 | Loss: 1.4158 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 0.5775 | all_softmax_cos: 0.8562 | all_softmax_total: 0.8651
+Epoch 0 | Step 31 | Batch 31/33 | Loss: 1.3748 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 0.1032 | all_softmax_cos: 0.9785 | all_softmax_total: 0.1463
+Epoch 0 | Step 32 | Batch 32/33 | Loss: 1.3540 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 0.5391 | all_softmax_cos: 0.9148 | all_softmax_total: 0.7095
+Epoch 0 | Step 33 | Batch 33/33 | Loss: 1.3278 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  Loss details: all_softmax_kl: 0.3985 | all_softmax_cos: 0.9547 | all_softmax_total: 0.4891
+Saved camera token to ./checkpoints/vggt_full_experiment/eth3d/epoch_0_lora.pt
+Saved PEFT LoRA weights to ./checkpoints/vggt_full_experiment/eth3d/epoch_0_lora_peft
+Saved checkpoint to ./checkpoints/vggt_full_experiment/eth3d/epoch_0.pt
+Saved camera token to ./checkpoints/vggt_full_experiment/eth3d/latest_lora.pt
+Saved PEFT LoRA weights to ./checkpoints/vggt_full_experiment/eth3d/latest_lora_peft
+
+Training complete!
