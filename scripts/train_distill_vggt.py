@@ -231,6 +231,202 @@ class VGGTAllTokenSoftmaxKLCosineLoss(nn.Module):
         }
 
 
+class VGGTCrossFrameRKDAngleLoss(nn.Module):
+    """
+    Cross-Frame RKD Angle-Wise Loss for VGGT distillation.
+
+    Based on RKD (Park et al., CVPR 2019). Transfers teacher's knowledge about
+    extra frames (those the student does NOT see) via angle-wise relational
+    knowledge distillation.
+
+    For each sampled reference patch p in Frame 0 and shared patch q in a shared
+    frame, we find the top-K most similar patches to ref_t[p] across the teacher's
+    extra frames. Three angles are computed from the triplet (ref, shared, sim_high)
+    and the student is trained to match the teacher's angle structure.
+    """
+
+    def __init__(
+        self,
+        student_frame_indices: List[int] = None,
+        num_teacher_views: int = 8,
+        target_layer: int = 23,
+        topk: int = 4,
+        num_ref_samples: int = 128,
+        num_shared_samples: int = 128,
+        angle1_weight: float = 1.0,
+        angle2_weight: float = 1.0,
+        angle3_weight: float = 1.0,
+        huber_delta: float = 1.0,
+        shared_chunk_size: int = 64,
+    ):
+        super().__init__()
+        self.student_frame_indices = student_frame_indices or [0, 2, 4, 6]
+        self.num_teacher_views = num_teacher_views
+        self.target_layer = target_layer
+        self.topk = topk
+        self.num_ref_samples = num_ref_samples
+        self.num_shared_samples = num_shared_samples
+        self.angle1_weight = angle1_weight
+        self.angle2_weight = angle2_weight
+        self.angle3_weight = angle3_weight
+        self.huber_loss = nn.HuberLoss(reduction='none', delta=huber_delta)
+        self.shared_chunk_size = shared_chunk_size
+
+        # Extra frame indices (teacher-only frames)
+        all_teacher_indices = set(range(num_teacher_views))
+        student_set = set(self.student_frame_indices)
+        self.extra_frame_indices = sorted(all_teacher_indices - student_set)
+
+        # Reference frame = first student frame; shared = remaining student frames
+        self.ref_frame_teacher_idx = self.student_frame_indices[0]
+        self.shared_frame_teacher_indices = self.student_frame_indices[1:]
+
+        # Map teacher frame index -> student frame index
+        self.teacher_to_student = {
+            t_idx: s_idx for s_idx, t_idx in enumerate(self.student_frame_indices)
+        }
+
+        print(f"VGGTCrossFrameRKDAngleLoss: layer={target_layer}, topk={topk}")
+        print(f"  ref_samples={num_ref_samples}, shared_samples={num_shared_samples}, shared_chunk={shared_chunk_size}")
+        print(f"  angle weights: a1={angle1_weight}, a2={angle2_weight}, a3={angle3_weight}")
+        print(f"  extra frames (teacher-only): {self.extra_frame_indices}")
+        print(f"  shared frames: {self.shared_frame_teacher_indices}")
+
+    @staticmethod
+    def _cos_angle(vec_a: torch.Tensor, vec_b: torch.Tensor) -> torch.Tensor:
+        """
+        Compute cosine of angle between two vectors (already relative to vertex).
+
+        Args:
+            vec_a: [..., D]
+            vec_b: [..., D]
+        Returns:
+            [...] cosine similarity values in [-1, 1]
+        """
+        a_norm = torch.nn.functional.normalize(vec_a, dim=-1, eps=1e-8)
+        b_norm = torch.nn.functional.normalize(vec_b, dim=-1, eps=1e-8)
+        return (a_norm * b_norm).sum(dim=-1)
+
+    def forward(
+        self,
+        teacher_output: VGGTDistillationOutput,
+        student_output: VGGTDistillationOutput,
+    ) -> Tuple[torch.Tensor, Dict[str, float]]:
+        teacher_feats = teacher_output.layer_features[self.target_layer]  # [B, S_t, P, D]
+        student_feats = student_output.layer_features[self.target_layer]  # [B, S_s, P, D]
+
+        B, S_t, P, D = teacher_feats.shape
+
+        # --- 1. Subsample positions upfront ---
+        num_ref = min(self.num_ref_samples, P)
+        num_shared = min(self.num_shared_samples, P)
+        ref_perm = torch.randperm(P, device=teacher_feats.device)[:num_ref]
+        shared_perm = torch.randperm(P, device=teacher_feats.device)[:num_shared]
+
+        # --- 2. Extract only the slices we need (avoid holding full [B,S,P,D]) ---
+        ref_t_sampled = teacher_feats[:, self.ref_frame_teacher_idx, ref_perm, :].detach()  # [B, num_ref, D]
+        ref_s_idx = self.teacher_to_student[self.ref_frame_teacher_idx]
+        ref_s_sampled = student_feats[:, ref_s_idx, ref_perm, :]  # [B, num_ref, D]
+
+        # --- 3. Top-K search across extra frames (no grad) ---
+        with torch.no_grad():
+            # Build extra features: [B, E*P, D] — only needed temporarily for top-K
+            extra_t_list = [teacher_feats[:, eidx, :, :] for eidx in self.extra_frame_indices]
+            extra_t = torch.cat(extra_t_list, dim=1)  # [B, E*P, D]
+            del extra_t_list
+
+            ref_t_norm = torch.nn.functional.normalize(ref_t_sampled, dim=-1)
+            extra_t_norm = torch.nn.functional.normalize(extra_t, dim=-1)
+
+            # Cosine similarity: [B, num_ref, E*P]
+            sim_matrix = torch.bmm(ref_t_norm, extra_t_norm.transpose(1, 2))
+            del ref_t_norm, extra_t_norm
+
+            # Top-K indices: [B, num_ref, K]
+            _, topk_indices = sim_matrix.topk(self.topk, dim=-1)
+            del sim_matrix
+
+            # Gather top-K patches per batch element (avoids expanding extra_t)
+            sim_high_t = torch.zeros(B, num_ref, self.topk, D,
+                                     device=teacher_feats.device, dtype=teacher_feats.dtype)
+            for b in range(B):
+                flat_idx = topk_indices[b].reshape(-1)  # [num_ref*K]
+                sim_high_t[b] = extra_t[b, flat_idx, :].reshape(num_ref, self.topk, D)
+            del extra_t, topk_indices
+
+        sim_high_t = sim_high_t.detach()
+
+        # --- 4. Compute angles (chunked over both ref and shared dims) ---
+        # Peak memory per chunk: [B, rc, sc, K, D] × ~4 intermediates in _cos_angle
+        sum_angle1 = torch.tensor(0.0, device=teacher_feats.device)
+        sum_angle2 = torch.tensor(0.0, device=teacher_feats.device)
+        sum_angle3 = torch.tensor(0.0, device=teacher_feats.device)
+        total_elements = 0
+        cs = self.shared_chunk_size
+
+        for shared_teacher_idx in self.shared_frame_teacher_indices:
+            shared_student_idx = self.teacher_to_student[shared_teacher_idx]
+
+            shared_t_full = teacher_feats[:, shared_teacher_idx, shared_perm, :].detach()
+            shared_s_full = student_feats[:, shared_student_idx, shared_perm, :]
+
+            for r0 in range(0, num_ref, cs):
+                r1 = min(r0 + cs, num_ref)
+                rc = r1 - r0
+
+                ref_t_4d = ref_t_sampled[:, r0:r1, :].detach().unsqueeze(2).unsqueeze(3)  # [B,rc,1,1,D]
+                ref_s_4d = ref_s_sampled[:, r0:r1, :].unsqueeze(2).unsqueeze(3)
+                sim_high_4d = sim_high_t[:, r0:r1, :, :].unsqueeze(2)  # [B,rc,1,K,D]
+
+                for s0 in range(0, num_shared, cs):
+                    s1 = min(s0 + cs, num_shared)
+                    sc = s1 - s0
+
+                    shared_t_4d = shared_t_full[:, s0:s1, :].unsqueeze(1).unsqueeze(3)  # [B,1,sc,1,D]
+                    shared_s_4d = shared_s_full[:, s0:s1, :].unsqueeze(1).unsqueeze(3)
+
+                    n_elem = B * rc * sc * self.topk
+
+                    # Angle 1: vertex = ref
+                    a1_t = self._cos_angle(shared_t_4d - ref_t_4d, sim_high_4d - ref_t_4d)
+                    a1_s = self._cos_angle(shared_s_4d - ref_s_4d, sim_high_4d - ref_s_4d)
+                    sum_angle1 = sum_angle1 + self.huber_loss(a1_s, a1_t.detach()).sum()
+                    del a1_t, a1_s
+
+                    # Angle 2: vertex = sim_high
+                    a2_t = self._cos_angle(ref_t_4d - sim_high_4d, shared_t_4d - sim_high_4d)
+                    a2_s = self._cos_angle(ref_s_4d - sim_high_4d, shared_s_4d - sim_high_4d)
+                    sum_angle2 = sum_angle2 + self.huber_loss(a2_s, a2_t.detach()).sum()
+                    del a2_t, a2_s
+
+                    # Angle 3: vertex = shared
+                    a3_t = self._cos_angle(ref_t_4d - shared_t_4d, sim_high_4d - shared_t_4d)
+                    a3_s = self._cos_angle(ref_s_4d - shared_s_4d, sim_high_4d - shared_s_4d)
+                    sum_angle3 = sum_angle3 + self.huber_loss(a3_s, a3_t.detach()).sum()
+                    del a3_t, a3_s
+
+                    total_elements += n_elem
+
+        # Mean over all elements
+        total_angle1_loss = sum_angle1 / total_elements
+        total_angle2_loss = sum_angle2 / total_elements
+        total_angle3_loss = sum_angle3 / total_elements
+
+        # Weighted combination
+        loss = (
+            self.angle1_weight * total_angle1_loss
+            + self.angle2_weight * total_angle2_loss
+            + self.angle3_weight * total_angle3_loss
+        )
+
+        return loss, {
+            'rkd_angle1_loss': total_angle1_loss.item(),
+            'rkd_angle2_loss': total_angle2_loss.item(),
+            'rkd_angle3_loss': total_angle3_loss.item(),
+            'rkd_total_loss': loss.item(),
+        }
+
+
 def save_checkpoint(
     student: VGGTStudentModel,
     optimizer: torch.optim.Optimizer,
@@ -307,6 +503,7 @@ def train_epoch(
     global_step: int,
     args,
     writer: Optional[SummaryWriter] = None,
+    rkd_criterion: Optional[nn.Module] = None,
 ) -> int:
     """Train for one epoch."""
     student.train()
@@ -337,6 +534,16 @@ def train_epoch(
 
             # Compute loss
             loss, loss_details = criterion(teacher_output, student_output)
+
+            # Add cross-frame RKD loss if enabled
+            if rkd_criterion is not None:
+                rkd_loss, rkd_details = rkd_criterion(teacher_output, student_output)
+                loss_details['base_loss'] = loss.item()
+                loss_details['rkd_weighted'] = (args.rkd_weight * rkd_loss).item()
+                loss = loss + args.rkd_weight * rkd_loss
+                loss_details.update(rkd_details)
+                loss_details['total_loss'] = loss.item()
+
             loss = loss / grad_accum_steps
 
         # Backward pass
@@ -414,6 +621,7 @@ def evaluate(
     val_loader: DataLoader,
     criterion: nn.Module,
     args,
+    rkd_criterion: Optional[nn.Module] = None,
 ) -> Dict[str, float]:
     """Evaluate on validation set."""
     student.eval()
@@ -432,6 +640,14 @@ def evaluate(
             teacher_output = teacher(teacher_images)
             student_output = student(student_images)
             loss, loss_details = criterion(teacher_output, student_output)
+
+            if rkd_criterion is not None:
+                rkd_loss, rkd_details = rkd_criterion(teacher_output, student_output)
+                loss_details['base_loss'] = loss.item()
+                loss_details['rkd_weighted'] = (args.rkd_weight * rkd_loss).item()
+                loss = loss + args.rkd_weight * rkd_loss
+                loss_details.update(rkd_details)
+                loss_details['total_loss'] = loss.item()
 
         total_loss += loss.item()
         for key, value in loss_details.items():
@@ -465,6 +681,18 @@ def main():
                         help='Enable subset-based frame sampling (recommended for large scenes)')
     parser.add_argument('--subset_ratio', type=float, default=0.05,
                         help='Ratio of frames to include in subset (default: 0.05 = 5%%)')
+    parser.add_argument('--stride_sampling', action='store_true',
+                        help='Enable stride-based anchor sampling (random anchor + stride window)')
+    parser.add_argument('--stride', type=int, default=2,
+                        help='File-list stride for consecutive views (default: 2)')
+    parser.add_argument('--paired_sampling', action='store_true',
+                        help='Enable paired anchor+companion frame sampling')
+    parser.add_argument('--paired_gap', type=int, default=3,
+                        help='Gap between anchor and companion in sorted file list (default: 3)')
+    parser.add_argument('--fixed_subset_seed', type=int, default=None,
+                        help='Pre-compute benchmark-style frame subset per scene using this seed')
+    parser.add_argument('--fixed_subset_max_frames', type=int, default=100,
+                        help='Max frames for fixed subset (default: 100)')
     parser.add_argument('--batch_size', type=int, default=1,
                         help='Batch size')
     parser.add_argument('--num_workers', type=int, default=4,
@@ -539,6 +767,26 @@ def main():
     parser.add_argument('--global_cos_weight', type=float, default=2.0,
                         help='Weight for global softmax cosine term')
 
+    # Cross-frame RKD loss arguments
+    parser.add_argument('--cross_frame_rkd', action='store_true',
+                        help='Enable cross-frame RKD angle-wise loss (additive to main loss)')
+    parser.add_argument('--rkd_weight', type=float, default=1.0,
+                        help='Weight for cross-frame RKD loss')
+    parser.add_argument('--rkd_topk', type=int, default=4,
+                        help='Top-K similar patches from extra frames')
+    parser.add_argument('--rkd_num_ref_samples', type=int, default=128,
+                        help='Number of reference patch positions to sample')
+    parser.add_argument('--rkd_num_shared_samples', type=int, default=128,
+                        help='Number of shared patch positions to sample')
+    parser.add_argument('--rkd_angle1_weight', type=float, default=1.0,
+                        help='Weight for angle 1 (vertex=ref)')
+    parser.add_argument('--rkd_angle2_weight', type=float, default=1.0,
+                        help='Weight for angle 2 (vertex=sim_high)')
+    parser.add_argument('--rkd_angle3_weight', type=float, default=1.0,
+                        help='Weight for angle 3 (vertex=shared)')
+    parser.add_argument('--rkd_shared_chunk_size', type=int, default=64,
+                        help='Chunk size for shared positions to bound memory')
+
     # Other arguments
     parser.add_argument('--seed', type=int, default=42,
                         help='Random seed')
@@ -596,6 +844,12 @@ def main():
         first_frame_ref=args.first_frame_ref,
         subset_sampling=args.subset_sampling,
         subset_ratio=args.subset_ratio,
+        stride_sampling=args.stride_sampling,
+        stride=args.stride,
+        paired_sampling=args.paired_sampling,
+        paired_gap=args.paired_gap,
+        fixed_subset_seed=args.fixed_subset_seed,
+        fixed_subset_max_frames=args.fixed_subset_max_frames,
     )
 
     train_loader = DataLoader(
@@ -649,6 +903,23 @@ def main():
             global_cos_weight=args.global_cos_weight,
         )
 
+    # Create optional cross-frame RKD loss
+    rkd_criterion = None
+    if args.cross_frame_rkd:
+        print(f"\nAdding VGGTCrossFrameRKDAngleLoss (weight={args.rkd_weight})")
+        rkd_criterion = VGGTCrossFrameRKDAngleLoss(
+            student_frame_indices=student_indices,
+            num_teacher_views=args.num_views,
+            target_layer=target_layer,
+            topk=args.rkd_topk,
+            num_ref_samples=args.rkd_num_ref_samples,
+            num_shared_samples=args.rkd_num_shared_samples,
+            angle1_weight=args.rkd_angle1_weight,
+            angle2_weight=args.rkd_angle2_weight,
+            angle3_weight=args.rkd_angle3_weight,
+            shared_chunk_size=args.rkd_shared_chunk_size,
+        )
+
     # Create optimizer (only LoRA params)
     optimizer = torch.optim.AdamW(
         student.get_trainable_params(),
@@ -689,11 +960,15 @@ def main():
         print(f"Epoch {epoch + 1}/{args.epochs}")
         print(f"{'='*60}")
 
+        # Update dataset epoch for per-epoch sampling diversity
+        train_loader.dataset.current_epoch = epoch
+
         # Train
         global_step = train_epoch(
             teacher, student, train_loader, criterion,
             optimizer, scheduler, scaler,
             epoch, global_step, args, writer,
+            rkd_criterion=rkd_criterion,
         )
 
         # Save epoch checkpoint

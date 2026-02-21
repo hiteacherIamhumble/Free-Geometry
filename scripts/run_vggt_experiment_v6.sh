@@ -2,16 +2,14 @@
 set -e
 
 # =============================================================================
-# VGGT Experiment V6: Comparing Random vs Subset+Sequential Sampling
+# VGGT Experiment V6: Comparing 8v→4v vs 16v→8v Subset+Sequential Sampling
 # =============================================================================
 #
 # This experiment compares two approaches:
 # 1. 8v→4v with 20% subset + sequential window sampling
-# 2. 16v→8v with 40% subset + random sampling
+# 2. 16v→8v with 40% subset + sequential window sampling
 #
-# Baseline benchmarks run twice:
-# - Random sampling (for 16v→8v comparison)
-# - Subset + sequential sampling (for 8v→4v comparison)
+# Both use subset + sequential sampling with different subset ratios.
 #
 # Benchmark seeds: 42, 43, 44
 #
@@ -37,7 +35,7 @@ KL_WEIGHT=1.0
 COS_WEIGHT=2.0
 
 # Benchmark settings
-BENCHMARK_SEEDS="42 43 44"
+BENCHMARK_SEEDS="42"
 MODES="pose recon_unposed"
 
 # =============================================================================
@@ -51,12 +49,12 @@ EXP1_STUDENT_VIEWS=4
 EXP1_SUBSET_RATIO=0.20
 EXP1_USE_SUBSET=true  # subset + sequential
 
-# Experiment 2: 16v→8v with 40% ratio + random sampling
-EXP2_NAME="16v8v_random"
+# Experiment 2: 16v→8v with 40% subset + sequential
+EXP2_NAME="16v8v_subset"
 EXP2_NUM_VIEWS=16
 EXP2_STUDENT_VIEWS=8
 EXP2_SUBSET_RATIO=0.40
-EXP2_USE_SUBSET=false  # random sampling
+EXP2_USE_SUBSET=true  # subset + sequential
 
 # =============================================================================
 # Helper Functions
@@ -134,26 +132,27 @@ train_exp1() {
 }
 
 train_exp2() {
-    # 16v→8v with 40% ratio + random sampling
+    # 16v→8v with 40% subset + sequential
     local DATASET="scannetpp"
     local SAMPLES=10
     local SEEDS="$(seq -s ' ' 40 49)"
 
     echo ""
     echo "============================================================"
-    echo "Training EXP2: ${EXP2_NAME} (16v→8v, 40% ratio, random)"
+    echo "Training EXP2: ${EXP2_NAME} (16v→8v, 40% subset, sequential)"
     echo "  Dataset: ${DATASET}"
     echo "  Teacher views: ${EXP2_NUM_VIEWS}, Student views: ${EXP2_STUDENT_VIEWS}"
-    echo "  Subset ratio: ${EXP2_SUBSET_RATIO} (40%) - but using random sampling"
-    echo "  Sampling: random (no subset sequential)"
+    echo "  Subset ratio: ${EXP2_SUBSET_RATIO} (40%)"
+    echo "  Sampling: subset + sequential window"
     echo "============================================================"
 
-    # Note: NOT using --subset_sampling, so it uses random sampling
     python ./scripts/train_distill_vggt.py \
         --data_root "${DATA_BASE}/${DATASET}" \
         --dataset "${DATASET}" \
         --samples_per_scene ${SAMPLES} \
         --seeds_list ${SEEDS} \
+        --subset_sampling \
+        --subset_ratio ${EXP2_SUBSET_RATIO} \
         --model_name ${MODEL_NAME} \
         --num_views ${EXP2_NUM_VIEWS} \
         --student_views ${EXP2_STUDENT_VIEWS} \
@@ -180,7 +179,7 @@ run_training() {
     echo "============================================================"
     echo "TRAINING: Two experiments"
     echo "  EXP1: 8v→4v with 20% subset + sequential"
-    echo "  EXP2: 16v→8v with 40% ratio + random"
+    echo "  EXP2: 16v→8v with 40% subset + sequential"
     echo "============================================================"
 
     train_exp1
@@ -229,8 +228,8 @@ benchmark_base_subset() {
     eval ${CMD}
 }
 
-benchmark_base_random() {
-    # Baseline with random sampling (for 16v→8v comparison)
+benchmark_base_subset_exp2() {
+    # Baseline with subset + sequential sampling (for 16v→8v comparison)
     local SETTING=$1
     local SEED=$2
     local DATASET="scannetpp"
@@ -239,7 +238,7 @@ benchmark_base_random() {
     local MAX_FRAMES=$(echo ${PARAMS} | cut -d' ' -f1)
     local EVAL_FRAMES=$(echo ${PARAMS} | cut -d' ' -f2)
 
-    echo "  [Base-Random ${SETTING}] ${DATASET}, seed=${SEED} (max=${MAX_FRAMES}, eval=${EVAL_FRAMES})"
+    echo "  [Base-Subset-EXP2 ${SETTING}] ${DATASET}, seed=${SEED} (max=${MAX_FRAMES}, eval=${EVAL_FRAMES})"
 
     local CMD="python ./scripts/benchmark_lora_vggt.py \
         --base_model ${MODEL_NAME} \
@@ -248,22 +247,24 @@ benchmark_base_random() {
         --max_frames ${MAX_FRAMES} \
         --seed ${SEED} \
         --image_size ${IMAGE_SIZE} \
-        --work_dir ${BENCHMARK_ROOT}/base_random_${SETTING}/${DATASET}/seed${SEED}"
+        --work_dir ${BENCHMARK_ROOT}/base_subset_exp2_${SETTING}/${DATASET}/seed${SEED}"
 
     if [ "${EVAL_FRAMES}" -gt 0 ]; then
         CMD="${CMD} --eval_frames ${EVAL_FRAMES}"
     fi
 
-    # NO subset sampling - pure random
+    # Use subset sampling (same as EXP2 training)
+    CMD="${CMD} --subset_sampling --subset_ratio ${EXP2_SUBSET_RATIO}"
+
     eval ${CMD}
 }
 
 run_baseline_benchmark() {
     echo ""
     echo "============================================================"
-    echo "BASELINE BENCHMARK: Two sampling strategies"
-    echo "  1. Subset + Sequential (for 8v→4v): 4v, 8v, maxframe"
-    echo "  2. Random (for 16v→8v): 8v_sub, 16v, maxframe"
+    echo "BASELINE BENCHMARK: Two subset sampling strategies"
+    echo "  1. Subset + Sequential 20% (for 8v→4v): 4v, 8v, maxframe"
+    echo "  2. Subset + Sequential 40% (for 16v→8v): 8v_sub, 16v, maxframe"
     echo "  Seeds: ${BENCHMARK_SEEDS}"
     echo "============================================================"
 
@@ -280,14 +281,14 @@ run_baseline_benchmark() {
         done
     done
 
-    # Baseline with random sampling (for 16v→8v comparison)
+    # Baseline with subset + sequential 40% (for 16v→8v comparison)
     echo ""
-    echo "=== Baseline with RANDOM sampling ==="
+    echo "=== Baseline with SUBSET + SEQUENTIAL 40% sampling ==="
     for SETTING in 8v_sub 16v maxframe; do
         echo ""
-        echo "--- Baseline-Random ${SETTING} ---"
+        echo "--- Baseline-Subset-EXP2 ${SETTING} ---"
         for SEED in ${BENCHMARK_SEEDS}; do
-            benchmark_base_random "${SETTING}" "${SEED}"
+            benchmark_base_subset_exp2 "${SETTING}" "${SEED}"
         done
     done
 
@@ -338,7 +339,7 @@ benchmark_lora_exp1() {
 }
 
 benchmark_lora_exp2() {
-    # 16v→8v LoRA with random sampling
+    # 16v→8v LoRA with subset + sequential sampling
     local SETTING=$1
     local SEED=$2
     local DATASET="scannetpp"
@@ -367,7 +368,9 @@ benchmark_lora_exp2() {
         CMD="${CMD} --eval_frames ${EVAL_FRAMES}"
     fi
 
-    # NO subset sampling - pure random (same as training)
+    # Use subset sampling (same as training)
+    CMD="${CMD} --subset_sampling --subset_ratio ${EXP2_SUBSET_RATIO}"
+
     eval ${CMD}
 }
 
@@ -376,7 +379,7 @@ run_lora_benchmark() {
     echo "============================================================"
     echo "LORA BENCHMARK: Two experiments"
     echo "  EXP1 (8v→4v subset): 4v, 8v, maxframe with subset sampling"
-    echo "  EXP2 (16v→8v random): 8v_sub, 16v, maxframe with random sampling"
+    echo "  EXP2 (16v→8v subset): 8v_sub, 16v, maxframe with subset sampling"
     echo "  Seeds: ${BENCHMARK_SEEDS}"
     echo "============================================================"
 
@@ -397,11 +400,11 @@ run_lora_benchmark() {
         echo "Skipping EXP1 benchmark"
     fi
 
-    # EXP2: 16v→8v with random
+    # EXP2: 16v→8v with subset + sequential
     local LORA_PATH2="${OUTPUT_DIR}/${EXP2_NAME}/epoch_0_lora.pt"
     if [ -f "${LORA_PATH2}" ]; then
         echo ""
-        echo "=== LoRA EXP2: ${EXP2_NAME} (random) ==="
+        echo "=== LoRA EXP2: ${EXP2_NAME} (subset + sequential) ==="
         for SETTING in 8v_sub 16v maxframe; do
             echo ""
             echo "--- ${EXP2_NAME} ${SETTING} ---"
@@ -455,7 +458,7 @@ usage() {
     echo "Commands:"
     echo "  train           - Train both experiments"
     echo "  train_exp1      - Train EXP1: 8v→4v with subset + sequential"
-    echo "  train_exp2      - Train EXP2: 16v→8v with random"
+    echo "  train_exp2      - Train EXP2: 16v→8v with subset + sequential"
     echo "  benchmark_base  - Benchmark baseline (both sampling strategies)"
     echo "  benchmark_lora  - Benchmark LoRA models"
     echo "  benchmark       - Run both baseline and LoRA benchmarks"
@@ -464,11 +467,11 @@ usage() {
     echo ""
     echo "Experiments:"
     echo "  EXP1 (8v→4v_subset): 8v→4v, 20% subset, sequential window"
-    echo "  EXP2 (16v→8v_random): 16v→8v, 40% ratio, random sampling"
+    echo "  EXP2 (16v→8v_subset): 16v→8v, 40% subset, sequential window"
     echo ""
     echo "Baseline benchmarks:"
     echo "  Subset+Sequential: 4v, 8v, maxframe (for EXP1 comparison)"
-    echo "  Random: 8v_sub, 16v, maxframe (for EXP2 comparison)"
+    echo "  Subset+Sequential 40%: 8v_sub, 16v, maxframe (for EXP2 comparison)"
     echo ""
     echo "Seeds: ${BENCHMARK_SEEDS}"
 }
@@ -522,7 +525,7 @@ echo "============================================================"
 echo ""
 echo "Experiments:"
 echo "  EXP1: 8v→4v, 20% subset, sequential window sampling"
-echo "  EXP2: 16v→8v, 40% ratio, random sampling"
+echo "  EXP2: 16v→8v, 40% subset, sequential window sampling"
 echo ""
 echo "Output directories:"
 echo "  Training:    ${OUTPUT_DIR}"

@@ -1,0 +1,8 @@
+usage: run_8v4v_extraction_experiment.py [-h] [--seed SEED]
+                                         [--work_dir WORK_DIR]
+                                         [--model_name MODEL_NAME]
+                                         [--datasets DATASETS [DATASETS ...]]
+                                         [--experiments {8v_all,8v_extract_result,8v_extract_feat,4v_all} [{8v_all,8v_extract_result,8v_extract_feat,4v_all} ...]]
+                                         [--eval_only] [--print_only]
+run_8v4v_extraction_experiment.py: error: unrecognized arguments:  
+[93m[WARN ] Dependency `gsplat` is required for rendering 3DGS. Install via: pip install git+https://github.com/nerfstudio-project/gsplat.git@0b4dddf04cb687367602c01196913cde6a743d70[0m

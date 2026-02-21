@@ -1,0 +1,180 @@
+nohup: ignoring input
+
+============================================================
+Benchmarking LoRA model
+  Setting: maxframe
+  Dataset: scannetpp
+  Seeds: 42 44
+  Image size: 504 (DA3-style)
+============================================================
+
+--- scannetpp ---
+  [LoRA maxframe] scannetpp, seed=42
+Loading base model: facebook/vggt-1b
+Loading LoRA weights: ./checkpoints/vggt_experiment_v13/scannetpp/epoch_0_lora.pt
+Loading student model: facebook/vggt-1b
+Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
+Total PEFT LoRA parameters: 12,582,912
+Camera token is trainable
+Student parameters: 1,269,120,428 total, 12,584,960 trainable
+Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_experiment_v13/scannetpp/epoch_0_lora_peft
+Loaded camera token
+[INFO] Total inference tasks: 20
+Inference:   0%|          | 0/20 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Inference:   5%|▌         | 1/20 [01:23<26:19, 83.16s/it]Inference:  10%|█         | 2/20 [02:45<24:44, 82.46s/it]Inference:  15%|█▌        | 3/20 [04:08<23:30, 82.96s/it]Inference:  20%|██        | 4/20 [05:31<22:06, 82.88s/it]Inference:  25%|██▌       | 5/20 [06:55<20:50, 83.40s/it]Inference:  30%|███       | 6/20 [08:21<19:36, 84.06s/it]Inference:  35%|███▌      | 7/20 [09:45<18:12, 84.05s/it]Inference:  40%|████      | 8/20 [11:09<16:50, 84.24s/it]Inference:  45%|████▌     | 9/20 [12:33<15:24, 84.01s/it]Inference:  50%|█████     | 10/20 [13:56<13:58, 83.81s/it]Inference:  55%|█████▌    | 11/20 [15:22<12:39, 84.39s/it]Inference:  60%|██████    | 12/20 [16:47<11:16, 84.52s/it]Inference:  65%|██████▌   | 13/20 [18:11<09:50, 84.36s/it]Inference:  70%|███████   | 14/20 [19:35<08:25, 84.21s/it]Inference:  75%|███████▌  | 15/20 [20:59<07:00, 84.15s/it]Inference:  80%|████████  | 16/20 [22:22<05:35, 83.93s/it]Inference:  85%|████████▌ | 17/20 [23:46<04:11, 83.90s/it]Inference:  90%|█████████ | 18/20 [25:10<02:48, 84.10s/it]Inference:  95%|█████████▌| 19/20 [26:34<01:24, 84.09s/it]Inference: 100%|██████████| 20/20 [27:59<00:00, 84.32s/it]Inference: 100%|██████████| 20/20 [27:59<00:00, 83.99s/it]
+Detected model format: '.bin'
+[ScanNet++] 09c1414f1b: 397 images
+  [Sampling] 09c1414f1b: 397 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] 1ada7a0617: 100 images
+Detected model format: '.bin'
+[ScanNet++] 40aec5fffa: 235 images
+  [Sampling] 40aec5fffa: 235 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] 3e8bba0176: 230 images
+  [Sampling] 3e8bba0176: 230 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] acd95847c5: 388 images
+  [Sampling] acd95847c5: 388 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] 578511c8a9: 534 images
+  [Sampling] 578511c8a9: 534 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] 5f99900f09: 298 images
+  [Sampling] 5f99900f09: 298 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] c4c04e6d6c: 396 images
+  [Sampling] c4c04e6d6c: 396 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] f3d64c30f8: 363 images
+  [Sampling] f3d64c30f8: 363 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] 7bc286c1b6: 135 images
+  [Sampling] 7bc286c1b6: 135 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] c5439f4607: 353 images
+  [Sampling] c5439f4607: 353 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] 286b55a2bf: 159 images
+  [Sampling] 286b55a2bf: 159 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] fb5a96b1a2: 289 images
+  [Sampling] fb5a96b1a2: 289 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] 7831862f02: 288 images
+  [Sampling] 7831862f02: 288 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] 38d58a7a31: 435 images
+  [Sampling] 38d58a7a31: 435 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] bde1e479ad: 373 images
+  [Sampling] bde1e479ad: 373 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] 9071e139d9: 235 images
+  [Sampling] 9071e139d9: 235 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] 21d970d8de: 315 images
+  [Sampling] 21d970d8de: 315 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] bcd2436daf: 150 images
+  [Sampling] bcd2436daf: 150 -> 100 frames (seed=42)
+Detected model format: '.bin'
+[ScanNet++] cc5237fd77: 301 images
+  [Sampling] cc5237fd77: 301 -> 100 frames (seed=42)
+
+============================================================
+Evaluating POSE for all datasets...
+============================================================
+Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
+scannetpp scenes:   0%|          | 0/20 [00:00<?, ?it/s][A
+scannetpp scenes:  35%|███▌      | 7/20 [00:00<00:00, 63.87it/s][A
+scannetpp scenes:  85%|████████▌ | 17/20 [00:00<00:00, 81.05it/s][A
+                                                                 [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00,  4.01it/s]Datasets (pose eval): 100%|██████████| 1/1 [00:00<00:00,  4.01it/s]
+
+============================================================
+Evaluating RECON_UNPOSED for all datasets...
+============================================================
+Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
+scannetpp fusion:   0%|          | 0/20 [00:00<?, ?it/s][A
+scannetpp fusion:   5%|▌         | 1/20 [00:38<12:03, 38.06s/it][A
+scannetpp fusion:  10%|█         | 2/20 [00:45<06:04, 20.22s/it][A
+scannetpp fusion:  25%|██▌       | 5/20 [01:03<02:28,  9.90s/it][A
+scannetpp fusion:  30%|███       | 6/20 [01:37<03:44, 16.07s/it][A
+scannetpp fusion:  35%|███▌      | 7/20 [01:37<02:34, 11.86s/it][A
+scannetpp fusion:  40%|████      | 8/20 [01:48<02:18, 11.57s/it][A
+scannetpp fusion:  45%|████▌     | 9/20 [02:11<02:44, 14.95s/it][A
+scannetpp fusion:  55%|█████▌    | 11/20 [02:26<01:43, 11.47s/it][A
+scannetpp fusion:  65%|██████▌   | 13/20 [02:48<01:19, 11.36s/it][A
+scannetpp fusion:  70%|███████   | 14/20 [03:08<01:18, 13.13s/it][A
+scannetpp fusion:  75%|███████▌  | 15/20 [03:17<01:01, 12.29s/it][A
+scannetpp fusion:  80%|████████  | 16/20 [03:31<00:50, 12.73s/it][A
+scannetpp fusion:  85%|████████▌ | 17/20 [04:10<00:58, 19.61s/it][A
+scannetpp fusion:  95%|█████████▌| 19/20 [04:24<00:14, 14.27s/it][Ascannetpp fusion: 100%|██████████| 20/20 [04:24<00:00, 13.25s/it]
+Datasets (recon_unposed eval): 100%|██████████| 1/1 [06:07<00:00, 367.21s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [06:07<00:00, 367.21s/it]
+  recon_unposed | scannetpp | 09c1414f1b: {'acc': 0.049401437867105845, 'comp': 0.1336948325806964, 'overall': 0.09154813522390112, 'precision': 0.6593197018252752, 'recall': 0.5086243663827105, 'fscore': 0.5742502140518603}
+  recon_unposed | scannetpp | 1ada7a0617: {'acc': 0.05472737280270624, 'comp': 0.1702201951019227, 'overall': 0.11247378395231447, 'precision': 0.5799002409617706, 'recall': 0.4759673558625629, 'fscore': 0.5228185526003178}
+  recon_unposed | scannetpp | 40aec5fffa: {'acc': 0.046863246092155496, 'comp': 0.1454864574313231, 'overall': 0.0961748517617393, 'precision': 0.6684724034261728, 'recall': 0.5436159233996299, 'fscore': 0.5996134684463706}
+  recon_unposed | scannetpp | 3e8bba0176: {'acc': 0.036386653753448565, 'comp': 0.09050330142126393, 'overall': 0.06344497758735625, 'precision': 0.7615688184737829, 'recall': 0.6781997292825989, 'fscore': 0.7174705508379846}
+  recon_unposed | scannetpp | acd95847c5: {'acc': 0.02799106552227378, 'comp': 0.1530446145921238, 'overall': 0.09051784005719879, 'precision': 0.8725827350044326, 'recall': 0.6943247185302939, 'fscore': 0.7733140339713362}
+  recon_unposed | scannetpp | 578511c8a9: {'acc': 0.05542497761570712, 'comp': 0.22587274069249577, 'overall': 0.14064885915410144, 'precision': 0.6043504225259937, 'recall': 0.4870614600292936, 'fscore': 0.5394036914380395}
+  recon_unposed | scannetpp | 5f99900f09: {'acc': 0.04736097099280414, 'comp': 0.09454143956365509, 'overall': 0.07095120527822961, 'precision': 0.6832343173993846, 'recall': 0.6340003375348973, 'fscore': 0.6576972238378381}
+  recon_unposed | scannetpp | c4c04e6d6c: {'acc': 0.06427336571834602, 'comp': 0.0991150314125662, 'overall': 0.08169419856545611, 'precision': 0.5479430258107308, 'recall': 0.5541843561344741, 'fscore': 0.55104601869404}
+  recon_unposed | scannetpp | f3d64c30f8: {'acc': 0.08465582836002636, 'comp': 0.08335433373213096, 'overall': 0.08400508104607865, 'precision': 0.47992487827748154, 'recall': 0.505471932206564, 'fscore': 0.4923672432382941}
+  recon_unposed | scannetpp | 7bc286c1b6: {'acc': 0.03407507732152809, 'comp': 0.1599375008428761, 'overall': 0.0970062890822021, 'precision': 0.8122700532262583, 'recall': 0.5763681343038137, 'fscore': 0.6742815793674685}
+  recon_unposed | scannetpp | c5439f4607: {'acc': 0.057232171385686204, 'comp': 0.05128210507110006, 'overall': 0.054257138228393134, 'precision': 0.6718251066147813, 'recall': 0.6967807894671222, 'fscore': 0.6840754223126141}
+  recon_unposed | scannetpp | 286b55a2bf: {'acc': 0.024128839352571943, 'comp': 0.09129740131749615, 'overall': 0.05771312033503405, 'precision': 0.9303262528073514, 'recall': 0.7306436853822096, 'fscore': 0.818482004195561}
+  recon_unposed | scannetpp | fb5a96b1a2: {'acc': 0.045969028772448337, 'comp': 0.07520578059665597, 'overall': 0.060587404684552155, 'precision': 0.6813754992613668, 'recall': 0.644498254611274, 'fscore': 0.6624240335494553}
+  recon_unposed | scannetpp | 7831862f02: {'acc': 0.042785795432851714, 'comp': 0.057494159129635646, 'overall': 0.05013997728124368, 'precision': 0.7054052552635964, 'recall': 0.7161803119635793, 'fscore': 0.7107519482781833}
+  recon_unposed | scannetpp | 38d58a7a31: {'acc': 0.04137942749720577, 'comp': 0.048790194221784045, 'overall': 0.04508481085949491, 'precision': 0.7287124105175269, 'recall': 0.7963901224084234, 'fscore': 0.7610496386747111}
+  recon_unposed | scannetpp | bde1e479ad: {'acc': 0.04571681467552459, 'comp': 0.1628010349923467, 'overall': 0.10425892483393565, 'precision': 0.6603621228568333, 'recall': 0.6046939149407483, 'fscore': 0.6313031919820387}
+  recon_unposed | scannetpp | 9071e139d9: {'acc': 0.03879417163546866, 'comp': 0.1259745091329355, 'overall': 0.08238434038420209, 'precision': 0.7400591387309677, 'recall': 0.6210069966944163, 'fscore': 0.6753263359622685}
+  recon_unposed | scannetpp | 21d970d8de: {'acc': 0.047699067078194615, 'comp': 0.07963588441708426, 'overall': 0.06366747574763944, 'precision': 0.6296195439228901, 'recall': 0.6230174424705189, 'fscore': 0.6263010948027321}
+  recon_unposed | scannetpp | bcd2436daf: {'acc': 0.02604360004385654, 'comp': 0.1741703780267548, 'overall': 0.10010698903530567, 'precision': 0.9055853276969676, 'recall': 0.6702656507661382, 'fscore': 0.7703555060581324}
+  recon_unposed | scannetpp | cc5237fd77: {'acc': 0.03039101715729441, 'comp': 0.02814504038669971, 'overall': 0.029268028771997058, 'precision': 0.8423883313479993, 'recall': 0.8587062092606539, 'fscore': 0.8504690050659122}
+
+[1;36m========================================================================================================================[0m
+[1;36m📊 SUMMARY[0m
+[1;36m========================================================================================================================[0m
+
+[1;35m🎯 POSE ESTIMATION[0m
+---------------------------------------------------------------------------------------
+[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
+---------------------------------------------------------------------------------------
+Auc3           [1;32m0.6032      [0mN/A         N/A         N/A         N/A         0.6032      
+Auc30          [1;32m0.9468      [0mN/A         N/A         N/A         N/A         0.9468      
+
+[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
+---------------------------------------------------------------------------------------
+[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
+---------------------------------------------------------------------------------------
+F-score        [1;32m0.6646      [0mN/A         N/A         N/A         N/A         0.6646      
+Overall        [1;32m0.0788      [0mN/A         N/A         N/A         N/A         0.0788      
+
+[1;35m🏗️  RECON_POSED (GT Pose)[0m
+---------------------------------------------------------------------------------------
+[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
+---------------------------------------------------------------------------------------
+F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
+Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
+
+[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
+
+====================================================================================================
+[1;32m✅ Evaluation Complete[0m
+====================================================================================================
+
+  [LoRA maxframe] scannetpp, seed=44
+Loading base model: facebook/vggt-1b
+Loading LoRA weights: ./checkpoints/vggt_experiment_v13/scannetpp/epoch_0_lora.pt
+Loading student model: facebook/vggt-1b
+Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
+Total PEFT LoRA parameters: 12,582,912
+Camera token is trainable
+Student parameters: 1,269,120,428 total, 12,584,960 trainable
+Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_experiment_v13/scannetpp/epoch_0_lora_peft
+Loaded camera token
+[INFO] Total inference tasks: 20
+Inference:   0%|          | 0/20 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Inference:   5%|▌         | 1/20 [01:24<26:38, 84.14s/it]Inference:  10%|█         | 2/20 [02:46<24:52, 82.90s/it]Inference:  15%|█▌        | 3/20 [04:10<23:37, 83.40s/it]Inference:  20%|██        | 4/20 [05:32<22:08, 83.06s/it]Inference:  25%|██▌       | 5/20 [06:56<20:51, 83.42s/it]Inference:  30%|███       | 6/20 [08:23<19:42, 84.45s/it]Inference:  35%|███▌      | 7/20 [09:48<18:22, 84.84s/it]Inference:  40%|████      | 8/20 [11:13<16:58, 84.85s/it]Inference:  45%|████▌     | 9/20 [12:36<15:27, 84.28s/it]Inference:  50%|█████     | 10/20 [13:59<13:58, 83.85s/it]Inference:  55%|█████▌    | 11/20 [15:24<12:36, 84.04s/it]Inference:  60%|██████    | 12/20 [16:47<11:10, 83.87s/it]Inference:  65%|██████▌   | 13/20 [18:11<09:47, 83.89s/it]Inference:  70%|███████   | 14/20 [19:35<08:23, 83.87s/it]Inference:  75%|███████▌  | 15/20 [20:58<06:58, 83.77s/it]./scripts/run_vggt_experiment_v13.sh: line 174: 2225755 Killed                  python ./scripts/benchmark_lora_vggt.py --lora_path ./checkpoints/vggt_experiment_v13/scannetpp/epoch_0_lora.pt --base_model facebook/vggt-1b --lora_rank 16 --lora_alpha 16 --lora_layers_start 0 --datasets scannetpp --modes pose recon_unposed --max_frames 100 --seed 44 --image_size 504 --work_dir ./workspace/vggt_experiment_v13/lora_maxframe/scannetpp/seed44

@@ -1,0 +1,255 @@
+/home/22097845d/Depth-Anything-3/scripts/train_vggt_output_distill.py:535: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = GradScaler(enabled=args.use_amp)
+Device: cuda
+Teacher views: 8, Student views: 4 (indices: [0, 2, 4, 6])
+
+Creating dataset...
+Loaded 11 scenes for eth3d (all scenes for training)
+Generating 4 samples per scene = 44 total samples
+Using fixed subset sampling: seed=43, max_frames=100
+[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
+  [Fixed Subset] courtyard: 38 -> 38 frames
+    indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37]
+[ETH3D] electro: 39/45 images (filtered 6, missing 0)
+  [Fixed Subset] electro: 39 -> 39 frames
+    indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38]
+[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
+  [Fixed Subset] kicker: 31 -> 31 frames
+    indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
+  [Fixed Subset] pipes: 14 -> 14 frames
+    indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+[ETH3D] relief: 19/31 images (filtered 12, missing 0)
+  [Fixed Subset] relief: 19 -> 19 frames
+    indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
+  [Fixed Subset] delivery_area: 40 -> 40 frames
+    indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+[ETH3D] facade: 76/76 images (filtered 0, missing 0)
+  [Fixed Subset] facade: 76 -> 76 frames
+    indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75]
+[ETH3D] office: 26/26 images (filtered 0, missing 0)
+  [Fixed Subset] office: 26 -> 26 frames
+    indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+[ETH3D] playground: 32/38 images (filtered 6, missing 0)
+  [Fixed Subset] playground: 32 -> 32 frames
+    indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
+  [Fixed Subset] relief_2: 20 -> 20 frames
+    indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
+  [Fixed Subset] terrains: 42 -> 42 frames
+    indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]
+Train samples: 44
+
+Creating models...
+Loading teacher model: facebook/vggt-1b
+Teacher parameters: 1,256,537,516 (all frozen)
+Loading student model: facebook/vggt-1b
+Applying PEFT LoRA (rank=16, alpha=16.0) to layers 12-23
+Camera token is trainable
+Student parameters: 1,262,828,972 total, 6,293,504 trainable (6,291,456 LoRA)
+
+Creating MultitaskLoss...
+
+Starting training...
+
+============================================================
+Epoch 1/10
+============================================================
+/home/22097845d/Depth-Anything-3/scripts/train_vggt_output_distill.py:306: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(enabled=args.use_amp):
+/home/22097845d/Depth-Anything-3/scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+/home/22097845d/Depth-Anything-3/scripts/../src/vggt/vggt/training/loss.py:527: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Epoch 0 | Step 1 | Batch 1/44 | Loss: 0.3542 | LR: 1.09e-05 | Speed: 0.2 samples/s
+  loss_camera: 0.0203 | loss_T: 0.0136 | loss_R: 0.0039 | loss_FL: 0.0057 | loss_conf_depth: -0.0320 | loss_reg_depth: 0.0232 | loss_grad_depth: 0.0018 | loss_conf_point: 0.1013 | loss_reg_point: 0.1452 | loss_grad_point: 0.0131
+Epoch 0 | Step 2 | Batch 2/44 | Loss: 0.4876 | LR: 2.08e-05 | Speed: 0.4 samples/s
+  loss_camera: 0.0482 | loss_T: 0.0203 | loss_R: 0.0193 | loss_FL: 0.0172 | loss_conf_depth: -0.0550 | loss_reg_depth: 0.0440 | loss_grad_depth: 0.0235 | loss_conf_point: 0.1395 | loss_reg_point: 0.1556 | loss_grad_point: 0.0724
+Epoch 0 | Step 3 | Batch 3/44 | Loss: 0.3544 | LR: 3.07e-05 | Speed: 0.5 samples/s
+  loss_camera: 0.0102 | loss_T: 0.0050 | loss_R: 0.0016 | loss_FL: 0.0073 | loss_conf_depth: -0.0652 | loss_reg_depth: 0.0288 | loss_grad_depth: 0.0044 | loss_conf_point: 0.0109 | loss_reg_point: 0.0473 | loss_grad_point: 0.0109
+Epoch 0 | Step 4 | Batch 4/44 | Loss: 0.6617 | LR: 4.06e-05 | Speed: 0.6 samples/s
+  loss_camera: 0.0891 | loss_T: 0.0594 | loss_R: 0.0269 | loss_FL: 0.0054 | loss_conf_depth: 0.0951 | loss_reg_depth: 0.0960 | loss_grad_depth: 0.0039 | loss_conf_point: 0.4529 | loss_reg_point: 0.4529 | loss_grad_point: 0.0373
+Epoch 0 | Step 5 | Batch 5/44 | Loss: 0.6598 | LR: 5.05e-05 | Speed: 0.7 samples/s
+  loss_camera: 0.0112 | loss_T: 0.0060 | loss_R: 0.0010 | loss_FL: 0.0082 | loss_conf_depth: 0.1718 | loss_reg_depth: 0.0865 | loss_grad_depth: 0.0037 | loss_conf_point: 0.2194 | loss_reg_point: 0.1045 | loss_grad_point: 0.0104
+Epoch 0 | Step 6 | Batch 6/44 | Loss: 0.6261 | LR: 6.04e-05 | Speed: 0.7 samples/s
+  loss_camera: 0.0223 | loss_T: 0.0181 | loss_R: 0.0020 | loss_FL: 0.0045 | loss_conf_depth: 0.0215 | loss_reg_depth: 0.0674 | loss_grad_depth: 0.0045 | loss_conf_point: 0.1227 | loss_reg_point: 0.1140 | loss_grad_point: 0.0158
+Epoch 0 | Step 7 | Batch 7/44 | Loss: 0.6577 | LR: 7.03e-05 | Speed: 0.7 samples/s
+  loss_camera: 0.0261 | loss_T: 0.0081 | loss_R: 0.0054 | loss_FL: 0.0252 | loss_conf_depth: 0.0956 | loss_reg_depth: 0.1134 | loss_grad_depth: 0.0299 | loss_conf_point: 0.1829 | loss_reg_point: 0.1865 | loss_grad_point: 0.1093
+Epoch 0 | Step 8 | Batch 8/44 | Loss: 0.6412 | LR: 8.02e-05 | Speed: 0.8 samples/s
+  loss_camera: 0.0169 | loss_T: 0.0130 | loss_R: 0.0008 | loss_FL: 0.0062 | loss_conf_depth: 0.0719 | loss_reg_depth: 0.1034 | loss_grad_depth: 0.0178 | loss_conf_point: 0.0930 | loss_reg_point: 0.1190 | loss_grad_point: 0.0356
+Epoch 0 | Step 9 | Batch 9/44 | Loss: 0.5065 | LR: 9.01e-05 | Speed: 0.8 samples/s
+  loss_camera: 0.0044 | loss_T: 0.0021 | loss_R: 0.0010 | loss_FL: 0.0026 | loss_conf_depth: -0.3552 | loss_reg_depth: 0.0081 | loss_grad_depth: 0.0026 | loss_conf_point: -0.2701 | loss_reg_point: 0.0110 | loss_grad_point: 0.0109
+Epoch 0 | Step 10 | Batch 10/44 | Loss: 0.4786 | LR: 1.00e-04 | Speed: 0.8 samples/s
+  loss_camera: 0.0066 | loss_T: 0.0043 | loss_R: 0.0007 | loss_FL: 0.0031 | loss_conf_depth: -0.0101 | loss_reg_depth: 0.0478 | loss_grad_depth: 0.0037 | loss_conf_point: 0.0823 | loss_reg_point: 0.0580 | loss_grad_point: 0.0121
+Epoch 0 | Step 11 | Batch 11/44 | Loss: 0.4455 | LR: 1.00e-04 | Speed: 0.8 samples/s
+  loss_camera: 0.0179 | loss_T: 0.0126 | loss_R: 0.0037 | loss_FL: 0.0032 | loss_conf_depth: -0.1498 | loss_reg_depth: 0.0145 | loss_grad_depth: 0.0027 | loss_conf_point: 0.0375 | loss_reg_point: 0.1032 | loss_grad_point: 0.0173
+Epoch 0 | Step 12 | Batch 12/44 | Loss: 0.5602 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  loss_camera: 0.0703 | loss_T: 0.0588 | loss_R: 0.0036 | loss_FL: 0.0159 | loss_conf_depth: 0.2889 | loss_reg_depth: 0.2875 | loss_grad_depth: 0.0182 | loss_conf_point: 0.4091 | loss_reg_point: 0.4089 | loss_grad_point: 0.0585
+Epoch 0 | Step 13 | Batch 13/44 | Loss: 0.5519 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  loss_camera: 0.0327 | loss_T: 0.0272 | loss_R: 0.0029 | loss_FL: 0.0053 | loss_conf_depth: 0.0001 | loss_reg_depth: 0.0654 | loss_grad_depth: 0.0042 | loss_conf_point: 0.0902 | loss_reg_point: 0.1141 | loss_grad_point: 0.0147
+Epoch 0 | Step 14 | Batch 14/44 | Loss: 0.6645 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  loss_camera: 0.1532 | loss_T: 0.0673 | loss_R: 0.0785 | loss_FL: 0.0148 | loss_conf_depth: 0.1080 | loss_reg_depth: 0.1132 | loss_grad_depth: 0.0086 | loss_conf_point: 0.4130 | loss_reg_point: 0.4145 | loss_grad_point: 0.3041
+Epoch 0 | Step 15 | Batch 15/44 | Loss: 0.7967 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  loss_camera: 0.1689 | loss_T: 0.0579 | loss_R: 0.1054 | loss_FL: 0.0113 | loss_conf_depth: 0.1368 | loss_reg_depth: 0.1381 | loss_grad_depth: 0.0054 | loss_conf_point: 0.5913 | loss_reg_point: 0.5913 | loss_grad_point: 0.3407
+Epoch 0 | Step 16 | Batch 16/44 | Loss: 0.7592 | LR: 1.00e-04 | Speed: 0.9 samples/s
+  loss_camera: 0.0165 | loss_T: 0.0099 | loss_R: 0.0037 | loss_FL: 0.0057 | loss_conf_depth: -0.0268 | loss_reg_depth: 0.0427 | loss_grad_depth: 0.0067 | loss_conf_point: 0.0260 | loss_reg_point: 0.0542 | loss_grad_point: 0.0115
+Epoch 0 | Step 17 | Batch 17/44 | Loss: 0.7550 | LR: 9.99e-05 | Speed: 0.9 samples/s
+  loss_camera: 0.0433 | loss_T: 0.0317 | loss_R: 0.0092 | loss_FL: 0.0048 | loss_conf_depth: 0.0828 | loss_reg_depth: 0.0902 | loss_grad_depth: 0.0061 | loss_conf_point: 0.1241 | loss_reg_point: 0.1310 | loss_grad_point: 0.0362
+Epoch 0 | Step 18 | Batch 18/44 | Loss: 0.8809 | LR: 9.99e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.1480 | loss_T: 0.1452 | loss_R: 0.0010 | loss_FL: 0.0034 | loss_conf_depth: 0.4528 | loss_reg_depth: 0.4217 | loss_grad_depth: 0.0295 | loss_conf_point: 0.6822 | loss_reg_point: 0.6426 | loss_grad_point: 0.0529
+Epoch 0 | Step 19 | Batch 19/44 | Loss: 0.9235 | LR: 9.99e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0949 | loss_T: 0.0304 | loss_R: 0.0629 | loss_FL: 0.0032 | loss_conf_depth: 0.0535 | loss_reg_depth: 0.0633 | loss_grad_depth: 0.0039 | loss_conf_point: 0.4540 | loss_reg_point: 0.4572 | loss_grad_point: 0.1837
+Epoch 0 | Step 20 | Batch 20/44 | Loss: 0.8852 | LR: 9.99e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0236 | loss_T: 0.0103 | loss_R: 0.0064 | loss_FL: 0.0138 | loss_conf_depth: -0.1361 | loss_reg_depth: 0.0159 | loss_grad_depth: 0.0157 | loss_conf_point: 0.0264 | loss_reg_point: 0.0703 | loss_grad_point: 0.0487
+Epoch 0 | Step 21 | Batch 21/44 | Loss: 0.9329 | LR: 9.98e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.1494 | loss_T: 0.0544 | loss_R: 0.0931 | loss_FL: 0.0037 | loss_conf_depth: 0.1411 | loss_reg_depth: 0.1465 | loss_grad_depth: 0.0095 | loss_conf_point: 0.3682 | loss_reg_point: 0.3686 | loss_grad_point: 0.1063
+Epoch 0 | Step 22 | Batch 22/44 | Loss: 0.9248 | LR: 9.98e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0436 | loss_T: 0.0336 | loss_R: 0.0071 | loss_FL: 0.0056 | loss_conf_depth: 0.1067 | loss_reg_depth: 0.1177 | loss_grad_depth: 0.0042 | loss_conf_point: 0.1431 | loss_reg_point: 0.1432 | loss_grad_point: 0.0209
+Epoch 0 | Step 23 | Batch 23/44 | Loss: 0.9429 | LR: 9.98e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0741 | loss_T: 0.0312 | loss_R: 0.0416 | loss_FL: 0.0026 | loss_conf_depth: 0.0397 | loss_reg_depth: 0.0567 | loss_grad_depth: 0.0073 | loss_conf_point: 0.3585 | loss_reg_point: 0.3585 | loss_grad_point: 0.1495
+Epoch 0 | Step 24 | Batch 24/44 | Loss: 0.9705 | LR: 9.97e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0352 | loss_T: 0.0323 | loss_R: 0.0003 | loss_FL: 0.0051 | loss_conf_depth: 0.5640 | loss_reg_depth: 0.1630 | loss_grad_depth: 0.0100 | loss_conf_point: 0.5088 | loss_reg_point: 0.1667 | loss_grad_point: 0.0171
+Epoch 0 | Step 25 | Batch 25/44 | Loss: 0.9515 | LR: 9.97e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0071 | loss_T: 0.0051 | loss_R: 0.0006 | loss_FL: 0.0026 | loss_conf_depth: 0.1017 | loss_reg_depth: 0.0767 | loss_grad_depth: 0.0037 | loss_conf_point: 0.1755 | loss_reg_point: 0.0917 | loss_grad_point: 0.0110
+Epoch 0 | Step 26 | Batch 26/44 | Loss: 0.9400 | LR: 9.97e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0359 | loss_T: 0.0156 | loss_R: 0.0156 | loss_FL: 0.0095 | loss_conf_depth: 0.0914 | loss_reg_depth: 0.1007 | loss_grad_depth: 0.0121 | loss_conf_point: 0.1001 | loss_reg_point: 0.1054 | loss_grad_point: 0.0642
+Epoch 0 | Step 27 | Batch 27/44 | Loss: 0.9292 | LR: 9.96e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0684 | loss_T: 0.0637 | loss_R: 0.0027 | loss_FL: 0.0040 | loss_conf_depth: -0.0775 | loss_reg_depth: 0.0279 | loss_grad_depth: 0.0078 | loss_conf_point: 0.1331 | loss_reg_point: 0.1934 | loss_grad_point: 0.0206
+Epoch 0 | Step 28 | Batch 28/44 | Loss: 0.9374 | LR: 9.96e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0372 | loss_T: 0.0238 | loss_R: 0.0116 | loss_FL: 0.0035 | loss_conf_depth: 0.1725 | loss_reg_depth: 0.1833 | loss_grad_depth: 0.0360 | loss_conf_point: 0.2490 | loss_reg_point: 0.2520 | loss_grad_point: 0.0794
+Epoch 0 | Step 29 | Batch 29/44 | Loss: 0.9134 | LR: 9.95e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0107 | loss_T: 0.0059 | loss_R: 0.0024 | loss_FL: 0.0049 | loss_conf_depth: -0.0294 | loss_reg_depth: 0.0605 | loss_grad_depth: 0.0037 | loss_conf_point: 0.0524 | loss_reg_point: 0.0880 | loss_grad_point: 0.0144
+Epoch 0 | Step 30 | Batch 30/44 | Loss: 0.8896 | LR: 9.95e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0271 | loss_T: 0.0233 | loss_R: 0.0028 | loss_FL: 0.0021 | loss_conf_depth: -0.0954 | loss_reg_depth: 0.0270 | loss_grad_depth: 0.0038 | loss_conf_point: 0.0092 | loss_reg_point: 0.1023 | loss_grad_point: 0.0170
+Epoch 0 | Step 31 | Batch 31/44 | Loss: 0.8728 | LR: 9.94e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0102 | loss_T: 0.0087 | loss_R: 0.0004 | loss_FL: 0.0022 | loss_conf_depth: 0.0420 | loss_reg_depth: 0.0876 | loss_grad_depth: 0.0152 | loss_conf_point: 0.0406 | loss_reg_point: 0.0938 | loss_grad_point: 0.0380
+Epoch 0 | Step 32 | Batch 32/44 | Loss: 0.8646 | LR: 9.94e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0492 | loss_T: 0.0282 | loss_R: 0.0171 | loss_FL: 0.0079 | loss_conf_depth: 0.0149 | loss_reg_depth: 0.0330 | loss_grad_depth: 0.0047 | loss_conf_point: 0.1355 | loss_reg_point: 0.1464 | loss_grad_point: 0.0308
+Epoch 0 | Step 33 | Batch 33/44 | Loss: 0.8530 | LR: 9.93e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0135 | loss_T: 0.0103 | loss_R: 0.0015 | loss_FL: 0.0034 | loss_conf_depth: 0.0734 | loss_reg_depth: 0.1177 | loss_grad_depth: 0.0112 | loss_conf_point: 0.0916 | loss_reg_point: 0.1046 | loss_grad_point: 0.0151
+Epoch 0 | Step 34 | Batch 34/44 | Loss: 0.8254 | LR: 9.92e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0074 | loss_T: 0.0057 | loss_R: 0.0005 | loss_FL: 0.0025 | loss_conf_depth: -0.1435 | loss_reg_depth: 0.0332 | loss_grad_depth: 0.0041 | loss_conf_point: -0.0753 | loss_reg_point: 0.0439 | loss_grad_point: 0.0148
+Epoch 0 | Step 35 | Batch 35/44 | Loss: 0.8021 | LR: 9.92e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0050 | loss_T: 0.0024 | loss_R: 0.0008 | loss_FL: 0.0036 | loss_conf_depth: -0.0468 | loss_reg_depth: 0.0324 | loss_grad_depth: 0.0049 | loss_conf_point: -0.0488 | loss_reg_point: 0.0303 | loss_grad_point: 0.0132
+Epoch 0 | Step 36 | Batch 36/44 | Loss: 0.8716 | LR: 9.91e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.2066 | loss_T: 0.0865 | loss_R: 0.1168 | loss_FL: 0.0066 | loss_conf_depth: 0.1461 | loss_reg_depth: 0.1566 | loss_grad_depth: 0.0084 | loss_conf_point: 0.8493 | loss_reg_point: 0.8513 | loss_grad_point: 0.2583
+Epoch 0 | Step 37 | Batch 37/44 | Loss: 0.8538 | LR: 9.90e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0146 | loss_T: 0.0086 | loss_R: 0.0016 | loss_FL: 0.0089 | loss_conf_depth: -0.0493 | loss_reg_depth: 0.0544 | loss_grad_depth: 0.0067 | loss_conf_point: 0.0360 | loss_reg_point: 0.0816 | loss_grad_point: 0.0122
+Epoch 0 | Step 38 | Batch 38/44 | Loss: 0.8314 | LR: 9.90e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0154 | loss_T: 0.0122 | loss_R: 0.0014 | loss_FL: 0.0037 | loss_conf_depth: -0.1032 | loss_reg_depth: 0.0216 | loss_grad_depth: 0.0044 | loss_conf_point: -0.0613 | loss_reg_point: 0.0356 | loss_grad_point: 0.0250
+Epoch 0 | Step 39 | Batch 39/44 | Loss: 0.8201 | LR: 9.89e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0295 | loss_T: 0.0247 | loss_R: 0.0028 | loss_FL: 0.0040 | loss_conf_depth: -0.0249 | loss_reg_depth: 0.0492 | loss_grad_depth: 0.0054 | loss_conf_point: 0.0821 | loss_reg_point: 0.0995 | loss_grad_point: 0.0353
+Epoch 0 | Step 40 | Batch 40/44 | Loss: 0.7985 | LR: 9.88e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0123 | loss_T: 0.0093 | loss_R: 0.0011 | loss_FL: 0.0037 | loss_conf_depth: -0.1446 | loss_reg_depth: 0.0220 | loss_grad_depth: 0.0050 | loss_conf_point: -0.0580 | loss_reg_point: 0.0399 | loss_grad_point: 0.0306
+Epoch 0 | Step 41 | Batch 41/44 | Loss: 0.8013 | LR: 9.87e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0245 | loss_T: 0.0192 | loss_R: 0.0016 | loss_FL: 0.0072 | loss_conf_depth: 0.2109 | loss_reg_depth: 0.2127 | loss_grad_depth: 0.0077 | loss_conf_point: 0.1755 | loss_reg_point: 0.1750 | loss_grad_point: 0.0082
+Epoch 0 | Step 42 | Batch 42/44 | Loss: 0.7736 | LR: 9.87e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0046 | loss_T: 0.0026 | loss_R: 0.0003 | loss_FL: 0.0034 | loss_conf_depth: -0.2611 | loss_reg_depth: 0.0141 | loss_grad_depth: 0.0028 | loss_conf_point: -0.1787 | loss_reg_point: 0.0221 | loss_grad_point: 0.0167
+Epoch 0 | Step 43 | Batch 43/44 | Loss: 0.7564 | LR: 9.86e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0106 | loss_T: 0.0059 | loss_R: 0.0017 | loss_FL: 0.0060 | loss_conf_depth: -0.0784 | loss_reg_depth: 0.0197 | loss_grad_depth: 0.0056 | loss_conf_point: -0.0212 | loss_reg_point: 0.0354 | loss_grad_point: 0.0190
+Epoch 0 | Step 44 | Batch 44/44 | Loss: 0.7416 | LR: 9.85e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0160 | loss_T: 0.0117 | loss_R: 0.0004 | loss_FL: 0.0077 | loss_conf_depth: -0.0940 | loss_reg_depth: 0.0443 | loss_grad_depth: 0.0046 | loss_conf_point: -0.0124 | loss_reg_point: 0.0577 | loss_grad_point: 0.0252
+Saved LoRA weights to ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora_peft
+Saved checkpoint to ./checkpoints/vggt_output_distill/eth3d/epoch_0.pt
+Saved LoRA weights to ./checkpoints/vggt_output_distill/eth3d/latest_lora_peft
+
+============================================================
+Epoch 2/10
+============================================================
+Epoch 1 | Step 45 | Batch 1/44 | Loss: 0.4147 | LR: 9.84e-05 | Speed: 0.3 samples/s
+  loss_camera: 0.0217 | loss_T: 0.0172 | loss_R: 0.0027 | loss_FL: 0.0037 | loss_conf_depth: 0.0327 | loss_reg_depth: 0.0618 | loss_grad_depth: 0.0046 | loss_conf_point: 0.0877 | loss_reg_point: 0.1052 | loss_grad_point: 0.0139
+Epoch 1 | Step 46 | Batch 2/44 | Loss: 0.3288 | LR: 9.83e-05 | Speed: 0.5 samples/s
+  loss_camera: 0.0191 | loss_T: 0.0105 | loss_R: 0.0019 | loss_FL: 0.0133 | loss_conf_depth: -0.0259 | loss_reg_depth: 0.0474 | loss_grad_depth: 0.0038 | loss_conf_point: 0.0204 | loss_reg_point: 0.0886 | loss_grad_point: 0.0133
+Epoch 1 | Step 47 | Batch 3/44 | Loss: 0.1266 | LR: 9.82e-05 | Speed: 0.6 samples/s
+  loss_camera: 0.0071 | loss_T: 0.0043 | loss_R: 0.0008 | loss_FL: 0.0040 | loss_conf_depth: -0.2080 | loss_reg_depth: 0.0220 | loss_grad_depth: 0.0023 | loss_conf_point: -0.1655 | loss_reg_point: 0.0266 | loss_grad_point: 0.0091
+Epoch 1 | Step 48 | Batch 4/44 | Loss: 0.1574 | LR: 9.81e-05 | Speed: 0.7 samples/s
+  loss_camera: 0.0162 | loss_T: 0.0108 | loss_R: 0.0013 | loss_FL: 0.0080 | loss_conf_depth: -0.0367 | loss_reg_depth: 0.0494 | loss_grad_depth: 0.0078 | loss_conf_point: 0.0455 | loss_reg_point: 0.0862 | loss_grad_point: 0.0164
+Epoch 1 | Step 49 | Batch 5/44 | Loss: 0.1677 | LR: 9.80e-05 | Speed: 0.8 samples/s
+  loss_camera: 0.0121 | loss_T: 0.0072 | loss_R: 0.0011 | loss_FL: 0.0075 | loss_conf_depth: -0.0151 | loss_reg_depth: 0.0651 | loss_grad_depth: 0.0060 | loss_conf_point: 0.0115 | loss_reg_point: 0.0663 | loss_grad_point: 0.0146
+Epoch 1 | Step 50 | Batch 6/44 | Loss: 0.5958 | LR: 9.79e-05 | Speed: 0.8 samples/s
+  loss_camera: 0.1268 | loss_T: 0.1063 | loss_R: 0.0149 | loss_FL: 0.0112 | loss_conf_depth: 0.3358 | loss_reg_depth: 0.2547 | loss_grad_depth: 0.0116 | loss_conf_point: 0.7968 | loss_reg_point: 0.6858 | loss_grad_point: 0.0179
+Epoch 1 | Step 51 | Batch 7/44 | Loss: 0.4653 | LR: 9.78e-05 | Speed: 0.9 samples/s
+  loss_camera: 0.0057 | loss_T: 0.0036 | loss_R: 0.0003 | loss_FL: 0.0034 | loss_conf_depth: -0.2619 | loss_reg_depth: 0.0131 | loss_grad_depth: 0.0042 | loss_conf_point: -0.1451 | loss_reg_point: 0.0231 | loss_grad_point: 0.0206
+Epoch 1 | Step 52 | Batch 8/44 | Loss: 0.4666 | LR: 9.77e-05 | Speed: 0.9 samples/s
+  loss_camera: 0.0252 | loss_T: 0.0183 | loss_R: 0.0054 | loss_FL: 0.0032 | loss_conf_depth: 0.0143 | loss_reg_depth: 0.0532 | loss_grad_depth: 0.0077 | loss_conf_point: 0.1127 | loss_reg_point: 0.1348 | loss_grad_point: 0.0266
+Epoch 1 | Step 53 | Batch 9/44 | Loss: 0.4801 | LR: 9.76e-05 | Speed: 0.9 samples/s
+  loss_camera: 0.0455 | loss_T: 0.0383 | loss_R: 0.0038 | loss_FL: 0.0068 | loss_conf_depth: -0.0255 | loss_reg_depth: 0.0523 | loss_grad_depth: 0.0134 | loss_conf_point: 0.1312 | loss_reg_point: 0.1488 | loss_grad_point: 0.0406
+Epoch 1 | Step 54 | Batch 10/44 | Loss: 0.6287 | LR: 9.75e-05 | Speed: 0.9 samples/s
+  loss_camera: 0.0168 | loss_T: 0.0145 | loss_R: 0.0006 | loss_FL: 0.0035 | loss_conf_depth: 0.4423 | loss_reg_depth: 0.3982 | loss_grad_depth: 0.0453 | loss_conf_point: 0.4653 | loss_reg_point: 0.4402 | loss_grad_point: 0.0912
+Epoch 1 | Step 55 | Batch 11/44 | Loss: 0.5955 | LR: 9.73e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0214 | loss_T: 0.0150 | loss_R: 0.0036 | loss_FL: 0.0058 | loss_conf_depth: -0.0014 | loss_reg_depth: 0.0324 | loss_grad_depth: 0.0063 | loss_conf_point: 0.0456 | loss_reg_point: 0.0597 | loss_grad_point: 0.0137
+Epoch 1 | Step 56 | Batch 12/44 | Loss: 0.7692 | LR: 9.72e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.1631 | loss_T: 0.0350 | loss_R: 0.1188 | loss_FL: 0.0186 | loss_conf_depth: 0.1338 | loss_reg_depth: 0.1378 | loss_grad_depth: 0.0054 | loss_conf_point: 0.4183 | loss_reg_point: 0.4183 | loss_grad_point: 0.7504
+Epoch 1 | Step 57 | Batch 13/44 | Loss: 0.7556 | LR: 9.71e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0499 | loss_T: 0.0427 | loss_R: 0.0019 | loss_FL: 0.0105 | loss_conf_depth: -0.0519 | loss_reg_depth: 0.0552 | loss_grad_depth: 0.0051 | loss_conf_point: 0.1561 | loss_reg_point: 0.1655 | loss_grad_point: 0.0137
+Epoch 1 | Step 58 | Batch 14/44 | Loss: 0.9187 | LR: 9.70e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.2220 | loss_T: 0.0976 | loss_R: 0.1165 | loss_FL: 0.0158 | loss_conf_depth: 0.2393 | loss_reg_depth: 0.2431 | loss_grad_depth: 0.0177 | loss_conf_point: 0.5430 | loss_reg_point: 0.5396 | loss_grad_point: 0.3456
+Epoch 1 | Step 59 | Batch 15/44 | Loss: 0.9926 | LR: 9.69e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.1526 | loss_T: 0.0253 | loss_R: 0.1246 | loss_FL: 0.0053 | loss_conf_depth: 0.0367 | loss_reg_depth: 0.0459 | loss_grad_depth: 0.0039 | loss_conf_point: 0.4779 | loss_reg_point: 0.4861 | loss_grad_point: 0.2129
+Epoch 1 | Step 60 | Batch 16/44 | Loss: 0.9239 | LR: 9.67e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0066 | loss_T: 0.0035 | loss_R: 0.0016 | loss_FL: 0.0031 | loss_conf_depth: -0.0975 | loss_reg_depth: 0.0221 | loss_grad_depth: 0.0032 | loss_conf_point: -0.1041 | loss_reg_point: 0.0274 | loss_grad_point: 0.0103
+Epoch 1 | Step 61 | Batch 17/44 | Loss: 0.8863 | LR: 9.66e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0101 | loss_T: 0.0038 | loss_R: 0.0036 | loss_FL: 0.0053 | loss_conf_depth: -0.0103 | loss_reg_depth: 0.0445 | loss_grad_depth: 0.0199 | loss_conf_point: 0.0511 | loss_reg_point: 0.0601 | loss_grad_point: 0.0682
+Epoch 1 | Step 62 | Batch 18/44 | Loss: 0.8383 | LR: 9.65e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0082 | loss_T: 0.0053 | loss_R: 0.0003 | loss_FL: 0.0051 | loss_conf_depth: -0.1048 | loss_reg_depth: 0.0383 | loss_grad_depth: 0.0047 | loss_conf_point: -0.0307 | loss_reg_point: 0.0569 | loss_grad_point: 0.0166
+Epoch 1 | Step 63 | Batch 19/44 | Loss: 0.8350 | LR: 9.63e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0192 | loss_T: 0.0138 | loss_R: 0.0018 | loss_FL: 0.0072 | loss_conf_depth: 0.1687 | loss_reg_depth: 0.1427 | loss_grad_depth: 0.0104 | loss_conf_point: 0.1946 | loss_reg_point: 0.1496 | loss_grad_point: 0.0141
+Epoch 1 | Step 64 | Batch 20/44 | Loss: 0.7847 | LR: 9.62e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0054 | loss_T: 0.0039 | loss_R: 0.0004 | loss_FL: 0.0024 | loss_conf_depth: -0.1595 | loss_reg_depth: 0.0282 | loss_grad_depth: 0.0023 | loss_conf_point: -0.1118 | loss_reg_point: 0.0315 | loss_grad_point: 0.0119
+Epoch 1 | Step 65 | Batch 21/44 | Loss: 0.7641 | LR: 9.61e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0164 | loss_T: 0.0151 | loss_R: 0.0007 | loss_FL: 0.0009 | loss_conf_depth: 0.0217 | loss_reg_depth: 0.0718 | loss_grad_depth: 0.0031 | loss_conf_point: 0.0673 | loss_reg_point: 0.0964 | loss_grad_point: 0.0097
+Epoch 1 | Step 66 | Batch 22/44 | Loss: 0.7885 | LR: 9.59e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0773 | loss_T: 0.0599 | loss_R: 0.0150 | loss_FL: 0.0049 | loss_conf_depth: 0.1628 | loss_reg_depth: 0.1645 | loss_grad_depth: 0.0166 | loss_conf_point: 0.2532 | loss_reg_point: 0.2539 | loss_grad_point: 0.0631
+Epoch 1 | Step 67 | Batch 23/44 | Loss: 0.7998 | LR: 9.58e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0586 | loss_T: 0.0298 | loss_R: 0.0252 | loss_FL: 0.0072 | loss_conf_depth: 0.1150 | loss_reg_depth: 0.1264 | loss_grad_depth: 0.0059 | loss_conf_point: 0.2223 | loss_reg_point: 0.2242 | loss_grad_point: 0.0620
+Epoch 1 | Step 68 | Batch 24/44 | Loss: 0.7889 | LR: 9.56e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0123 | loss_T: 0.0085 | loss_R: 0.0004 | loss_FL: 0.0067 | loss_conf_depth: 0.1436 | loss_reg_depth: 0.0666 | loss_grad_depth: 0.0117 | loss_conf_point: 0.1233 | loss_reg_point: 0.0808 | loss_grad_point: 0.0511
+Epoch 1 | Step 69 | Batch 25/44 | Loss: 0.7730 | LR: 9.55e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0159 | loss_T: 0.0109 | loss_R: 0.0010 | loss_FL: 0.0081 | loss_conf_depth: 0.0544 | loss_reg_depth: 0.0897 | loss_grad_depth: 0.0053 | loss_conf_point: 0.0712 | loss_reg_point: 0.0846 | loss_grad_point: 0.0061
+Epoch 1 | Step 70 | Batch 26/44 | Loss: 0.7465 | LR: 9.53e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0122 | loss_T: 0.0083 | loss_R: 0.0031 | loss_FL: 0.0015 | loss_conf_depth: -0.0659 | loss_reg_depth: 0.0245 | loss_grad_depth: 0.0025 | loss_conf_point: 0.0090 | loss_reg_point: 0.0398 | loss_grad_point: 0.0131
+Epoch 1 | Step 71 | Batch 27/44 | Loss: 0.7739 | LR: 9.52e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0542 | loss_T: 0.0437 | loss_R: 0.0074 | loss_FL: 0.0063 | loss_conf_depth: 0.2736 | loss_reg_depth: 0.2725 | loss_grad_depth: 0.0172 | loss_conf_point: 0.3167 | loss_reg_point: 0.3102 | loss_grad_point: 0.0238
+Epoch 1 | Step 72 | Batch 28/44 | Loss: 0.7635 | LR: 9.50e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0209 | loss_T: 0.0164 | loss_R: 0.0021 | loss_FL: 0.0047 | loss_conf_depth: 0.0454 | loss_reg_depth: 0.0912 | loss_grad_depth: 0.0062 | loss_conf_point: 0.1091 | loss_reg_point: 0.1121 | loss_grad_point: 0.0158
+Epoch 1 | Step 73 | Batch 29/44 | Loss: 0.7566 | LR: 9.48e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0148 | loss_T: 0.0132 | loss_R: 0.0005 | loss_FL: 0.0023 | loss_conf_depth: 0.1451 | loss_reg_depth: 0.0883 | loss_grad_depth: 0.0103 | loss_conf_point: 0.1138 | loss_reg_point: 0.0942 | loss_grad_point: 0.0361
+Epoch 1 | Step 74 | Batch 30/44 | Loss: 0.7372 | LR: 9.47e-05 | Speed: 1.0 samples/s
+  loss_camera: 0.0139 | loss_T: 0.0088 | loss_R: 0.0006 | loss_FL: 0.0089 | loss_conf_depth: -0.0204 | loss_reg_depth: 0.0686 | loss_grad_depth: 0.0051 | loss_conf_point: -0.0197 | loss_reg_point: 0.0605 | loss_grad_point: 0.0131
+Epoch 1 | Step 75 | Batch 31/44 | Loss: 0.7764 | LR: 9.45e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.1281 | loss_T: 0.1215 | loss_R: 0.0045 | loss_FL: 0.0041 | loss_conf_depth: 0.0942 | loss_reg_depth: 0.1030 | loss_grad_depth: 0.0056 | loss_conf_point: 0.5298 | loss_reg_point: 0.5298 | loss_grad_point: 0.0490
+Epoch 1 | Step 76 | Batch 32/44 | Loss: 0.8026 | LR: 9.44e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0602 | loss_T: 0.0521 | loss_R: 0.0071 | loss_FL: 0.0021 | loss_conf_depth: 0.2126 | loss_reg_depth: 0.2221 | loss_grad_depth: 0.0378 | loss_conf_point: 0.3761 | loss_reg_point: 0.3797 | loss_grad_point: 0.0852
+Epoch 1 | Step 77 | Batch 33/44 | Loss: 0.8053 | LR: 9.42e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0523 | loss_T: 0.0400 | loss_R: 0.0040 | loss_FL: 0.0168 | loss_conf_depth: 0.0941 | loss_reg_depth: 0.1264 | loss_grad_depth: 0.0133 | loss_conf_point: 0.1814 | loss_reg_point: 0.1887 | loss_grad_point: 0.0270
+Epoch 1 | Step 78 | Batch 34/44 | Loss: 0.7670 | LR: 9.40e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0062 | loss_T: 0.0037 | loss_R: 0.0004 | loss_FL: 0.0041 | loss_conf_depth: -0.2925 | loss_reg_depth: 0.0140 | loss_grad_depth: 0.0021 | loss_conf_point: -0.2708 | loss_reg_point: 0.0104 | loss_grad_point: 0.0064
+Epoch 1 | Step 79 | Batch 35/44 | Loss: 0.7985 | LR: 9.38e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0578 | loss_T: 0.0524 | loss_R: 0.0028 | loss_FL: 0.0053 | loss_conf_depth: 0.3677 | loss_reg_depth: 0.3597 | loss_grad_depth: 0.0261 | loss_conf_point: 0.3946 | loss_reg_point: 0.3774 | loss_grad_point: 0.0553
+Epoch 1 | Step 80 | Batch 36/44 | Loss: 0.9734 | LR: 9.37e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.3529 | loss_T: 0.1628 | loss_R: 0.1833 | loss_FL: 0.0136 | loss_conf_depth: 0.6441 | loss_reg_depth: 0.5083 | loss_grad_depth: 0.0285 | loss_conf_point: 1.6155 | loss_reg_point: 1.4301 | loss_grad_point: 1.1063
+Epoch 1 | Step 81 | Batch 37/44 | Loss: 0.9607 | LR: 9.35e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0315 | loss_T: 0.0203 | loss_R: 0.0087 | loss_FL: 0.0051 | loss_conf_depth: 0.0091 | loss_reg_depth: 0.0785 | loss_grad_depth: 0.0084 | loss_conf_point: 0.0953 | loss_reg_point: 0.1265 | loss_grad_point: 0.0250
+Epoch 1 | Step 82 | Batch 38/44 | Loss: 0.9367 | LR: 9.33e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0126 | loss_T: 0.0064 | loss_R: 0.0016 | loss_FL: 0.0094 | loss_conf_depth: -0.0971 | loss_reg_depth: 0.0259 | loss_grad_depth: 0.0037 | loss_conf_point: -0.0110 | loss_reg_point: 0.0487 | loss_grad_point: 0.0175
+Epoch 1 | Step 83 | Batch 39/44 | Loss: 0.9157 | LR: 9.31e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0126 | loss_T: 0.0075 | loss_R: 0.0006 | loss_FL: 0.0089 | loss_conf_depth: -0.0539 | loss_reg_depth: 0.0275 | loss_grad_depth: 0.0121 | loss_conf_point: -0.0255 | loss_reg_point: 0.0544 | loss_grad_point: 0.0407
+Epoch 1 | Step 84 | Batch 40/44 | Loss: 0.9125 | LR: 9.29e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0182 | loss_T: 0.0140 | loss_R: 0.0030 | loss_FL: 0.0025 | loss_conf_depth: 0.1240 | loss_reg_depth: 0.1398 | loss_grad_depth: 0.0038 | loss_conf_point: 0.2053 | loss_reg_point: 0.2048 | loss_grad_point: 0.0185
+Epoch 1 | Step 85 | Batch 41/44 | Loss: 0.8905 | LR: 9.28e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0069 | loss_T: 0.0054 | loss_R: 0.0003 | loss_FL: 0.0023 | loss_conf_depth: -0.1167 | loss_reg_depth: 0.0352 | loss_grad_depth: 0.0038 | loss_conf_point: -0.0149 | loss_reg_point: 0.0521 | loss_grad_point: 0.0162
+Epoch 1 | Step 86 | Batch 42/44 | Loss: 0.8799 | LR: 9.26e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0183 | loss_T: 0.0098 | loss_R: 0.0030 | loss_FL: 0.0108 | loss_conf_depth: 0.0269 | loss_reg_depth: 0.0623 | loss_grad_depth: 0.0348 | loss_conf_point: 0.0563 | loss_reg_point: 0.0679 | loss_grad_point: 0.1071
+Epoch 1 | Step 87 | Batch 43/44 | Loss: 0.8943 | LR: 9.24e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.1442 | loss_T: 0.0393 | loss_R: 0.0983 | loss_FL: 0.0131 | loss_conf_depth: 0.0925 | loss_reg_depth: 0.1013 | loss_grad_depth: 0.0089 | loss_conf_point: 0.2326 | loss_reg_point: 0.2393 | loss_grad_point: 0.1023
+Epoch 1 | Step 88 | Batch 44/44 | Loss: 0.9184 | LR: 9.22e-05 | Speed: 1.1 samples/s
+  loss_camera: 0.0486 | loss_T: 0.0396 | loss_R: 0.0055 | loss_FL: 0.0071 | loss_conf_depth: 0.3893 | loss_reg_depth: 0.2951 | loss_grad_depth: 0.0440 | loss_conf_point: 0.4960 | loss_reg_point: 0.4037 | loss_grad_point: 0.0852
+Saved LoRA weights to ./checkpoints/vggt_output_distill/eth3d/epoch_1_lora_peft
+Saved checkpoint to ./checkpoints/vggt_output_distill/eth3d/epoch_1.pt
+Saved LoRA weights to ./checkpoints/vggt_output_distill/eth3d/latest_lora_peft
+
+============================================================
+Epoch 3/10
+============================================================

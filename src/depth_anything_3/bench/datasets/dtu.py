@@ -184,6 +184,26 @@ class DTU(Dataset):
             masks.append(mask > 10)
         return np.asarray(masks)
 
+    def _load_gt_meta(self, result_path: str, scene: str) -> Dict:
+        """
+        Load saved GT meta for fusion (handles frame sampling).
+
+        Returns Dict with sampled GT data, or None if gt_meta.npz doesn't exist.
+        """
+        export_dir = os.path.dirname(result_path)  # exports/mini_npz/
+        gt_meta_path = os.path.join(os.path.dirname(export_dir), "gt_meta.npz")
+
+        if os.path.exists(gt_meta_path):
+            data = np.load(gt_meta_path, allow_pickle=True)
+            gt_meta = Dict({
+                "extrinsics": data["extrinsics"],
+                "intrinsics": data["intrinsics"],
+                "image_files": list(data["image_files"]) if "image_files" in data else None,
+                "aux": Dict({"mask_files": list(data["mask_files"]) if "mask_files" in data else None}),
+            })
+            return gt_meta
+        return None
+
     def fuse3d(self, scene: str, result_path: str, fuse_path: str, mode: str) -> None:
         """
         Fuse per-view depths into a point cloud and save to PLY.
@@ -194,9 +214,15 @@ class DTU(Dataset):
             fuse_path: Output path for fused point cloud (.ply)
             mode: "recon_unposed" or "recon_posed"
         """
-        gt_data = self.get_data(scene)
+        # Try to load saved GT meta (handles frame sampling)
+        gt_meta = self._load_gt_meta(result_path, scene)
+        if gt_meta is not None:
+            gt_data = gt_meta
+            masks = self.load_masks(gt_data.aux.mask_files)
+        else:
+            gt_data = self.get_data(scene)
+            masks = self.load_masks(gt_data.aux.mask_files)
         pred_data = Dict({k: v for k, v in np.load(result_path).items()})
-        masks = self.load_masks(gt_data.aux.mask_files)
 
         if mode == "recon_unposed":
             depths, intrinsics, extrinsics = self._prep_unposed(pred_data, gt_data, masks)

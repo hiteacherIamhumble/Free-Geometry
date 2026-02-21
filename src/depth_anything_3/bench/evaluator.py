@@ -351,9 +351,8 @@ class Evaluator:
 
             # Sequential evaluation (fast, no need to parallelize)
             for scene, fuse_path in zip(scene_list, fuse_paths):
-                # DTU supports CPU-based evaluation
                 if data == "dtu" and hasattr(dataset, "eval3d"):
-                    result = dataset.eval3d(scene, fuse_path)
+                    result = dataset.eval3d(scene, fuse_path, use_gpu=True)
                 else:
                     result = dataset.eval3d(scene, fuse_path)
                 dataset_results[scene] = self._to_float_dict(result)
