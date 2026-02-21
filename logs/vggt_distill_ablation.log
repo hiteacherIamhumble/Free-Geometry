@@ -1,0 +1,833 @@
+nohup: ignoring input
+
+============================================================
+[Feature-only] Training on eth3d (fp32)
+  output_weight=0 (no output loss)
+============================================================
+/root/autodl-tmp/da3/./scripts/train_vggt_combined_distill.py:684: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = GradScaler(enabled=args.use_amp)
+Using device: cuda
+
+Configuration:
+  Teacher views: 8
+  Student views: 4 (indices: [0, 2, 4, 6])
+  Output layers: [19, 23]
+  Feature loss: all-token KL (w=1.0) + cos (w=2.0) + RKD (w=2.0)
+  Output loss: camera (w=5.0) + depth (w=1.0) + point (w=1.0), output_weight=0.0
+
+Creating dataset...
+Loaded 11 scenes for eth3d (all scenes for training)
+Generating 5 samples per scene = 55 total samples
+Train samples: 55
+
+Creating models...
+Loading teacher model: facebook/vggt-1b
+Teacher parameters: 1,256,537,516 (all frozen)
+Loading student model: facebook/vggt-1b
+Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
+Camera token is trainable
+Student parameters: 1,269,120,428 total, 12,584,960 trainable (12,582,912 LoRA)
+
+Creating losses...
+VGGTAllTokenSoftmaxKLCosineLoss: layer=23, kl_w=1.0, cos_w=2.0
+  Uses full 2048-dim token (no frame/global split)
+VGGTCrossFrameRKDAngleLoss: layer=23, topk=4
+  ref_samples=256, shared_samples=256, shared_chunk=64
+  angle weights: a1=1.0, a2=1.0, a3=1.0
+  extra frames (teacher-only): [1, 3, 5, 7]
+  shared frames: [2, 4, 6]
+
+Starting training...
+
+============================================================
+Epoch 1/1
+============================================================
+/root/autodl-tmp/da3/./scripts/train_vggt_combined_distill.py:366: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(enabled=args.use_amp):
+/root/autodl-tmp/da3/./scripts/train_vggt_combined_distill.py:117: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+/root/autodl-tmp/da3/scripts/../src/vggt/vggt/training/loss.py:527: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Epoch 0 | Step 1 | Batch 1/55 | Loss: 0.8451 | LR: 1.04e-05 | Speed: 0.2 samples/s
+  feat_loss: 0.7438 | rkd_loss: 0.0506 | feature_total: 0.8451 | output_loss: 1.7064 | combined: 0.8451 | all_softmax_kl: 0.4168 | all_softmax_cos: 0.8365 | rkd_angle1_loss: 0.0151 | rkd_angle2_loss: 0.0311 | rkd_angle3_loss: 0.0044 | loss_camera: 0.0743 | loss_reg_depth: 0.2011 | loss_reg_point: 0.4123 | loss_conf_depth: 0.1992 | loss_conf_point: 0.4106 | loss_grad_depth: 0.0323 | loss_grad_point: 0.0794
+Epoch 0 | Step 2 | Batch 2/55 | Loss: 0.5477 | LR: 2.03e-05 | Speed: 0.3 samples/s
+  feat_loss: 0.2423 | rkd_loss: 0.0040 | feature_total: 0.2504 | output_loss: 0.1341 | combined: 0.2504 | all_softmax_kl: 0.1813 | all_softmax_cos: 0.9695 | rkd_angle1_loss: 0.0016 | rkd_angle2_loss: 0.0019 | rkd_angle3_loss: 0.0005 | loss_camera: 0.0136 | loss_reg_depth: 0.0136 | loss_reg_point: 0.0390 | loss_conf_depth: -0.0250 | loss_conf_point: 0.0098 | loss_grad_depth: 0.0055 | loss_grad_point: 0.0233
+Epoch 0 | Step 3 | Batch 3/55 | Loss: 0.3903 | LR: 3.02e-05 | Speed: 0.4 samples/s
+  feat_loss: 0.0645 | rkd_loss: 0.0055 | feature_total: 0.0755 | output_loss: 0.1242 | combined: 0.0755 | all_softmax_kl: 0.0511 | all_softmax_cos: 0.9933 | rkd_angle1_loss: 0.0019 | rkd_angle2_loss: 0.0034 | rkd_angle3_loss: 0.0002 | loss_camera: 0.0072 | loss_reg_depth: 0.0407 | loss_reg_point: 0.0488 | loss_conf_depth: -0.0335 | loss_conf_point: -0.0128 | loss_grad_depth: 0.0098 | loss_grad_point: 0.0353
+Epoch 0 | Step 4 | Batch 4/55 | Loss: 0.5940 | LR: 4.01e-05 | Speed: 0.4 samples/s
+  feat_loss: 1.0526 | rkd_loss: 0.0761 | feature_total: 1.2048 | output_loss: 1.3958 | combined: 1.2048 | all_softmax_kl: 0.7799 | all_softmax_cos: 0.8636 | rkd_angle1_loss: 0.0096 | rkd_angle2_loss: 0.0501 | rkd_angle3_loss: 0.0164 | loss_camera: 0.0323 | loss_reg_depth: 0.2671 | loss_reg_point: 0.3049 | loss_conf_depth: 0.2755 | loss_conf_point: 0.3145 | loss_grad_depth: 0.0232 | loss_grad_point: 0.0493
+Epoch 0 | Step 5 | Batch 5/55 | Loss: 0.5300 | LR: 5.00e-05 | Speed: 0.4 samples/s
+  feat_loss: 0.2671 | rkd_loss: 0.0036 | feature_total: 0.2743 | output_loss: -0.1015 | combined: 0.2743 | all_softmax_kl: 0.2290 | all_softmax_cos: 0.9809 | rkd_angle1_loss: 0.0017 | rkd_angle2_loss: 0.0014 | rkd_angle3_loss: 0.0004 | loss_camera: 0.0124 | loss_reg_depth: 0.0291 | loss_reg_point: 0.0400 | loss_conf_depth: -0.1448 | loss_conf_point: -0.0992 | loss_grad_depth: 0.0023 | loss_grad_point: 0.0089
+Epoch 0 | Step 6 | Batch 6/55 | Loss: 1.6877 | LR: 5.00e-05 | Speed: 0.5 samples/s
+  feat_loss: 6.9555 | rkd_loss: 0.2603 | feature_total: 7.4760 | output_loss: 1.8046 | combined: 7.4760 | all_softmax_kl: 6.1755 | all_softmax_cos: 0.6100 | rkd_angle1_loss: 0.0454 | rkd_angle2_loss: 0.1284 | rkd_angle3_loss: 0.0864 | loss_camera: 0.0785 | loss_reg_depth: 0.2572 | loss_reg_point: 0.3837 | loss_conf_depth: 0.2544 | loss_conf_point: 0.3851 | loss_grad_depth: 0.0235 | loss_grad_point: 0.1083
+Epoch 0 | Step 7 | Batch 7/55 | Loss: 1.5050 | LR: 4.98e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.4003 | rkd_loss: 0.0044 | feature_total: 0.4091 | output_loss: 0.2294 | combined: 0.4091 | all_softmax_kl: 0.2785 | all_softmax_cos: 0.9391 | rkd_angle1_loss: 0.0014 | rkd_angle2_loss: 0.0020 | rkd_angle3_loss: 0.0010 | loss_camera: 0.0156 | loss_reg_depth: 0.0536 | loss_reg_point: 0.0627 | loss_conf_depth: -0.0118 | loss_conf_point: 0.0287 | loss_grad_depth: 0.0022 | loss_grad_point: 0.0160
+Epoch 0 | Step 8 | Batch 8/55 | Loss: 1.3867 | LR: 4.96e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.4817 | rkd_loss: 0.0382 | feature_total: 0.5580 | output_loss: 0.9641 | combined: 0.5580 | all_softmax_kl: 0.3792 | all_softmax_cos: 0.9487 | rkd_angle1_loss: 0.0139 | rkd_angle2_loss: 0.0238 | rkd_angle3_loss: 0.0005 | loss_camera: 0.0539 | loss_reg_depth: 0.1416 | loss_reg_point: 0.1953 | loss_conf_depth: 0.1343 | loss_conf_point: 0.1957 | loss_grad_depth: 0.0072 | loss_grad_point: 0.0204
+Epoch 0 | Step 9 | Batch 9/55 | Loss: 1.2530 | LR: 4.92e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.1357 | rkd_loss: 0.0240 | feature_total: 0.1838 | output_loss: 0.2501 | combined: 0.1838 | all_softmax_kl: 0.0930 | all_softmax_cos: 0.9787 | rkd_angle1_loss: 0.0080 | rkd_angle2_loss: 0.0154 | rkd_angle3_loss: 0.0006 | loss_camera: 0.0206 | loss_reg_depth: 0.0561 | loss_reg_point: 0.0315 | loss_conf_depth: 0.0319 | loss_conf_point: 0.0128 | loss_grad_depth: 0.0064 | loss_grad_point: 0.0081
+Epoch 0 | Step 10 | Batch 10/55 | Loss: 1.3332 | LR: 4.88e-05 | Speed: 0.5 samples/s
+  feat_loss: 2.0103 | rkd_loss: 0.0224 | feature_total: 2.0551 | output_loss: 2.7492 | combined: 2.0551 | all_softmax_kl: 1.4893 | all_softmax_cos: 0.7395 | rkd_angle1_loss: 0.0067 | rkd_angle2_loss: 0.0138 | rkd_angle3_loss: 0.0019 | loss_camera: 0.1274 | loss_reg_depth: 0.3521 | loss_reg_point: 0.6138 | loss_conf_depth: 0.3588 | loss_conf_point: 0.6191 | loss_grad_depth: 0.0498 | loss_grad_point: 0.1188
+Epoch 0 | Step 11 | Batch 11/55 | Loss: 1.2451 | LR: 4.83e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.3185 | rkd_loss: 0.0228 | feature_total: 0.3641 | output_loss: 0.6580 | combined: 0.3641 | all_softmax_kl: 0.2605 | all_softmax_cos: 0.9710 | rkd_angle1_loss: 0.0074 | rkd_angle2_loss: 0.0149 | rkd_angle3_loss: 0.0006 | loss_camera: 0.1037 | loss_reg_depth: 0.0353 | loss_reg_point: 0.0656 | loss_conf_depth: -0.0092 | loss_conf_point: 0.0316 | loss_grad_depth: 0.0036 | loss_grad_point: 0.0126
+Epoch 0 | Step 12 | Batch 12/55 | Loss: 1.2163 | LR: 4.77e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.7352 | rkd_loss: 0.0820 | feature_total: 0.8992 | output_loss: 0.3602 | combined: 0.8992 | all_softmax_kl: 0.5898 | all_softmax_cos: 0.9273 | rkd_angle1_loss: 0.0139 | rkd_angle2_loss: 0.0616 | rkd_angle3_loss: 0.0066 | loss_camera: 0.0162 | loss_reg_depth: 0.0637 | loss_reg_point: 0.0972 | loss_conf_depth: 0.0239 | loss_conf_point: 0.0695 | loss_grad_depth: 0.0061 | loss_grad_point: 0.0186
+Epoch 0 | Step 13 | Batch 13/55 | Loss: 1.1640 | LR: 4.70e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.4988 | rkd_loss: 0.0192 | feature_total: 0.5372 | output_loss: 0.9611 | combined: 0.5372 | all_softmax_kl: 0.3724 | all_softmax_cos: 0.9368 | rkd_angle1_loss: 0.0050 | rkd_angle2_loss: 0.0132 | rkd_angle3_loss: 0.0011 | loss_camera: 0.0858 | loss_reg_depth: 0.0824 | loss_reg_point: 0.1527 | loss_conf_depth: 0.0806 | loss_conf_point: 0.1503 | loss_grad_depth: 0.0060 | loss_grad_point: 0.0602
+Epoch 0 | Step 14 | Batch 14/55 | Loss: 1.1658 | LR: 4.62e-05 | Speed: 0.5 samples/s
+  feat_loss: 1.0831 | rkd_loss: 0.0530 | feature_total: 1.1892 | output_loss: 1.3883 | combined: 1.1892 | all_softmax_kl: 0.8557 | all_softmax_cos: 0.8863 | rkd_angle1_loss: 0.0160 | rkd_angle2_loss: 0.0334 | rkd_angle3_loss: 0.0037 | loss_camera: 0.0782 | loss_reg_depth: 0.1022 | loss_reg_point: 0.3422 | loss_conf_depth: 0.0925 | loss_conf_point: 0.3391 | loss_grad_depth: 0.0101 | loss_grad_point: 0.1110
+Epoch 0 | Step 15 | Batch 15/55 | Loss: 1.1432 | LR: 4.53e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.7762 | rkd_loss: 0.0249 | feature_total: 0.8260 | output_loss: 1.5125 | combined: 0.8260 | all_softmax_kl: 0.5546 | all_softmax_cos: 0.8892 | rkd_angle1_loss: 0.0084 | rkd_angle2_loss: 0.0156 | rkd_angle3_loss: 0.0009 | loss_camera: 0.0783 | loss_reg_depth: 0.1092 | loss_reg_point: 0.4189 | loss_conf_depth: 0.0950 | loss_conf_point: 0.4040 | loss_grad_depth: 0.0254 | loss_grad_point: 0.0688
+Epoch 0 | Step 16 | Batch 16/55 | Loss: 1.1052 | LR: 4.44e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.4554 | rkd_loss: 0.0400 | feature_total: 0.5354 | output_loss: 0.2563 | combined: 0.5354 | all_softmax_kl: 0.3301 | all_softmax_cos: 0.9374 | rkd_angle1_loss: 0.0152 | rkd_angle2_loss: 0.0222 | rkd_angle3_loss: 0.0026 | loss_camera: 0.0192 | loss_reg_depth: 0.0656 | loss_reg_point: 0.0712 | loss_conf_depth: -0.0279 | loss_conf_point: 0.0309 | loss_grad_depth: 0.0084 | loss_grad_point: 0.0122
+Epoch 0 | Step 17 | Batch 17/55 | Loss: 1.1734 | LR: 4.34e-05 | Speed: 0.5 samples/s
+  feat_loss: 2.2021 | rkd_loss: 0.0314 | feature_total: 2.2649 | output_loss: 1.9816 | combined: 2.2649 | all_softmax_kl: 1.7623 | all_softmax_cos: 0.7801 | rkd_angle1_loss: 0.0048 | rkd_angle2_loss: 0.0249 | rkd_angle3_loss: 0.0017 | loss_camera: 0.1536 | loss_reg_depth: 0.0868 | loss_reg_point: 0.4909 | loss_conf_depth: 0.0465 | loss_conf_point: 0.4854 | loss_grad_depth: 0.0178 | loss_grad_point: 0.0862
+Epoch 0 | Step 18 | Batch 18/55 | Loss: 1.1219 | LR: 4.23e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.2063 | rkd_loss: 0.0195 | feature_total: 0.2452 | output_loss: 0.0665 | combined: 0.2452 | all_softmax_kl: 0.1607 | all_softmax_cos: 0.9772 | rkd_angle1_loss: 0.0096 | rkd_angle2_loss: 0.0097 | rkd_angle3_loss: 0.0001 | loss_camera: 0.0121 | loss_reg_depth: 0.0224 | loss_reg_point: 0.0466 | loss_conf_depth: -0.0822 | loss_conf_point: -0.0363 | loss_grad_depth: 0.0157 | loss_grad_point: 0.0399
+Epoch 0 | Step 19 | Batch 19/55 | Loss: 1.0794 | LR: 4.11e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.2587 | rkd_loss: 0.0283 | feature_total: 0.3154 | output_loss: 0.7909 | combined: 0.3154 | all_softmax_kl: 0.1912 | all_softmax_cos: 0.9662 | rkd_angle1_loss: 0.0110 | rkd_angle2_loss: 0.0168 | rkd_angle3_loss: 0.0005 | loss_camera: 0.0407 | loss_reg_depth: 0.0790 | loss_reg_point: 0.1872 | loss_conf_depth: 0.0575 | loss_conf_point: 0.1768 | loss_grad_depth: 0.0173 | loss_grad_point: 0.0699
+Epoch 0 | Step 20 | Batch 20/55 | Loss: 1.1949 | LR: 3.99e-05 | Speed: 0.5 samples/s
+  feat_loss: 2.9361 | rkd_loss: 0.2267 | feature_total: 3.3895 | output_loss: 1.2178 | combined: 3.3895 | all_softmax_kl: 2.4736 | all_softmax_cos: 0.7688 | rkd_angle1_loss: 0.0497 | rkd_angle2_loss: 0.1343 | rkd_angle3_loss: 0.0428 | loss_camera: 0.0906 | loss_reg_depth: 0.0222 | loss_reg_point: 0.3811 | loss_conf_depth: -0.0083 | loss_conf_point: 0.3373 | loss_grad_depth: 0.0074 | loss_grad_point: 0.0250
+Epoch 0 | Step 21 | Batch 21/55 | Loss: 1.2268 | LR: 3.86e-05 | Speed: 0.5 samples/s
+  feat_loss: 1.8072 | rkd_loss: 0.0286 | feature_total: 1.8644 | output_loss: 1.2751 | combined: 1.8644 | all_softmax_kl: 1.3539 | all_softmax_cos: 0.7733 | rkd_angle1_loss: 0.0185 | rkd_angle2_loss: 0.0051 | rkd_angle3_loss: 0.0050 | loss_camera: 0.0950 | loss_reg_depth: 0.0218 | loss_reg_point: 0.3510 | loss_conf_depth: 0.0097 | loss_conf_point: 0.3510 | loss_grad_depth: 0.0091 | loss_grad_point: 0.0577
+Epoch 0 | Step 22 | Batch 22/55 | Loss: 1.1787 | LR: 3.73e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.1585 | rkd_loss: 0.0050 | feature_total: 0.1684 | output_loss: -0.1120 | combined: 0.1684 | all_softmax_kl: 0.1197 | all_softmax_cos: 0.9806 | rkd_angle1_loss: 0.0024 | rkd_angle2_loss: 0.0024 | rkd_angle3_loss: 0.0001 | loss_camera: 0.0076 | loss_reg_depth: 0.0301 | loss_reg_point: 0.0337 | loss_conf_depth: -0.1405 | loss_conf_point: -0.0918 | loss_grad_depth: 0.0041 | loss_grad_point: 0.0145
+Epoch 0 | Step 23 | Batch 23/55 | Loss: 1.1680 | LR: 3.59e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.8663 | rkd_loss: 0.0336 | feature_total: 0.9336 | output_loss: 1.8982 | combined: 0.9336 | all_softmax_kl: 0.6275 | all_softmax_cos: 0.8806 | rkd_angle1_loss: 0.0072 | rkd_angle2_loss: 0.0225 | rkd_angle3_loss: 0.0039 | loss_camera: 0.2102 | loss_reg_depth: 0.1161 | loss_reg_point: 0.2756 | loss_conf_depth: 0.1124 | loss_conf_point: 0.2756 | loss_grad_depth: 0.0082 | loss_grad_point: 0.0592
+Epoch 0 | Step 24 | Batch 24/55 | Loss: 1.1353 | LR: 3.45e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.2986 | rkd_loss: 0.0415 | feature_total: 0.3816 | output_loss: 0.5031 | combined: 0.3816 | all_softmax_kl: 0.2214 | all_softmax_cos: 0.9614 | rkd_angle1_loss: 0.0183 | rkd_angle2_loss: 0.0218 | rkd_angle3_loss: 0.0014 | loss_camera: 0.0206 | loss_reg_depth: 0.0966 | loss_reg_point: 0.1240 | loss_conf_depth: 0.0487 | loss_conf_point: 0.0985 | loss_grad_depth: 0.0123 | loss_grad_point: 0.0198
+Epoch 0 | Step 25 | Batch 25/55 | Loss: 1.2340 | LR: 3.31e-05 | Speed: 0.5 samples/s
+  feat_loss: 3.4037 | rkd_loss: 0.0995 | feature_total: 3.6027 | output_loss: 1.8062 | combined: 3.6027 | all_softmax_kl: 2.8547 | all_softmax_cos: 0.7255 | rkd_angle1_loss: 0.0119 | rkd_angle2_loss: 0.0681 | rkd_angle3_loss: 0.0195 | loss_camera: 0.0996 | loss_reg_depth: 0.2400 | loss_reg_point: 0.3951 | loss_conf_depth: 0.2432 | loss_conf_point: 0.3960 | loss_grad_depth: 0.0090 | loss_grad_point: 0.0251
+Epoch 0 | Step 26 | Batch 26/55 | Loss: 1.3322 | LR: 3.16e-05 | Speed: 0.5 samples/s
+  feat_loss: 3.7229 | rkd_loss: 0.0327 | feature_total: 3.7883 | output_loss: 2.8484 | combined: 3.7883 | all_softmax_kl: 3.0021 | all_softmax_cos: 0.6396 | rkd_angle1_loss: 0.0050 | rkd_angle2_loss: 0.0237 | rkd_angle3_loss: 0.0040 | loss_camera: 0.2557 | loss_reg_depth: 0.1211 | loss_reg_point: 0.4741 | loss_conf_depth: 0.1127 | loss_conf_point: 0.4740 | loss_grad_depth: 0.0048 | loss_grad_point: 0.3832
+Epoch 0 | Step 27 | Batch 27/55 | Loss: 1.2873 | LR: 3.01e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.1079 | rkd_loss: 0.0057 | feature_total: 0.1194 | output_loss: 0.1611 | combined: 0.1194 | all_softmax_kl: 0.0849 | all_softmax_cos: 0.9885 | rkd_angle1_loss: 0.0025 | rkd_angle2_loss: 0.0030 | rkd_angle3_loss: 0.0002 | loss_camera: 0.0035 | loss_reg_depth: 0.0414 | loss_reg_point: 0.0498 | loss_conf_depth: -0.0553 | loss_conf_point: 0.0174 | loss_grad_depth: 0.0347 | loss_grad_point: 0.0556
+Epoch 0 | Step 28 | Batch 28/55 | Loss: 1.2478 | LR: 2.86e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.1655 | rkd_loss: 0.0078 | feature_total: 0.1812 | output_loss: 0.6291 | combined: 0.1812 | all_softmax_kl: 0.1209 | all_softmax_cos: 0.9777 | rkd_angle1_loss: 0.0032 | rkd_angle2_loss: 0.0036 | rkd_angle3_loss: 0.0011 | loss_camera: 0.0247 | loss_reg_depth: 0.1245 | loss_reg_point: 0.1435 | loss_conf_depth: 0.0793 | loss_conf_point: 0.1296 | loss_grad_depth: 0.0133 | loss_grad_point: 0.0153
+Epoch 0 | Step 29 | Batch 29/55 | Loss: 1.2110 | LR: 2.70e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.1646 | rkd_loss: 0.0090 | feature_total: 0.1827 | output_loss: 0.5749 | combined: 0.1827 | all_softmax_kl: 0.1228 | all_softmax_cos: 0.9791 | rkd_angle1_loss: 0.0028 | rkd_angle2_loss: 0.0037 | rkd_angle3_loss: 0.0025 | loss_camera: 0.0172 | loss_reg_depth: 0.1261 | loss_reg_point: 0.1364 | loss_conf_depth: 0.0806 | loss_conf_point: 0.1185 | loss_grad_depth: 0.0124 | loss_grad_point: 0.0148
+Epoch 0 | Step 30 | Batch 30/55 | Loss: 1.1770 | LR: 2.55e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.1552 | rkd_loss: 0.0166 | feature_total: 0.1883 | output_loss: 0.1111 | combined: 0.1883 | all_softmax_kl: 0.1105 | all_softmax_cos: 0.9776 | rkd_angle1_loss: 0.0083 | rkd_angle2_loss: 0.0077 | rkd_angle3_loss: 0.0006 | loss_camera: 0.0108 | loss_reg_depth: 0.0420 | loss_reg_point: 0.0370 | loss_conf_depth: -0.0378 | loss_conf_point: -0.0047 | loss_grad_depth: 0.0047 | loss_grad_point: 0.0158
+Epoch 0 | Step 31 | Batch 31/55 | Loss: 1.1462 | LR: 2.40e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.1905 | rkd_loss: 0.0168 | feature_total: 0.2241 | output_loss: 0.1392 | combined: 0.2241 | all_softmax_kl: 0.1226 | all_softmax_cos: 0.9660 | rkd_angle1_loss: 0.0045 | rkd_angle2_loss: 0.0109 | rkd_angle3_loss: 0.0014 | loss_camera: 0.0238 | loss_reg_depth: 0.0217 | loss_reg_point: 0.0379 | loss_conf_depth: -0.0737 | loss_conf_point: 0.0066 | loss_grad_depth: 0.0034 | loss_grad_point: 0.0243
+Epoch 0 | Step 32 | Batch 32/55 | Loss: 1.1134 | LR: 2.24e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0802 | rkd_loss: 0.0080 | feature_total: 0.0962 | output_loss: 0.0121 | combined: 0.0962 | all_softmax_kl: 0.0622 | all_softmax_cos: 0.9910 | rkd_angle1_loss: 0.0036 | rkd_angle2_loss: 0.0044 | rkd_angle3_loss: 0.0001 | loss_camera: 0.0139 | loss_reg_depth: 0.0409 | loss_reg_point: 0.0565 | loss_conf_depth: -0.1236 | loss_conf_point: -0.0490 | loss_grad_depth: 0.0032 | loss_grad_point: 0.0146
+Epoch 0 | Step 33 | Batch 33/55 | Loss: 1.0837 | LR: 2.09e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0969 | rkd_loss: 0.0188 | feature_total: 0.1345 | output_loss: 0.3375 | combined: 0.1345 | all_softmax_kl: 0.0770 | all_softmax_cos: 0.9901 | rkd_angle1_loss: 0.0094 | rkd_angle2_loss: 0.0087 | rkd_angle3_loss: 0.0007 | loss_camera: 0.0119 | loss_reg_depth: 0.0674 | loss_reg_point: 0.0690 | loss_conf_depth: 0.0566 | loss_conf_point: 0.0689 | loss_grad_depth: 0.0039 | loss_grad_point: 0.0124
+Epoch 0 | Step 34 | Batch 34/55 | Loss: 1.0758 | LR: 1.94e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.7504 | rkd_loss: 0.0321 | feature_total: 0.8146 | output_loss: 0.2142 | combined: 0.8146 | all_softmax_kl: 0.5451 | all_softmax_cos: 0.8974 | rkd_angle1_loss: 0.0124 | rkd_angle2_loss: 0.0171 | rkd_angle3_loss: 0.0026 | loss_camera: 0.0418 | loss_reg_depth: 0.0146 | loss_reg_point: 0.0522 | loss_conf_depth: -0.0595 | loss_conf_point: -0.0268 | loss_grad_depth: 0.0056 | loss_grad_point: 0.0190
+Epoch 0 | Step 35 | Batch 35/55 | Loss: 1.0674 | LR: 1.79e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.7666 | rkd_loss: 0.0075 | feature_total: 0.7816 | output_loss: 0.9335 | combined: 0.7816 | all_softmax_kl: 0.5657 | all_softmax_cos: 0.8995 | rkd_angle1_loss: 0.0039 | rkd_angle2_loss: 0.0033 | rkd_angle3_loss: 0.0003 | loss_camera: 0.0479 | loss_reg_depth: 0.1563 | loss_reg_point: 0.1866 | loss_conf_depth: 0.1328 | loss_conf_point: 0.1880 | loss_grad_depth: 0.0050 | loss_grad_point: 0.0251
+Epoch 0 | Step 36 | Batch 36/55 | Loss: 1.0543 | LR: 1.65e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.5677 | rkd_loss: 0.0136 | feature_total: 0.5949 | output_loss: 0.5983 | combined: 0.5949 | all_softmax_kl: 0.3479 | all_softmax_cos: 0.8901 | rkd_angle1_loss: 0.0015 | rkd_angle2_loss: 0.0094 | rkd_angle3_loss: 0.0026 | loss_camera: 0.0309 | loss_reg_depth: 0.0687 | loss_reg_point: 0.1352 | loss_conf_depth: 0.0486 | loss_conf_point: 0.1346 | loss_grad_depth: 0.0071 | loss_grad_point: 0.0495
+Epoch 0 | Step 37 | Batch 37/55 | Loss: 1.0516 | LR: 1.51e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.9029 | rkd_loss: 0.0258 | feature_total: 0.9545 | output_loss: 1.3278 | combined: 0.9545 | all_softmax_kl: 0.6261 | all_softmax_cos: 0.8616 | rkd_angle1_loss: 0.0103 | rkd_angle2_loss: 0.0140 | rkd_angle3_loss: 0.0016 | loss_camera: 0.1102 | loss_reg_depth: 0.0997 | loss_reg_point: 0.2465 | loss_conf_depth: 0.0949 | loss_conf_point: 0.2449 | loss_grad_depth: 0.0099 | loss_grad_point: 0.0807
+Epoch 0 | Step 38 | Batch 38/55 | Loss: 1.1389 | LR: 1.37e-05 | Speed: 0.6 samples/s
+  feat_loss: 4.0107 | rkd_loss: 0.1789 | feature_total: 4.3686 | output_loss: 3.8254 | combined: 4.3686 | all_softmax_kl: 3.0479 | all_softmax_cos: 0.5186 | rkd_angle1_loss: 0.0663 | rkd_angle2_loss: 0.0827 | rkd_angle3_loss: 0.0299 | loss_camera: 0.2050 | loss_reg_depth: 0.3995 | loss_reg_point: 0.7526 | loss_conf_depth: 0.4071 | loss_conf_point: 0.7611 | loss_grad_depth: 0.0109 | loss_grad_point: 0.4691
+Epoch 0 | Step 39 | Batch 39/55 | Loss: 1.1163 | LR: 1.24e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.2267 | rkd_loss: 0.0165 | feature_total: 0.2596 | output_loss: 0.1618 | combined: 0.2596 | all_softmax_kl: 0.1873 | all_softmax_cos: 0.9803 | rkd_angle1_loss: 0.0046 | rkd_angle2_loss: 0.0112 | rkd_angle3_loss: 0.0007 | loss_camera: 0.0133 | loss_reg_depth: 0.0367 | loss_reg_point: 0.0686 | loss_conf_depth: -0.0394 | loss_conf_point: 0.0145 | loss_grad_depth: 0.0030 | loss_grad_point: 0.0117
+Epoch 0 | Step 40 | Batch 40/55 | Loss: 1.3417 | LR: 1.11e-05 | Speed: 0.6 samples/s
+  feat_loss: 9.8330 | rkd_loss: 0.1479 | feature_total: 10.1287 | output_loss: 5.3519 | combined: 10.1287 | all_softmax_kl: 8.0443 | all_softmax_cos: 0.1057 | rkd_angle1_loss: 0.0165 | rkd_angle2_loss: 0.1199 | rkd_angle3_loss: 0.0114 | loss_camera: 0.2935 | loss_reg_depth: 0.1169 | loss_reg_point: 1.5993 | loss_conf_depth: 0.0910 | loss_conf_point: 1.5874 | loss_grad_depth: 0.0054 | loss_grad_point: 0.4844
+Epoch 0 | Step 41 | Batch 41/55 | Loss: 1.4289 | LR: 9.88e-06 | Speed: 0.6 samples/s
+  feat_loss: 4.8824 | rkd_loss: 0.0192 | feature_total: 4.9208 | output_loss: 2.1495 | combined: 4.9208 | all_softmax_kl: 4.2976 | all_softmax_cos: 0.7076 | rkd_angle1_loss: 0.0039 | rkd_angle2_loss: 0.0136 | rkd_angle3_loss: 0.0016 | loss_camera: 0.1882 | loss_reg_depth: 0.0253 | loss_reg_point: 0.3933 | loss_conf_depth: 0.0151 | loss_conf_point: 0.3897 | loss_grad_depth: 0.0026 | loss_grad_point: 0.3826
+Epoch 0 | Step 42 | Batch 42/55 | Loss: 1.4065 | LR: 8.73e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.4341 | rkd_loss: 0.0264 | feature_total: 0.4870 | output_loss: 0.6436 | combined: 0.4870 | all_softmax_kl: 0.3138 | all_softmax_cos: 0.9398 | rkd_angle1_loss: 0.0096 | rkd_angle2_loss: 0.0160 | rkd_angle3_loss: 0.0008 | loss_camera: 0.0267 | loss_reg_depth: 0.1060 | loss_reg_point: 0.1401 | loss_conf_depth: 0.0802 | loss_conf_point: 0.1563 | loss_grad_depth: 0.0066 | loss_grad_point: 0.0211
+Epoch 0 | Step 43 | Batch 43/55 | Loss: 1.3903 | LR: 7.64e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.6199 | rkd_loss: 0.0437 | feature_total: 0.7074 | output_loss: 0.9584 | combined: 0.7074 | all_softmax_kl: 0.4977 | all_softmax_cos: 0.9389 | rkd_angle1_loss: 0.0054 | rkd_angle2_loss: 0.0348 | rkd_angle3_loss: 0.0035 | loss_camera: 0.1099 | loss_reg_depth: 0.0843 | loss_reg_point: 0.1502 | loss_conf_depth: 0.0201 | loss_conf_point: 0.1340 | loss_grad_depth: 0.0046 | loss_grad_point: 0.0158
+Epoch 0 | Step 44 | Batch 44/55 | Loss: 1.3940 | LR: 6.62e-06 | Speed: 0.6 samples/s
+  feat_loss: 1.4976 | rkd_loss: 0.0275 | feature_total: 1.5526 | output_loss: 2.0522 | combined: 1.5526 | all_softmax_kl: 1.1915 | all_softmax_cos: 0.8469 | rkd_angle1_loss: 0.0079 | rkd_angle2_loss: 0.0169 | rkd_angle3_loss: 0.0027 | loss_camera: 0.1587 | loss_reg_depth: 0.0751 | loss_reg_point: 0.5005 | loss_conf_depth: 0.0270 | loss_conf_point: 0.4821 | loss_grad_depth: 0.0266 | loss_grad_point: 0.1473
+Epoch 0 | Step 45 | Batch 45/55 | Loss: 1.3708 | LR: 5.68e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.2694 | rkd_loss: 0.0413 | feature_total: 0.3520 | output_loss: 0.7325 | combined: 0.3520 | all_softmax_kl: 0.2090 | all_softmax_cos: 0.9698 | rkd_angle1_loss: 0.0164 | rkd_angle2_loss: 0.0231 | rkd_angle3_loss: 0.0018 | loss_camera: 0.0230 | loss_reg_depth: 0.1294 | loss_reg_point: 0.1645 | loss_conf_depth: 0.1191 | loss_conf_point: 0.1759 | loss_grad_depth: 0.0077 | loss_grad_point: 0.0208
+Epoch 0 | Step 46 | Batch 46/55 | Loss: 1.3480 | LR: 4.81e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.2528 | rkd_loss: 0.0355 | feature_total: 0.3238 | output_loss: -0.0796 | combined: 0.3238 | all_softmax_kl: 0.1968 | all_softmax_cos: 0.9720 | rkd_angle1_loss: 0.0162 | rkd_angle2_loss: 0.0185 | rkd_angle3_loss: 0.0007 | loss_camera: 0.0163 | loss_reg_depth: 0.0127 | loss_reg_point: 0.0395 | loss_conf_depth: -0.1748 | loss_conf_point: -0.0569 | loss_grad_depth: 0.0054 | loss_grad_point: 0.0128
+Epoch 0 | Step 47 | Batch 47/55 | Loss: 1.3230 | LR: 4.03e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.1493 | rkd_loss: 0.0101 | feature_total: 0.1696 | output_loss: 0.4387 | combined: 0.1696 | all_softmax_kl: 0.1145 | all_softmax_cos: 0.9826 | rkd_angle1_loss: 0.0039 | rkd_angle2_loss: 0.0060 | rkd_angle3_loss: 0.0002 | loss_camera: 0.0191 | loss_reg_depth: 0.0715 | loss_reg_point: 0.1232 | loss_conf_depth: 0.0130 | loss_conf_point: 0.1093 | loss_grad_depth: 0.0057 | loss_grad_point: 0.0207
+Epoch 0 | Step 48 | Batch 48/55 | Loss: 1.3404 | LR: 3.33e-06 | Speed: 0.6 samples/s
+  feat_loss: 2.0580 | rkd_loss: 0.0501 | feature_total: 2.1582 | output_loss: 1.7186 | combined: 2.1582 | all_softmax_kl: 1.6628 | all_softmax_cos: 0.8024 | rkd_angle1_loss: 0.0152 | rkd_angle2_loss: 0.0329 | rkd_angle3_loss: 0.0020 | loss_camera: 0.1290 | loss_reg_depth: 0.0252 | loss_reg_point: 0.2596 | loss_conf_depth: 0.0229 | loss_conf_point: 0.2580 | loss_grad_depth: 0.0036 | loss_grad_point: 0.5043
+Epoch 0 | Step 49 | Batch 49/55 | Loss: 1.3162 | LR: 2.72e-06 | Speed: 0.6 samples/s
+[ETH3D] electro: 39/45 images (filtered 6, missing 0)
+[ETH3D] facade: 76/76 images (filtered 0, missing 0)
+[ETH3D] office: 26/26 images (filtered 0, missing 0)
+[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
+[ETH3D] relief: 19/31 images (filtered 12, missing 0)
+[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
+[ETH3D] playground: 32/38 images (filtered 6, missing 0)
+[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
+[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
+[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
+[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
+[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
+[ETH3D] electro: 39/45 images (filtered 6, missing 0)
+[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
+[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
+[ETH3D] playground: 32/38 images (filtered 6, missing 0)
+[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
+[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
+[ETH3D] relief: 19/31 images (filtered 12, missing 0)
+[ETH3D] facade: 76/76 images (filtered 0, missing 0)
+[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
+  feat_loss: 0.1440 | rkd_loss: 0.0069 | feature_total: 0.1578 | output_loss: 0.0303 | combined: 0.1578 | all_softmax_kl: 0.1173 | all_softmax_cos: 0.9867 | rkd_angle1_loss: 0.0026 | rkd_angle2_loss: 0.0040 | rkd_angle3_loss: 0.0003 | loss_camera: 0.0177 | loss_reg_depth: 0.0277 | loss_reg_point: 0.0516 | loss_conf_depth: -0.0822 | loss_conf_point: -0.0694 | loss_grad_depth: 0.0034 | loss_grad_point: 0.0108
+Epoch 0 | Step 50 | Batch 50/55 | Loss: 1.2955 | LR: 2.20e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.2617 | rkd_loss: 0.0101 | feature_total: 0.2819 | output_loss: -0.1263 | combined: 0.2819 | all_softmax_kl: 0.2082 | all_softmax_cos: 0.9732 | rkd_angle1_loss: 0.0035 | rkd_angle2_loss: 0.0062 | rkd_angle3_loss: 0.0004 | loss_camera: 0.0065 | loss_reg_depth: 0.0209 | loss_reg_point: 0.0301 | loss_conf_depth: -0.1337 | loss_conf_point: -0.0931 | loss_grad_depth: 0.0038 | loss_grad_point: 0.0130
+Epoch 0 | Step 51 | Batch 51/55 | Loss: 1.2777 | LR: 1.77e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.3315 | rkd_loss: 0.0264 | feature_total: 0.3844 | output_loss: 0.5287 | combined: 0.3844 | all_softmax_kl: 0.2399 | all_softmax_cos: 0.9542 | rkd_angle1_loss: 0.0111 | rkd_angle2_loss: 0.0143 | rkd_angle3_loss: 0.0010 | loss_camera: 0.0239 | loss_reg_depth: 0.1076 | loss_reg_point: 0.1001 | loss_conf_depth: 0.0804 | loss_conf_point: 0.0983 | loss_grad_depth: 0.0065 | loss_grad_point: 0.0163
+Epoch 0 | Step 52 | Batch 52/55 | Loss: 1.2903 | LR: 1.43e-06 | Speed: 0.6 samples/s
+  feat_loss: 1.8873 | rkd_loss: 0.0231 | feature_total: 1.9336 | output_loss: 3.1894 | combined: 1.9336 | all_softmax_kl: 1.4817 | all_softmax_cos: 0.7972 | rkd_angle1_loss: 0.0051 | rkd_angle2_loss: 0.0135 | rkd_angle3_loss: 0.0045 | loss_camera: 0.3388 | loss_reg_depth: 0.1050 | loss_reg_point: 0.5296 | loss_conf_depth: 0.1011 | loss_conf_point: 0.5296 | loss_grad_depth: 0.0070 | loss_grad_point: 0.2229
+Epoch 0 | Step 53 | Batch 53/55 | Loss: 1.4940 | LR: 1.19e-06 | Speed: 0.6 samples/s
+  feat_loss: 11.2218 | rkd_loss: 0.4324 | feature_total: 12.0866 | output_loss: 5.7146 | combined: 12.0866 | all_softmax_kl: 9.6792 | all_softmax_cos: 0.2287 | rkd_angle1_loss: 0.0911 | rkd_angle2_loss: 0.1504 | rkd_angle3_loss: 0.1909 | loss_camera: 0.1743 | loss_reg_depth: 0.5927 | loss_reg_point: 1.2009 | loss_conf_depth: 0.6084 | loss_conf_point: 1.2330 | loss_grad_depth: 0.0234 | loss_grad_point: 1.1848
+Epoch 0 | Step 54 | Batch 54/55 | Loss: 1.4682 | LR: 1.05e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0762 | rkd_loss: 0.0121 | feature_total: 0.1005 | output_loss: 0.1078 | combined: 0.1005 | all_softmax_kl: 0.0560 | all_softmax_cos: 0.9899 | rkd_angle1_loss: 0.0060 | rkd_angle2_loss: 0.0060 | rkd_angle3_loss: 0.0002 | loss_camera: 0.0042 | loss_reg_depth: 0.0404 | loss_reg_point: 0.0494 | loss_conf_depth: -0.0323 | loss_conf_point: -0.0245 | loss_grad_depth: 0.0132 | loss_grad_point: 0.0406
+Epoch 0 | Step 55 | Batch 55/55 | Loss: 1.4531 | LR: 1.00e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.5393 | rkd_loss: 0.0483 | feature_total: 0.6359 | output_loss: 0.6688 | combined: 0.6359 | all_softmax_kl: 0.3694 | all_softmax_cos: 0.9151 | rkd_angle1_loss: 0.0092 | rkd_angle2_loss: 0.0336 | rkd_angle3_loss: 0.0055 | loss_camera: 0.0442 | loss_reg_depth: 0.0472 | loss_reg_point: 0.1698 | loss_conf_depth: 0.0439 | loss_conf_point: 0.1698 | loss_grad_depth: 0.0047 | loss_grad_point: 0.0124
+Saved LoRA weights to ./checkpoints/vggt_distill_feature/eth3d/epoch_0_lora_peft
+Saved checkpoint to ./checkpoints/vggt_distill_feature/eth3d/epoch_0.pt
+Saved LoRA weights to ./checkpoints/vggt_distill_feature/eth3d/latest_lora_peft
+
+Training complete!
+Feature-only training complete! Model saved to: ./checkpoints/vggt_distill_feature/eth3d/
+
+============================================================
+[Feature-only] Benchmarking maxframe, seed 42
+============================================================
+  [LoRA maxframe] eth3d, seed=42
+Loading base model: facebook/vggt-1b
+Loading LoRA weights: ./checkpoints/vggt_distill_feature/eth3d/epoch_0_lora.pt
+Loading student model: facebook/vggt-1b
+Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
+Total PEFT LoRA parameters: 12,582,912
+Camera token is trainable
+Student parameters: 1,269,120,428 total, 12,584,960 trainable
+Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_distill_feature/eth3d/epoch_0_lora_peft
+Loaded camera token
+[INFO] Total inference tasks: 11
+Inference:   0%|          | 0/11 [00:00<?, ?it/s]/root/autodl-tmp/da3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Inference:   9%|▉         | 1/11 [00:19<03:12, 19.21s/it]Inference:  18%|█▊        | 2/11 [00:37<02:50, 18.95s/it]Inference:  27%|██▋       | 3/11 [00:53<02:18, 17.34s/it]Inference:  36%|███▋      | 4/11 [00:59<01:29, 12.85s/it]Inference:  45%|████▌     | 5/11 [01:08<01:07, 11.33s/it]Inference:  55%|█████▍    | 6/11 [01:26<01:09, 13.88s/it]Inference:  64%|██████▎   | 7/11 [02:09<01:32, 23.13s/it]Inference:  73%|███████▎  | 8/11 [02:20<00:58, 19.51s/it]Inference:  82%|████████▏ | 9/11 [02:36<00:36, 18.36s/it]Inference:  91%|█████████ | 10/11 [02:45<00:15, 15.46s/it]Inference: 100%|██████████| 11/11 [03:07<00:00, 17.36s/it]Inference: 100%|██████████| 11/11 [03:07<00:00, 17.02s/it]
+[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
+[ETH3D] electro: 39/45 images (filtered 6, missing 0)
+[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
+[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
+[ETH3D] relief: 19/31 images (filtered 12, missing 0)
+[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
+[ETH3D] facade: 76/76 images (filtered 0, missing 0)
+[ETH3D] office: 26/26 images (filtered 0, missing 0)
+[ETH3D] playground: 32/38 images (filtered 6, missing 0)
+[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
+[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
+
+============================================================
+Evaluating POSE for all datasets...
+============================================================
+Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
+eth3d scenes:   0%|          | 0/11 [00:00<?, ?it/s][A
+                                                    [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 10.98it/s]
+
+============================================================
+Evaluating RECON_UNPOSED for all datasets...
+============================================================
+Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
+eth3d fusion:   0%|          | 0/11 [00:00<?, ?it/s][A
+eth3d fusion:   9%|▉         | 1/11 [01:35<15:52, 95.21s/it][A
+eth3d fusion:  18%|█▊        | 2/11 [01:40<06:20, 42.29s/it][A
+eth3d fusion:  55%|█████▍    | 6/11 [02:32<01:38, 19.68s/it][A
+eth3d fusion:  64%|██████▎   | 7/11 [04:27<02:41, 40.38s/it][A
+eth3d fusion: 100%|██████████| 11/11 [04:29<00:00, 18.31s/it][Aeth3d fusion: 100%|██████████| 11/11 [04:29<00:00, 24.50s/it]
+Datasets (recon_unposed eval): 100%|██████████| 1/1 [05:21<00:00, 321.60s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [05:21<00:00, 321.60s/it]
+  recon_unposed | eth3d | courtyard: {'acc': 0.5307648317649475, 'comp': 0.32096058905809066, 'overall': 0.4258627104115191, 'precision': 0.23219488163896274, 'recall': 0.48289769361890683, 'fscore': 0.3135996000885235}
+  recon_unposed | eth3d | electro: {'acc': 0.17968467138741734, 'comp': 5.024324049139615, 'overall': 2.6020043602635163, 'precision': 0.8189764656634242, 'recall': 0.5418979187945259, 'fscore': 0.6522301357909337}
+  recon_unposed | eth3d | kicker: {'acc': 0.05212682731046232, 'comp': 0.047935428499308146, 'overall': 0.05003112790488523, 'precision': 0.997303841371638, 'recall': 0.9994583190785722, 'fscore': 0.9983799178998463}
+  recon_unposed | eth3d | pipes: {'acc': 0.16779760070476618, 'comp': 0.1942552648994723, 'overall': 0.18102643280211925, 'precision': 0.8435342843994478, 'recall': 0.7644003777148253, 'fscore': 0.8020200581564653}
+  recon_unposed | eth3d | relief: {'acc': 0.5401697924809631, 'comp': 0.5577530372024682, 'overall': 0.5489614148417157, 'precision': 0.2943379059350504, 'recall': 0.23171924233095506, 'fscore': 0.2593017004991327}
+  recon_unposed | eth3d | delivery_area: {'acc': 0.5734605049379727, 'comp': 1.1943621117316972, 'overall': 0.8839113083348349, 'precision': 0.3749526643224236, 'recall': 0.2342480373787444, 'fscore': 0.2883513609954546}
+  recon_unposed | eth3d | facade: {'acc': 0.28411692831297614, 'comp': 0.2671526556864285, 'overall': 0.2756347919997023, 'precision': 0.5601132831597693, 'recall': 0.6358189983307841, 'fscore': 0.5955699535203564}
+  recon_unposed | eth3d | office: {'acc': 0.07434220400547199, 'comp': 0.07725898824124758, 'overall': 0.07580059612335979, 'precision': 0.9921943156251435, 'recall': 0.9906132116852355, 'fscore': 0.9914031332637787}
+  recon_unposed | eth3d | playground: {'acc': 0.4005389747979591, 'comp': 0.7174755095755032, 'overall': 0.5590072421867311, 'precision': 0.7937465463252901, 'recall': 0.6233979249313396, 'fscore': 0.6983338113182346}
+  recon_unposed | eth3d | relief_2: {'acc': 0.8447114749492773, 'comp': 1.1954698445596763, 'overall': 1.0200906597544768, 'precision': 0.027742675956733947, 'recall': 0.03755673882681564, 'fscore': 0.03191221356937855}
+  recon_unposed | eth3d | terrains: {'acc': 0.305763654493251, 'comp': 0.17806435648312474, 'overall': 0.24191400548818787, 'precision': 0.679690301332023, 'recall': 0.794379866832186, 'fscore': 0.7325733913083481}
+
+[1;36m========================================================================================================================[0m
+[1;36m📊 SUMMARY[0m
+[1;36m========================================================================================================================[0m
+
+[1;35m🎯 POSE ESTIMATION[0m
+---------------------------------------------------------------------------------------
+[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
+---------------------------------------------------------------------------------------
+Auc3           [1;32m0.2730      [0mN/A         0.2730      N/A         N/A         N/A         
+Auc30          [1;32m0.8146      [0mN/A         0.8146      N/A         N/A         N/A         
+
+[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
+---------------------------------------------------------------------------------------
+[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
+---------------------------------------------------------------------------------------
+F-score        [1;32m0.5785      [0mN/A         0.5785      N/A         N/A         N/A         
+Overall        [1;32m0.6240      [0mN/A         0.6240      N/A         N/A         N/A         
+
+[1;35m🏗️  RECON_POSED (GT Pose)[0m
+---------------------------------------------------------------------------------------
+[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
+---------------------------------------------------------------------------------------
+F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
+Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
+
+[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
+
+====================================================================================================
+[1;32m✅ Evaluation Complete[0m
+====================================================================================================
+
+[Feature-only] Benchmark complete!
+
+============================================================
+[Output-only] Training on eth3d (fp32)
+  kl=0, cos=0, rkd=0 (no feature loss)
+============================================================
+/root/autodl-tmp/da3/./scripts/train_vggt_combined_distill.py:684: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = GradScaler(enabled=args.use_amp)
+Using device: cuda
+
+Configuration:
+  Teacher views: 8
+  Student views: 4 (indices: [0, 2, 4, 6])
+  Output layers: [19, 23]
+  Feature loss: all-token KL (w=0.0) + cos (w=0.0) + RKD (w=0.0)
+  Output loss: camera (w=5.0) + depth (w=1.0) + point (w=1.0), output_weight=1.0
+
+Creating dataset...
+Loaded 11 scenes for eth3d (all scenes for training)
+Generating 5 samples per scene = 55 total samples
+Train samples: 55
+
+Creating models...
+Loading teacher model: facebook/vggt-1b
+Teacher parameters: 1,256,537,516 (all frozen)
+Loading student model: facebook/vggt-1b
+Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
+Camera token is trainable
+Student parameters: 1,269,120,428 total, 12,584,960 trainable (12,582,912 LoRA)
+
+Creating losses...
+VGGTAllTokenSoftmaxKLCosineLoss: layer=23, kl_w=0.0, cos_w=0.0
+  Uses full 2048-dim token (no frame/global split)
+VGGTCrossFrameRKDAngleLoss: layer=23, topk=4
+  ref_samples=256, shared_samples=256, shared_chunk=64
+  angle weights: a1=1.0, a2=1.0, a3=1.0
+  extra frames (teacher-only): [1, 3, 5, 7]
+  shared frames: [2, 4, 6]
+
+Starting training...
+
+============================================================
+Epoch 1/1
+============================================================
+/root/autodl-tmp/da3/./scripts/train_vggt_combined_distill.py:366: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(enabled=args.use_amp):
+/root/autodl-tmp/da3/./scripts/train_vggt_combined_distill.py:117: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+/root/autodl-tmp/da3/scripts/../src/vggt/vggt/training/loss.py:527: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Epoch 0 | Step 1 | Batch 1/55 | Loss: 1.7064 | LR: 1.04e-05 | Speed: 0.2 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0506 | feature_total: 0.0000 | output_loss: 1.7064 | combined: 1.7064 | all_softmax_kl: 0.4168 | all_softmax_cos: 0.8365 | rkd_angle1_loss: 0.0151 | rkd_angle2_loss: 0.0311 | rkd_angle3_loss: 0.0044 | loss_camera: 0.0743 | loss_reg_depth: 0.2011 | loss_reg_point: 0.4123 | loss_conf_depth: 0.1992 | loss_conf_point: 0.4106 | loss_grad_depth: 0.0323 | loss_grad_point: 0.0794
+Epoch 0 | Step 2 | Batch 2/55 | Loss: 0.9203 | LR: 2.03e-05 | Speed: 0.3 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0040 | feature_total: 0.0000 | output_loss: 0.1341 | combined: 0.1341 | all_softmax_kl: 0.1813 | all_softmax_cos: 0.9695 | rkd_angle1_loss: 0.0016 | rkd_angle2_loss: 0.0019 | rkd_angle3_loss: 0.0005 | loss_camera: 0.0136 | loss_reg_depth: 0.0136 | loss_reg_point: 0.0390 | loss_conf_depth: -0.0250 | loss_conf_point: 0.0098 | loss_grad_depth: 0.0055 | loss_grad_point: 0.0232
+Epoch 0 | Step 3 | Batch 3/55 | Loss: 0.6549 | LR: 3.02e-05 | Speed: 0.4 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0055 | feature_total: 0.0000 | output_loss: 0.1241 | combined: 0.1241 | all_softmax_kl: 0.0511 | all_softmax_cos: 0.9933 | rkd_angle1_loss: 0.0019 | rkd_angle2_loss: 0.0034 | rkd_angle3_loss: 0.0002 | loss_camera: 0.0072 | loss_reg_depth: 0.0406 | loss_reg_point: 0.0487 | loss_conf_depth: -0.0335 | loss_conf_point: -0.0128 | loss_grad_depth: 0.0098 | loss_grad_point: 0.0355
+Epoch 0 | Step 4 | Batch 4/55 | Loss: 0.8399 | LR: 4.01e-05 | Speed: 0.4 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0759 | feature_total: 0.0000 | output_loss: 1.3948 | combined: 1.3948 | all_softmax_kl: 0.7790 | all_softmax_cos: 0.8639 | rkd_angle1_loss: 0.0095 | rkd_angle2_loss: 0.0501 | rkd_angle3_loss: 0.0162 | loss_camera: 0.0323 | loss_reg_depth: 0.2669 | loss_reg_point: 0.3048 | loss_conf_depth: 0.2752 | loss_conf_point: 0.3143 | loss_grad_depth: 0.0232 | loss_grad_point: 0.0492
+Epoch 0 | Step 5 | Batch 5/55 | Loss: 0.6515 | LR: 5.00e-05 | Speed: 0.4 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0036 | feature_total: 0.0000 | output_loss: -0.1021 | combined: -0.1021 | all_softmax_kl: 0.2307 | all_softmax_cos: 0.9808 | rkd_angle1_loss: 0.0017 | rkd_angle2_loss: 0.0014 | rkd_angle3_loss: 0.0004 | loss_camera: 0.0124 | loss_reg_depth: 0.0290 | loss_reg_point: 0.0401 | loss_conf_depth: -0.1453 | loss_conf_point: -0.0994 | loss_grad_depth: 0.0023 | loss_grad_point: 0.0090
+Epoch 0 | Step 6 | Batch 6/55 | Loss: 0.8435 | LR: 5.00e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.2611 | feature_total: 0.0000 | output_loss: 1.8036 | combined: 1.8036 | all_softmax_kl: 6.1990 | all_softmax_cos: 0.6089 | rkd_angle1_loss: 0.0453 | rkd_angle2_loss: 0.1289 | rkd_angle3_loss: 0.0870 | loss_camera: 0.0783 | loss_reg_depth: 0.2561 | loss_reg_point: 0.3843 | loss_conf_depth: 0.2533 | loss_conf_point: 0.3856 | loss_grad_depth: 0.0235 | loss_grad_point: 0.1090
+Epoch 0 | Step 7 | Batch 7/55 | Loss: 0.7564 | LR: 4.98e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0044 | feature_total: 0.0000 | output_loss: 0.2335 | combined: 0.2335 | all_softmax_kl: 0.2848 | all_softmax_cos: 0.9380 | rkd_angle1_loss: 0.0014 | rkd_angle2_loss: 0.0020 | rkd_angle3_loss: 0.0010 | loss_camera: 0.0158 | loss_reg_depth: 0.0543 | loss_reg_point: 0.0636 | loss_conf_depth: -0.0111 | loss_conf_point: 0.0292 | loss_grad_depth: 0.0022 | loss_grad_point: 0.0161
+Epoch 0 | Step 8 | Batch 8/55 | Loss: 0.7839 | LR: 4.96e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0390 | feature_total: 0.0000 | output_loss: 0.9770 | combined: 0.9770 | all_softmax_kl: 0.3746 | all_softmax_cos: 0.9488 | rkd_angle1_loss: 0.0142 | rkd_angle2_loss: 0.0243 | rkd_angle3_loss: 0.0005 | loss_camera: 0.0548 | loss_reg_depth: 0.1415 | loss_reg_point: 0.1994 | loss_conf_depth: 0.1343 | loss_conf_point: 0.1997 | loss_grad_depth: 0.0072 | loss_grad_point: 0.0206
+Epoch 0 | Step 9 | Batch 9/55 | Loss: 0.7242 | LR: 4.92e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0242 | feature_total: 0.0000 | output_loss: 0.2467 | combined: 0.2467 | all_softmax_kl: 0.0919 | all_softmax_cos: 0.9788 | rkd_angle1_loss: 0.0080 | rkd_angle2_loss: 0.0156 | rkd_angle3_loss: 0.0006 | loss_camera: 0.0202 | loss_reg_depth: 0.0571 | loss_reg_point: 0.0320 | loss_conf_depth: 0.0308 | loss_conf_point: 0.0115 | loss_grad_depth: 0.0064 | loss_grad_point: 0.0080
+Epoch 0 | Step 10 | Batch 10/55 | Loss: 0.9258 | LR: 4.88e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0231 | feature_total: 0.0000 | output_loss: 2.7396 | combined: 2.7396 | all_softmax_kl: 1.5370 | all_softmax_cos: 0.7359 | rkd_angle1_loss: 0.0068 | rkd_angle2_loss: 0.0143 | rkd_angle3_loss: 0.0020 | loss_camera: 0.1273 | loss_reg_depth: 0.3485 | loss_reg_point: 0.6131 | loss_conf_depth: 0.3550 | loss_conf_point: 0.6183 | loss_grad_depth: 0.0495 | loss_grad_point: 0.1185
+Epoch 0 | Step 11 | Batch 11/55 | Loss: 0.8996 | LR: 4.83e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0241 | feature_total: 0.0000 | output_loss: 0.6383 | combined: 0.6383 | all_softmax_kl: 0.2756 | all_softmax_cos: 0.9704 | rkd_angle1_loss: 0.0075 | rkd_angle2_loss: 0.0159 | rkd_angle3_loss: 0.0006 | loss_camera: 0.1021 | loss_reg_depth: 0.0335 | loss_reg_point: 0.0653 | loss_conf_depth: -0.0147 | loss_conf_point: 0.0278 | loss_grad_depth: 0.0035 | loss_grad_point: 0.0125
+Epoch 0 | Step 12 | Batch 12/55 | Loss: 0.8561 | LR: 4.77e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0849 | feature_total: 0.0000 | output_loss: 0.3769 | combined: 0.3769 | all_softmax_kl: 0.5888 | all_softmax_cos: 0.9271 | rkd_angle1_loss: 0.0145 | rkd_angle2_loss: 0.0639 | rkd_angle3_loss: 0.0065 | loss_camera: 0.0167 | loss_reg_depth: 0.0665 | loss_reg_point: 0.1008 | loss_conf_depth: 0.0274 | loss_conf_point: 0.0739 | loss_grad_depth: 0.0061 | loss_grad_point: 0.0187
+Epoch 0 | Step 13 | Batch 13/55 | Loss: 0.8600 | LR: 4.70e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0185 | feature_total: 0.0000 | output_loss: 0.9074 | combined: 0.9074 | all_softmax_kl: 0.3252 | all_softmax_cos: 0.9433 | rkd_angle1_loss: 0.0049 | rkd_angle2_loss: 0.0126 | rkd_angle3_loss: 0.0010 | loss_camera: 0.0817 | loss_reg_depth: 0.0804 | loss_reg_point: 0.1443 | loss_conf_depth: 0.0783 | loss_conf_point: 0.1415 | loss_grad_depth: 0.0058 | loss_grad_point: 0.0487
+Epoch 0 | Step 14 | Batch 14/55 | Loss: 0.8999 | LR: 4.62e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0552 | feature_total: 0.0000 | output_loss: 1.4183 | combined: 1.4183 | all_softmax_kl: 0.9089 | all_softmax_cos: 0.8824 | rkd_angle1_loss: 0.0160 | rkd_angle2_loss: 0.0353 | rkd_angle3_loss: 0.0039 | loss_camera: 0.0795 | loss_reg_depth: 0.1065 | loss_reg_point: 0.3490 | loss_conf_depth: 0.0966 | loss_conf_point: 0.3458 | loss_grad_depth: 0.0105 | loss_grad_point: 0.1124
+Epoch 0 | Step 15 | Batch 15/55 | Loss: 0.9373 | LR: 4.53e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0287 | feature_total: 0.0000 | output_loss: 1.4613 | combined: 1.4613 | all_softmax_kl: 0.5106 | all_softmax_cos: 0.8900 | rkd_angle1_loss: 0.0096 | rkd_angle2_loss: 0.0181 | rkd_angle3_loss: 0.0009 | loss_camera: 0.0783 | loss_reg_depth: 0.0971 | loss_reg_point: 0.4086 | loss_conf_depth: 0.0799 | loss_conf_point: 0.3905 | loss_grad_depth: 0.0253 | loss_grad_point: 0.0685
+Epoch 0 | Step 16 | Batch 16/55 | Loss: 0.8936 | LR: 4.44e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0367 | feature_total: 0.0000 | output_loss: 0.2372 | combined: 0.2372 | all_softmax_kl: 0.3205 | all_softmax_cos: 0.9381 | rkd_angle1_loss: 0.0132 | rkd_angle2_loss: 0.0211 | rkd_angle3_loss: 0.0023 | loss_camera: 0.0179 | loss_reg_depth: 0.0653 | loss_reg_point: 0.0687 | loss_conf_depth: -0.0344 | loss_conf_point: 0.0276 | loss_grad_depth: 0.0081 | loss_grad_point: 0.0123
+Epoch 0 | Step 17 | Batch 17/55 | Loss: 0.9606 | LR: 4.34e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0372 | feature_total: 0.0000 | output_loss: 2.0328 | combined: 2.0328 | all_softmax_kl: 1.8835 | all_softmax_cos: 0.7670 | rkd_angle1_loss: 0.0054 | rkd_angle2_loss: 0.0299 | rkd_angle3_loss: 0.0019 | loss_camera: 0.1562 | loss_reg_depth: 0.0945 | loss_reg_point: 0.5019 | loss_conf_depth: 0.0548 | loss_conf_point: 0.4964 | loss_grad_depth: 0.0189 | loss_grad_point: 0.0855
+Epoch 0 | Step 18 | Batch 18/55 | Loss: 0.9098 | LR: 4.23e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0160 | feature_total: 0.0000 | output_loss: 0.0461 | combined: 0.0461 | all_softmax_kl: 0.1551 | all_softmax_cos: 0.9761 | rkd_angle1_loss: 0.0080 | rkd_angle2_loss: 0.0079 | rkd_angle3_loss: 0.0001 | loss_camera: 0.0118 | loss_reg_depth: 0.0212 | loss_reg_point: 0.0452 | loss_conf_depth: -0.0900 | loss_conf_point: -0.0459 | loss_grad_depth: 0.0161 | loss_grad_point: 0.0405
+Epoch 0 | Step 19 | Batch 19/55 | Loss: 0.9107 | LR: 4.11e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0440 | feature_total: 0.0000 | output_loss: 0.9269 | combined: 0.9269 | all_softmax_kl: 0.2411 | all_softmax_cos: 0.9578 | rkd_angle1_loss: 0.0162 | rkd_angle2_loss: 0.0267 | rkd_angle3_loss: 0.0011 | loss_camera: 0.0448 | loss_reg_depth: 0.1038 | loss_reg_point: 0.2177 | loss_conf_depth: 0.0839 | loss_conf_point: 0.2074 | loss_grad_depth: 0.0197 | loss_grad_point: 0.0703
+Epoch 0 | Step 20 | Batch 20/55 | Loss: 0.9233 | LR: 3.99e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.2169 | feature_total: 0.0000 | output_loss: 1.1636 | combined: 1.1636 | all_softmax_kl: 2.3600 | all_softmax_cos: 0.7776 | rkd_angle1_loss: 0.0477 | rkd_angle2_loss: 0.1295 | rkd_angle3_loss: 0.0397 | loss_camera: 0.0868 | loss_reg_depth: 0.0220 | loss_reg_point: 0.3650 | loss_conf_depth: -0.0089 | loss_conf_point: 0.3191 | loss_grad_depth: 0.0074 | loss_grad_point: 0.0250
+Epoch 0 | Step 21 | Batch 21/55 | Loss: 0.9373 | LR: 3.86e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0264 | feature_total: 0.0000 | output_loss: 1.2166 | combined: 1.2166 | all_softmax_kl: 1.3381 | all_softmax_cos: 0.7814 | rkd_angle1_loss: 0.0169 | rkd_angle2_loss: 0.0045 | rkd_angle3_loss: 0.0050 | loss_camera: 0.0902 | loss_reg_depth: 0.0181 | loss_reg_point: 0.3394 | loss_conf_depth: 0.0025 | loss_conf_point: 0.3394 | loss_grad_depth: 0.0087 | loss_grad_point: 0.0575
+Epoch 0 | Step 22 | Batch 22/55 | Loss: 0.8883 | LR: 3.73e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0046 | feature_total: 0.0000 | output_loss: -0.1407 | combined: -0.1407 | all_softmax_kl: 0.1196 | all_softmax_cos: 0.9802 | rkd_angle1_loss: 0.0022 | rkd_angle2_loss: 0.0022 | rkd_angle3_loss: 0.0001 | loss_camera: 0.0077 | loss_reg_depth: 0.0288 | loss_reg_point: 0.0314 | loss_conf_depth: -0.1522 | loss_conf_point: -0.1056 | loss_grad_depth: 0.0040 | loss_grad_point: 0.0146
+Epoch 0 | Step 23 | Batch 23/55 | Loss: 0.9241 | LR: 3.59e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0341 | feature_total: 0.0000 | output_loss: 1.7121 | combined: 1.7121 | all_softmax_kl: 0.5711 | all_softmax_cos: 0.8878 | rkd_angle1_loss: 0.0065 | rkd_angle2_loss: 0.0238 | rkd_angle3_loss: 0.0038 | loss_camera: 0.1895 | loss_reg_depth: 0.0969 | loss_reg_point: 0.2554 | loss_conf_depth: 0.0915 | loss_conf_point: 0.2554 | loss_grad_depth: 0.0077 | loss_grad_point: 0.0577
+Epoch 0 | Step 24 | Batch 24/55 | Loss: 0.9043 | LR: 3.45e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0383 | feature_total: 0.0000 | output_loss: 0.4489 | combined: 0.4489 | all_softmax_kl: 0.2311 | all_softmax_cos: 0.9629 | rkd_angle1_loss: 0.0159 | rkd_angle2_loss: 0.0210 | rkd_angle3_loss: 0.0014 | loss_camera: 0.0199 | loss_reg_depth: 0.0891 | loss_reg_point: 0.1113 | loss_conf_depth: 0.0354 | loss_conf_point: 0.0826 | loss_grad_depth: 0.0117 | loss_grad_point: 0.0195
+Epoch 0 | Step 25 | Batch 25/55 | Loss: 0.9436 | LR: 3.31e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.1094 | feature_total: 0.0000 | output_loss: 1.8858 | combined: 1.8858 | all_softmax_kl: 2.9780 | all_softmax_cos: 0.7045 | rkd_angle1_loss: 0.0123 | rkd_angle2_loss: 0.0747 | rkd_angle3_loss: 0.0224 | loss_camera: 0.1021 | loss_reg_depth: 0.2546 | loss_reg_point: 0.4088 | loss_conf_depth: 0.2651 | loss_conf_point: 0.4119 | loss_grad_depth: 0.0093 | loss_grad_point: 0.0253
+Epoch 0 | Step 26 | Batch 26/55 | Loss: 1.0255 | LR: 3.16e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0392 | feature_total: 0.0000 | output_loss: 3.0725 | combined: 3.0725 | all_softmax_kl: 2.5806 | all_softmax_cos: 0.6621 | rkd_angle1_loss: 0.0067 | rkd_angle2_loss: 0.0286 | rkd_angle3_loss: 0.0040 | loss_camera: 0.2630 | loss_reg_depth: 0.1768 | loss_reg_point: 0.5180 | loss_conf_depth: 0.1687 | loss_conf_point: 0.5181 | loss_grad_depth: 0.0062 | loss_grad_point: 0.3698
+Epoch 0 | Step 27 | Batch 27/55 | Loss: 0.9923 | LR: 3.01e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0064 | feature_total: 0.0000 | output_loss: 0.1292 | combined: 0.1292 | all_softmax_kl: 0.0866 | all_softmax_cos: 0.9875 | rkd_angle1_loss: 0.0027 | rkd_angle2_loss: 0.0035 | rkd_angle3_loss: 0.0002 | loss_camera: 0.0035 | loss_reg_depth: 0.0402 | loss_reg_point: 0.0462 | loss_conf_depth: -0.0677 | loss_conf_point: 0.0017 | loss_grad_depth: 0.0355 | loss_grad_point: 0.0562
+Epoch 0 | Step 28 | Batch 28/55 | Loss: 0.9770 | LR: 2.86e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0074 | feature_total: 0.0000 | output_loss: 0.5655 | combined: 0.5655 | all_softmax_kl: 0.1221 | all_softmax_cos: 0.9785 | rkd_angle1_loss: 0.0032 | rkd_angle2_loss: 0.0032 | rkd_angle3_loss: 0.0010 | loss_camera: 0.0210 | loss_reg_depth: 0.1179 | loss_reg_point: 0.1320 | loss_conf_depth: 0.0635 | loss_conf_point: 0.1200 | loss_grad_depth: 0.0129 | loss_grad_point: 0.0144
+Epoch 0 | Step 29 | Batch 29/55 | Loss: 0.9621 | LR: 2.70e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0091 | feature_total: 0.0000 | output_loss: 0.5445 | combined: 0.5445 | all_softmax_kl: 0.1009 | all_softmax_cos: 0.9807 | rkd_angle1_loss: 0.0026 | rkd_angle2_loss: 0.0039 | rkd_angle3_loss: 0.0025 | loss_camera: 0.0154 | loss_reg_depth: 0.1230 | loss_reg_point: 0.1303 | loss_conf_depth: 0.0738 | loss_conf_point: 0.1141 | loss_grad_depth: 0.0119 | loss_grad_point: 0.0145
+Epoch 0 | Step 30 | Batch 30/55 | Loss: 0.9325 | LR: 2.55e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0162 | feature_total: 0.0000 | output_loss: 0.0734 | combined: 0.0734 | all_softmax_kl: 0.0879 | all_softmax_cos: 0.9799 | rkd_angle1_loss: 0.0079 | rkd_angle2_loss: 0.0078 | rkd_angle3_loss: 0.0005 | loss_camera: 0.0123 | loss_reg_depth: 0.0386 | loss_reg_point: 0.0374 | loss_conf_depth: -0.0597 | loss_conf_point: -0.0249 | loss_grad_depth: 0.0044 | loss_grad_point: 0.0160
+Epoch 0 | Step 31 | Batch 31/55 | Loss: 0.9062 | LR: 2.40e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0174 | feature_total: 0.0000 | output_loss: 0.1192 | combined: 0.1192 | all_softmax_kl: 0.1167 | all_softmax_cos: 0.9675 | rkd_angle1_loss: 0.0046 | rkd_angle2_loss: 0.0114 | rkd_angle3_loss: 0.0014 | loss_camera: 0.0232 | loss_reg_depth: 0.0199 | loss_reg_point: 0.0365 | loss_conf_depth: -0.0827 | loss_conf_point: 0.0022 | loss_grad_depth: 0.0033 | loss_grad_point: 0.0240
+Epoch 0 | Step 32 | Batch 32/55 | Loss: 0.8775 | LR: 2.24e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0110 | feature_total: 0.0000 | output_loss: -0.0151 | combined: -0.0151 | all_softmax_kl: 0.0763 | all_softmax_cos: 0.9902 | rkd_angle1_loss: 0.0049 | rkd_angle2_loss: 0.0060 | rkd_angle3_loss: 0.0001 | loss_camera: 0.0147 | loss_reg_depth: 0.0367 | loss_reg_point: 0.0549 | loss_conf_depth: -0.1435 | loss_conf_point: -0.0542 | loss_grad_depth: 0.0031 | loss_grad_point: 0.0146
+Epoch 0 | Step 33 | Batch 33/55 | Loss: 0.8623 | LR: 2.09e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0184 | feature_total: 0.0000 | output_loss: 0.3768 | combined: 0.3768 | all_softmax_kl: 0.0771 | all_softmax_cos: 0.9898 | rkd_angle1_loss: 0.0087 | rkd_angle2_loss: 0.0090 | rkd_angle3_loss: 0.0008 | loss_camera: 0.0118 | loss_reg_depth: 0.0699 | loss_reg_point: 0.0708 | loss_conf_depth: 0.0748 | loss_conf_point: 0.0860 | loss_grad_depth: 0.0040 | loss_grad_point: 0.0121
+Epoch 0 | Step 34 | Batch 34/55 | Loss: 0.8425 | LR: 1.94e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0707 | feature_total: 0.0000 | output_loss: 0.1911 | combined: 0.1911 | all_softmax_kl: 0.7767 | all_softmax_cos: 0.8769 | rkd_angle1_loss: 0.0220 | rkd_angle2_loss: 0.0425 | rkd_angle3_loss: 0.0063 | loss_camera: 0.0222 | loss_reg_depth: 0.0422 | loss_reg_point: 0.0592 | loss_conf_depth: -0.0340 | loss_conf_point: -0.0105 | loss_grad_depth: 0.0052 | loss_grad_point: 0.0177
+Epoch 0 | Step 35 | Batch 35/55 | Loss: 0.8482 | LR: 1.79e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0082 | feature_total: 0.0000 | output_loss: 1.0417 | combined: 1.0417 | all_softmax_kl: 0.5761 | all_softmax_cos: 0.8947 | rkd_angle1_loss: 0.0046 | rkd_angle2_loss: 0.0033 | rkd_angle3_loss: 0.0004 | loss_camera: 0.0529 | loss_reg_depth: 0.1704 | loss_reg_point: 0.2080 | loss_conf_depth: 0.1514 | loss_conf_point: 0.2149 | loss_grad_depth: 0.0056 | loss_grad_point: 0.0271
+Epoch 0 | Step 36 | Batch 36/55 | Loss: 0.8415 | LR: 1.65e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0130 | feature_total: 0.0000 | output_loss: 0.6068 | combined: 0.6068 | all_softmax_kl: 0.3423 | all_softmax_cos: 0.8897 | rkd_angle1_loss: 0.0016 | rkd_angle2_loss: 0.0092 | rkd_angle3_loss: 0.0022 | loss_camera: 0.0316 | loss_reg_depth: 0.0694 | loss_reg_point: 0.1399 | loss_conf_depth: 0.0443 | loss_conf_point: 0.1388 | loss_grad_depth: 0.0070 | loss_grad_point: 0.0492
+Epoch 0 | Step 37 | Batch 37/55 | Loss: 0.8504 | LR: 1.51e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0194 | feature_total: 0.0000 | output_loss: 1.1695 | combined: 1.1695 | all_softmax_kl: 0.7243 | all_softmax_cos: 0.8520 | rkd_angle1_loss: 0.0074 | rkd_angle2_loss: 0.0108 | rkd_angle3_loss: 0.0012 | loss_camera: 0.1060 | loss_reg_depth: 0.0763 | loss_reg_point: 0.2122 | loss_conf_depth: 0.0662 | loss_conf_point: 0.2080 | loss_grad_depth: 0.0087 | loss_grad_point: 0.0681
+Epoch 0 | Step 38 | Batch 38/55 | Loss: 0.9293 | LR: 1.37e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.1803 | feature_total: 0.0000 | output_loss: 3.8509 | combined: 3.8509 | all_softmax_kl: 2.8665 | all_softmax_cos: 0.5344 | rkd_angle1_loss: 0.0634 | rkd_angle2_loss: 0.0849 | rkd_angle3_loss: 0.0320 | loss_camera: 0.2048 | loss_reg_depth: 0.3963 | loss_reg_point: 0.7677 | loss_conf_depth: 0.4065 | loss_conf_point: 0.7808 | loss_grad_depth: 0.0108 | loss_grad_point: 0.4647
+Epoch 0 | Step 39 | Batch 39/55 | Loss: 0.9084 | LR: 1.24e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0174 | feature_total: 0.0000 | output_loss: 0.1115 | combined: 0.1115 | all_softmax_kl: 0.1985 | all_softmax_cos: 0.9795 | rkd_angle1_loss: 0.0043 | rkd_angle2_loss: 0.0122 | rkd_angle3_loss: 0.0009 | loss_camera: 0.0131 | loss_reg_depth: 0.0324 | loss_reg_point: 0.0643 | loss_conf_depth: -0.0671 | loss_conf_point: 0.0019 | loss_grad_depth: 0.0028 | loss_grad_point: 0.0117
+Epoch 0 | Step 40 | Batch 40/55 | Loss: 1.0194 | LR: 1.11e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.1536 | feature_total: 0.0000 | output_loss: 5.3505 | combined: 5.3505 | all_softmax_kl: 7.9927 | all_softmax_cos: 0.1002 | rkd_angle1_loss: 0.0182 | rkd_angle2_loss: 0.1242 | rkd_angle3_loss: 0.0113 | loss_camera: 0.2943 | loss_reg_depth: 0.1140 | loss_reg_point: 1.6021 | loss_conf_depth: 0.0852 | loss_conf_point: 1.5888 | loss_grad_depth: 0.0053 | loss_grad_point: 0.4835
+Epoch 0 | Step 41 | Batch 41/55 | Loss: 1.0467 | LR: 9.88e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0338 | feature_total: 0.0000 | output_loss: 2.1388 | combined: 2.1388 | all_softmax_kl: 4.3273 | all_softmax_cos: 0.7030 | rkd_angle1_loss: 0.0058 | rkd_angle2_loss: 0.0252 | rkd_angle3_loss: 0.0028 | loss_camera: 0.1999 | loss_reg_depth: 0.0116 | loss_reg_point: 0.3806 | loss_conf_depth: 0.0019 | loss_conf_point: 0.3773 | loss_grad_depth: 0.0024 | loss_grad_point: 0.3655
+Epoch 0 | Step 42 | Batch 42/55 | Loss: 1.0368 | LR: 8.73e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0268 | feature_total: 0.0000 | output_loss: 0.6293 | combined: 0.6293 | all_softmax_kl: 0.2829 | all_softmax_cos: 0.9436 | rkd_angle1_loss: 0.0097 | rkd_angle2_loss: 0.0163 | rkd_angle3_loss: 0.0007 | loss_camera: 0.0270 | loss_reg_depth: 0.1009 | loss_reg_point: 0.1357 | loss_conf_depth: 0.0725 | loss_conf_point: 0.1587 | loss_grad_depth: 0.0062 | loss_grad_point: 0.0205
+Epoch 0 | Step 43 | Batch 43/55 | Loss: 1.0348 | LR: 7.64e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0448 | feature_total: 0.0000 | output_loss: 0.9507 | combined: 0.9507 | all_softmax_kl: 0.5312 | all_softmax_cos: 0.9359 | rkd_angle1_loss: 0.0048 | rkd_angle2_loss: 0.0357 | rkd_angle3_loss: 0.0044 | loss_camera: 0.1100 | loss_reg_depth: 0.0860 | loss_reg_point: 0.1450 | loss_conf_depth: 0.0211 | loss_conf_point: 0.1284 | loss_grad_depth: 0.0047 | loss_grad_point: 0.0157
+Epoch 0 | Step 44 | Batch 44/55 | Loss: 1.0578 | LR: 6.62e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0280 | feature_total: 0.0000 | output_loss: 2.0466 | combined: 2.0466 | all_softmax_kl: 1.1322 | all_softmax_cos: 0.8434 | rkd_angle1_loss: 0.0068 | rkd_angle2_loss: 0.0183 | rkd_angle3_loss: 0.0030 | loss_camera: 0.1617 | loss_reg_depth: 0.0671 | loss_reg_point: 0.5017 | loss_conf_depth: 0.0137 | loss_conf_point: 0.4805 | loss_grad_depth: 0.0264 | loss_grad_point: 0.1487
+Epoch 0 | Step 45 | Batch 45/55 | Loss: 1.0511 | LR: 5.68e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0495 | feature_total: 0.0000 | output_loss: 0.7559 | combined: 0.7559 | all_softmax_kl: 0.2011 | all_softmax_cos: 0.9699 | rkd_angle1_loss: 0.0202 | rkd_angle2_loss: 0.0273 | rkd_angle3_loss: 0.0021 | loss_camera: 0.0234 | loss_reg_depth: 0.1315 | loss_reg_point: 0.1664 | loss_conf_depth: 0.1232 | loss_conf_point: 0.1890 | loss_grad_depth: 0.0077 | loss_grad_point: 0.0210
+Epoch 0 | Step 46 | Batch 46/55 | Loss: 1.0246 | LR: 4.81e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0391 | feature_total: 0.0000 | output_loss: -0.1658 | combined: -0.1658 | all_softmax_kl: 0.1883 | all_softmax_cos: 0.9724 | rkd_angle1_loss: 0.0167 | rkd_angle2_loss: 0.0211 | rkd_angle3_loss: 0.0013 | loss_camera: 0.0140 | loss_reg_depth: 0.0119 | loss_reg_point: 0.0348 | loss_conf_depth: -0.2109 | loss_conf_point: -0.0904 | loss_grad_depth: 0.0060 | loss_grad_point: 0.0128
+Epoch 0 | Step 47 | Batch 47/55 | Loss: 1.0114 | LR: 4.03e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0117 | feature_total: 0.0000 | output_loss: 0.4033 | combined: 0.4033 | all_softmax_kl: 0.1086 | all_softmax_cos: 0.9824 | rkd_angle1_loss: 0.0042 | rkd_angle2_loss: 0.0072 | rkd_angle3_loss: 0.0003 | loss_camera: 0.0181 | loss_reg_depth: 0.0671 | loss_reg_point: 0.1170 | loss_conf_depth: 0.0029 | loss_conf_point: 0.0995 | loss_grad_depth: 0.0058 | loss_grad_point: 0.0208
+Epoch 0 | Step 48 | Batch 48/55 | Loss: 1.0333 | LR: 3.33e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0707 | feature_total: 0.0000 | output_loss: 2.0627 | combined: 2.0627 | all_softmax_kl: 2.0614 | all_softmax_cos: 0.7455 | rkd_angle1_loss: 0.0200 | rkd_angle2_loss: 0.0471 | rkd_angle3_loss: 0.0035 | loss_camera: 0.1476 | loss_reg_depth: 0.0508 | loss_reg_point: 0.3338 | loss_conf_depth: 0.0486 | loss_conf_point: 0.3320 | loss_grad_depth: 0.0043 | loss_grad_point: 0.5549
+Epoch 0 | Step 49 | Batch 49/55 | Loss: 1.0121 | LR: 2.72e-06 | Speed: 0.6 samples/s
+[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
+[ETH3D] electro: 39/45 images (filtered 6, missing 0)
+[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
+[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
+[ETH3D] playground: 32/38 images (filtered 6, missing 0)
+[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
+[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
+[ETH3D] relief: 19/31 images (filtered 12, missing 0)
+[ETH3D] facade: 76/76 images (filtered 0, missing 0)
+[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
+[ETH3D] electro: 39/45 images (filtered 6, missing 0)
+[ETH3D] facade: 76/76 images (filtered 0, missing 0)
+[ETH3D] office: 26/26 images (filtered 0, missing 0)
+[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
+[ETH3D] relief: 19/31 images (filtered 12, missing 0)
+[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
+[ETH3D] playground: 32/38 images (filtered 6, missing 0)
+[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
+[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
+[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
+[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
+  feat_loss: 0.0000 | rkd_loss: 0.0085 | feature_total: 0.0000 | output_loss: -0.0047 | combined: -0.0047 | all_softmax_kl: 0.1252 | all_softmax_cos: 0.9865 | rkd_angle1_loss: 0.0032 | rkd_angle2_loss: 0.0050 | rkd_angle3_loss: 0.0003 | loss_camera: 0.0166 | loss_reg_depth: 0.0260 | loss_reg_point: 0.0498 | loss_conf_depth: -0.0938 | loss_conf_point: -0.0840 | loss_grad_depth: 0.0033 | loss_grad_point: 0.0108
+Epoch 0 | Step 50 | Batch 50/55 | Loss: 0.9900 | LR: 2.20e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0120 | feature_total: 0.0000 | output_loss: -0.0938 | combined: -0.0938 | all_softmax_kl: 0.2606 | all_softmax_cos: 0.9687 | rkd_angle1_loss: 0.0041 | rkd_angle2_loss: 0.0074 | rkd_angle3_loss: 0.0005 | loss_camera: 0.0067 | loss_reg_depth: 0.0266 | loss_reg_point: 0.0363 | loss_conf_depth: -0.1286 | loss_conf_point: -0.0787 | loss_grad_depth: 0.0038 | loss_grad_point: 0.0130
+Epoch 0 | Step 51 | Batch 51/55 | Loss: 0.9800 | LR: 1.77e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0301 | feature_total: 0.0000 | output_loss: 0.4816 | combined: 0.4816 | all_softmax_kl: 0.2672 | all_softmax_cos: 0.9490 | rkd_angle1_loss: 0.0126 | rkd_angle2_loss: 0.0164 | rkd_angle3_loss: 0.0011 | loss_camera: 0.0233 | loss_reg_depth: 0.0977 | loss_reg_point: 0.0928 | loss_conf_depth: 0.0668 | loss_conf_point: 0.0853 | loss_grad_depth: 0.0063 | loss_grad_point: 0.0162
+Epoch 0 | Step 52 | Batch 52/55 | Loss: 1.0231 | LR: 1.43e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0289 | feature_total: 0.0000 | output_loss: 3.2215 | combined: 3.2215 | all_softmax_kl: 1.4545 | all_softmax_cos: 0.7898 | rkd_angle1_loss: 0.0048 | rkd_angle2_loss: 0.0183 | rkd_angle3_loss: 0.0058 | loss_camera: 0.3400 | loss_reg_depth: 0.1329 | loss_reg_point: 0.5219 | loss_conf_depth: 0.1284 | loss_conf_point: 0.5219 | loss_grad_depth: 0.0077 | loss_grad_point: 0.2086
+Epoch 0 | Step 53 | Batch 53/55 | Loss: 1.1135 | LR: 1.19e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.4344 | feature_total: 0.0000 | output_loss: 5.8099 | combined: 5.8099 | all_softmax_kl: 10.0538 | all_softmax_cos: 0.1733 | rkd_angle1_loss: 0.0985 | rkd_angle2_loss: 0.1433 | rkd_angle3_loss: 0.1926 | loss_camera: 0.1776 | loss_reg_depth: 0.5910 | loss_reg_point: 1.2461 | loss_conf_depth: 0.6091 | loss_conf_point: 1.2815 | loss_grad_depth: 0.0233 | loss_grad_point: 1.1710
+Epoch 0 | Step 54 | Batch 54/55 | Loss: 1.0961 | LR: 1.05e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0093 | feature_total: 0.0000 | output_loss: 0.1782 | combined: 0.1782 | all_softmax_kl: 0.0547 | all_softmax_cos: 0.9895 | rkd_angle1_loss: 0.0046 | rkd_angle2_loss: 0.0046 | rkd_angle3_loss: 0.0002 | loss_camera: 0.0048 | loss_reg_depth: 0.0554 | loss_reg_point: 0.0676 | loss_conf_depth: -0.0183 | loss_conf_point: -0.0082 | loss_grad_depth: 0.0143 | loss_grad_point: 0.0434
+Epoch 0 | Step 55 | Batch 55/55 | Loss: 1.0890 | LR: 1.00e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0000 | rkd_loss: 0.0519 | feature_total: 0.0000 | output_loss: 0.7010 | combined: 0.7010 | all_softmax_kl: 0.3568 | all_softmax_cos: 0.9140 | rkd_angle1_loss: 0.0093 | rkd_angle2_loss: 0.0369 | rkd_angle3_loss: 0.0057 | loss_camera: 0.0424 | loss_reg_depth: 0.0608 | loss_reg_point: 0.1780 | loss_conf_depth: 0.0553 | loss_conf_point: 0.1778 | loss_grad_depth: 0.0043 | loss_grad_point: 0.0125
+Saved LoRA weights to ./checkpoints/vggt_distill_output/eth3d/epoch_0_lora_peft
+Saved checkpoint to ./checkpoints/vggt_distill_output/eth3d/epoch_0.pt
+Saved LoRA weights to ./checkpoints/vggt_distill_output/eth3d/latest_lora_peft
+
+Training complete!
+Output-only training complete! Model saved to: ./checkpoints/vggt_distill_output/eth3d/
+
+============================================================
+[Output-only] Benchmarking maxframe, seed 42
+============================================================
+  [LoRA maxframe] eth3d, seed=42
+Loading base model: facebook/vggt-1b
+Loading LoRA weights: ./checkpoints/vggt_distill_output/eth3d/epoch_0_lora.pt
+Loading student model: facebook/vggt-1b
+Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
+Total PEFT LoRA parameters: 12,582,912
+Camera token is trainable
+Student parameters: 1,269,120,428 total, 12,584,960 trainable
+Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_distill_output/eth3d/epoch_0_lora_peft
+Loaded camera token
+[INFO] Total inference tasks: 11
+Inference:   0%|          | 0/11 [00:00<?, ?it/s]/root/autodl-tmp/da3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Inference:   9%|▉         | 1/11 [00:19<03:14, 19.44s/it]Inference:  18%|█▊        | 2/11 [00:38<02:53, 19.28s/it]Inference:  27%|██▋       | 3/11 [00:54<02:21, 17.64s/it]Inference:  36%|███▋      | 4/11 [01:00<01:31, 13.07s/it]Inference:  45%|████▌     | 5/11 [01:09<01:09, 11.57s/it]Inference:  55%|█████▍    | 6/11 [01:28<01:11, 14.23s/it]Inference:  64%|██████▎   | 7/11 [02:14<01:38, 24.54s/it]Inference:  73%|███████▎  | 8/11 [02:26<01:01, 20.54s/it]Inference:  82%|████████▏ | 9/11 [02:43<00:38, 19.36s/it]Inference:  91%|█████████ | 10/11 [02:52<00:16, 16.24s/it]Inference: 100%|██████████| 11/11 [03:13<00:00, 17.69s/it]Inference: 100%|██████████| 11/11 [03:13<00:00, 17.58s/it]
+[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
+[ETH3D] electro: 39/45 images (filtered 6, missing 0)
+[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
+[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
+[ETH3D] relief: 19/31 images (filtered 12, missing 0)
+[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
+[ETH3D] facade: 76/76 images (filtered 0, missing 0)
+[ETH3D] office: 26/26 images (filtered 0, missing 0)
+[ETH3D] playground: 32/38 images (filtered 6, missing 0)
+[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
+[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
+
+============================================================
+Evaluating POSE for all datasets...
+============================================================
+Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
+eth3d scenes:   0%|          | 0/11 [00:00<?, ?it/s][A
+                                                    [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 29.69it/s]
+
+============================================================
+Evaluating RECON_UNPOSED for all datasets...
+============================================================
+Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
+eth3d fusion:   0%|          | 0/11 [00:00<?, ?it/s][A
+eth3d fusion:   9%|▉         | 1/11 [01:32<15:26, 92.69s/it][A
+eth3d fusion:  18%|█▊        | 2/11 [01:36<06:01, 40.22s/it][A
+eth3d fusion:  55%|█████▍    | 6/11 [02:48<01:55, 23.19s/it][A
+eth3d fusion:  64%|██████▎   | 7/11 [04:39<02:48, 42.01s/it][Aeth3d fusion: 100%|██████████| 11/11 [04:39<00:00, 25.37s/it]
+Datasets (recon_unposed eval): 100%|██████████| 1/1 [05:36<00:00, 336.13s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [05:36<00:00, 336.13s/it]
+  recon_unposed | eth3d | courtyard: {'acc': 0.4732115533977551, 'comp': 0.3008981408908044, 'overall': 0.38705484714427973, 'precision': 0.21592677139598515, 'recall': 0.5041732190951322, 'fscore': 0.3023593858105333}
+  recon_unposed | eth3d | electro: {'acc': 0.1542578819983018, 'comp': 4.834685043641827, 'overall': 2.4944714628200644, 'precision': 0.8305377610028049, 'recall': 0.5577013962376584, 'fscore': 0.6673087508352586}
+  recon_unposed | eth3d | kicker: {'acc': 0.05074724350594161, 'comp': 0.046649878829932136, 'overall': 0.048698561167936874, 'precision': 0.9975924768226014, 'recall': 0.9995971338954275, 'fscore': 0.9985937992827867}
+  recon_unposed | eth3d | pipes: {'acc': 0.15344689756009514, 'comp': 0.18946888569412249, 'overall': 0.1714578916271088, 'precision': 0.8785087719298246, 'recall': 0.7934936350777935, 'fscore': 0.8338398509053684}
+  recon_unposed | eth3d | relief: {'acc': 0.4775619403223558, 'comp': 0.4910084635964963, 'overall': 0.48428520195942604, 'precision': 0.4138743484590849, 'recall': 0.3459273978399661, 'fscore': 0.37686272002542104}
+  recon_unposed | eth3d | delivery_area: {'acc': 0.5686503522543077, 'comp': 1.2959014933379207, 'overall': 0.9322759227961142, 'precision': 0.40121066532812255, 'recall': 0.24756279362869812, 'fscore': 0.3061926525230104}
+  recon_unposed | eth3d | facade: {'acc': 0.2815908365117733, 'comp': 0.2662580375361056, 'overall': 0.2739244370239394, 'precision': 0.5774303587335007, 'recall': 0.6736643407841679, 'fscore': 0.6218461993563514}
+  recon_unposed | eth3d | office: {'acc': 0.06635779687955766, 'comp': 0.06929335636079863, 'overall': 0.06782557662017814, 'precision': 0.995987918676464, 'recall': 0.9950673830705541, 'fscore': 0.9955274380753509}
+  recon_unposed | eth3d | playground: {'acc': 0.3931093888212816, 'comp': 0.6303047637452159, 'overall': 0.5117070762832487, 'precision': 0.8491884203480589, 'recall': 0.687328364064339, 'fscore': 0.7597330451075051}
+  recon_unposed | eth3d | relief_2: {'acc': 0.819668968192022, 'comp': 1.30215521456794, 'overall': 1.060912091379981, 'precision': 0.047641321088357766, 'recall': 0.04778731280498065, 'fscore': 0.047714205273786274}
+  recon_unposed | eth3d | terrains: {'acc': 0.3286295750039402, 'comp': 0.1711824747225095, 'overall': 0.24990602486322483, 'precision': 0.6663023395008718, 'recall': 0.7941883153532324, 'fscore': 0.7246462423643187}
+
+[1;36m========================================================================================================================[0m
+[1;36m📊 SUMMARY[0m
+[1;36m========================================================================================================================[0m
+
+[1;35m🎯 POSE ESTIMATION[0m
+---------------------------------------------------------------------------------------
+[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
+---------------------------------------------------------------------------------------
+Auc3           [1;32m0.2838      [0mN/A         0.2838      N/A         N/A         N/A         
+Auc30          [1;32m0.8217      [0mN/A         0.8217      N/A         N/A         N/A         
+
+[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
+---------------------------------------------------------------------------------------
+[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
+---------------------------------------------------------------------------------------
+F-score        [1;32m0.6031      [0mN/A         0.6031      N/A         N/A         N/A         
+Overall        [1;32m0.6075      [0mN/A         0.6075      N/A         N/A         N/A         
+
+[1;35m🏗️  RECON_POSED (GT Pose)[0m
+---------------------------------------------------------------------------------------
+[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
+---------------------------------------------------------------------------------------
+F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
+Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
+
+[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
+
+====================================================================================================
+[1;32m✅ Evaluation Complete[0m
+====================================================================================================
+
+[Output-only] Benchmark complete!
+
+============================================================
+[Combined] Training on eth3d (fp32)
+  feature + output loss
+============================================================
+/root/autodl-tmp/da3/./scripts/train_vggt_combined_distill.py:684: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = GradScaler(enabled=args.use_amp)
+Using device: cuda
+
+Configuration:
+  Teacher views: 8
+  Student views: 4 (indices: [0, 2, 4, 6])
+  Output layers: [19, 23]
+  Feature loss: all-token KL (w=1.0) + cos (w=2.0) + RKD (w=2.0)
+  Output loss: camera (w=5.0) + depth (w=1.0) + point (w=1.0), output_weight=1.0
+
+Creating dataset...
+Loaded 11 scenes for eth3d (all scenes for training)
+Generating 5 samples per scene = 55 total samples
+Train samples: 55
+
+Creating models...
+Loading teacher model: facebook/vggt-1b
+Teacher parameters: 1,256,537,516 (all frozen)
+Loading student model: facebook/vggt-1b
+Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
+Camera token is trainable
+Student parameters: 1,269,120,428 total, 12,584,960 trainable (12,582,912 LoRA)
+
+Creating losses...
+VGGTAllTokenSoftmaxKLCosineLoss: layer=23, kl_w=1.0, cos_w=2.0
+  Uses full 2048-dim token (no frame/global split)
+VGGTCrossFrameRKDAngleLoss: layer=23, topk=4
+  ref_samples=256, shared_samples=256, shared_chunk=64
+  angle weights: a1=1.0, a2=1.0, a3=1.0
+  extra frames (teacher-only): [1, 3, 5, 7]
+  shared frames: [2, 4, 6]
+
+Starting training...
+
+============================================================
+Epoch 1/1
+============================================================
+/root/autodl-tmp/da3/./scripts/train_vggt_combined_distill.py:366: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast(enabled=args.use_amp):
+/root/autodl-tmp/da3/./scripts/train_vggt_combined_distill.py:117: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+/root/autodl-tmp/da3/scripts/../src/vggt/vggt/training/loss.py:527: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Epoch 0 | Step 1 | Batch 1/55 | Loss: 2.5515 | LR: 1.04e-05 | Speed: 0.2 samples/s
+  feat_loss: 0.7438 | rkd_loss: 0.0506 | feature_total: 0.8451 | output_loss: 1.7064 | combined: 2.5515 | all_softmax_kl: 0.4168 | all_softmax_cos: 0.8365 | rkd_angle1_loss: 0.0151 | rkd_angle2_loss: 0.0311 | rkd_angle3_loss: 0.0044 | loss_camera: 0.0743 | loss_reg_depth: 0.2011 | loss_reg_point: 0.4123 | loss_conf_depth: 0.1992 | loss_conf_point: 0.4106 | loss_grad_depth: 0.0323 | loss_grad_point: 0.0794
+Epoch 0 | Step 2 | Batch 2/55 | Loss: 1.4680 | LR: 2.03e-05 | Speed: 0.3 samples/s
+  feat_loss: 0.2423 | rkd_loss: 0.0040 | feature_total: 0.2504 | output_loss: 0.1341 | combined: 0.3844 | all_softmax_kl: 0.1813 | all_softmax_cos: 0.9695 | rkd_angle1_loss: 0.0016 | rkd_angle2_loss: 0.0019 | rkd_angle3_loss: 0.0005 | loss_camera: 0.0136 | loss_reg_depth: 0.0136 | loss_reg_point: 0.0390 | loss_conf_depth: -0.0250 | loss_conf_point: 0.0098 | loss_grad_depth: 0.0055 | loss_grad_point: 0.0232
+Epoch 0 | Step 3 | Batch 3/55 | Loss: 1.0452 | LR: 3.02e-05 | Speed: 0.3 samples/s
+  feat_loss: 0.0645 | rkd_loss: 0.0055 | feature_total: 0.0756 | output_loss: 0.1241 | combined: 0.1997 | all_softmax_kl: 0.0511 | all_softmax_cos: 0.9933 | rkd_angle1_loss: 0.0019 | rkd_angle2_loss: 0.0034 | rkd_angle3_loss: 0.0002 | loss_camera: 0.0072 | loss_reg_depth: 0.0407 | loss_reg_point: 0.0487 | loss_conf_depth: -0.0335 | loss_conf_point: -0.0128 | loss_grad_depth: 0.0098 | loss_grad_point: 0.0354
+Epoch 0 | Step 4 | Batch 4/55 | Loss: 1.4338 | LR: 4.01e-05 | Speed: 0.4 samples/s
+  feat_loss: 1.0525 | rkd_loss: 0.0760 | feature_total: 1.2045 | output_loss: 1.3952 | combined: 2.5997 | all_softmax_kl: 0.7799 | all_softmax_cos: 0.8637 | rkd_angle1_loss: 0.0096 | rkd_angle2_loss: 0.0501 | rkd_angle3_loss: 0.0163 | loss_camera: 0.0322 | loss_reg_depth: 0.2670 | loss_reg_point: 0.3049 | loss_conf_depth: 0.2753 | loss_conf_point: 0.3144 | loss_grad_depth: 0.0232 | loss_grad_point: 0.0492
+Epoch 0 | Step 5 | Batch 5/55 | Loss: 1.1818 | LR: 5.00e-05 | Speed: 0.4 samples/s
+  feat_loss: 0.2684 | rkd_loss: 0.0036 | feature_total: 0.2755 | output_loss: -0.1021 | combined: 0.1735 | all_softmax_kl: 0.2301 | all_softmax_cos: 0.9809 | rkd_angle1_loss: 0.0017 | rkd_angle2_loss: 0.0014 | rkd_angle3_loss: 0.0004 | loss_camera: 0.0124 | loss_reg_depth: 0.0290 | loss_reg_point: 0.0400 | loss_conf_depth: -0.1451 | loss_conf_point: -0.0994 | loss_grad_depth: 0.0023 | loss_grad_point: 0.0090
+Epoch 0 | Step 6 | Batch 6/55 | Loss: 2.5286 | LR: 5.00e-05 | Speed: 0.4 samples/s
+  feat_loss: 6.9428 | rkd_loss: 0.2598 | feature_total: 7.4623 | output_loss: 1.8007 | combined: 9.2630 | all_softmax_kl: 6.1647 | all_softmax_cos: 0.6110 | rkd_angle1_loss: 0.0452 | rkd_angle2_loss: 0.1284 | rkd_angle3_loss: 0.0861 | loss_camera: 0.0783 | loss_reg_depth: 0.2564 | loss_reg_point: 0.3830 | loss_conf_depth: 0.2536 | loss_conf_point: 0.3843 | loss_grad_depth: 0.0235 | loss_grad_point: 0.1085
+Epoch 0 | Step 7 | Batch 7/55 | Loss: 2.2591 | LR: 4.98e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.4018 | rkd_loss: 0.0044 | feature_total: 0.4106 | output_loss: 0.2312 | combined: 0.6418 | all_softmax_kl: 0.2797 | all_softmax_cos: 0.9390 | rkd_angle1_loss: 0.0014 | rkd_angle2_loss: 0.0020 | rkd_angle3_loss: 0.0010 | loss_camera: 0.0157 | loss_reg_depth: 0.0541 | loss_reg_point: 0.0628 | loss_conf_depth: -0.0111 | loss_conf_point: 0.0288 | loss_grad_depth: 0.0022 | loss_grad_point: 0.0160
+Epoch 0 | Step 8 | Batch 8/55 | Loss: 2.1672 | LR: 4.96e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.4788 | rkd_loss: 0.0380 | feature_total: 0.5548 | output_loss: 0.9690 | combined: 1.5238 | all_softmax_kl: 0.3768 | all_softmax_cos: 0.9490 | rkd_angle1_loss: 0.0139 | rkd_angle2_loss: 0.0237 | rkd_angle3_loss: 0.0005 | loss_camera: 0.0546 | loss_reg_depth: 0.1409 | loss_reg_point: 0.1969 | loss_conf_depth: 0.1335 | loss_conf_point: 0.1972 | loss_grad_depth: 0.0072 | loss_grad_point: 0.0204
+Epoch 0 | Step 9 | Batch 9/55 | Loss: 1.9739 | LR: 4.92e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.1355 | rkd_loss: 0.0238 | feature_total: 0.1831 | output_loss: 0.2446 | combined: 0.4278 | all_softmax_kl: 0.0930 | all_softmax_cos: 0.9787 | rkd_angle1_loss: 0.0080 | rkd_angle2_loss: 0.0153 | rkd_angle3_loss: 0.0006 | loss_camera: 0.0202 | loss_reg_depth: 0.0557 | loss_reg_point: 0.0312 | loss_conf_depth: 0.0305 | loss_conf_point: 0.0117 | loss_grad_depth: 0.0064 | loss_grad_point: 0.0081
+Epoch 0 | Step 10 | Batch 10/55 | Loss: 2.2554 | LR: 4.88e-05 | Speed: 0.5 samples/s
+  feat_loss: 2.0073 | rkd_loss: 0.0224 | feature_total: 2.0520 | output_loss: 2.7365 | combined: 4.7885 | all_softmax_kl: 1.4869 | all_softmax_cos: 0.7398 | rkd_angle1_loss: 0.0067 | rkd_angle2_loss: 0.0137 | rkd_angle3_loss: 0.0019 | loss_camera: 0.1269 | loss_reg_depth: 0.3499 | loss_reg_point: 0.6113 | loss_conf_depth: 0.3564 | loss_conf_point: 0.6165 | loss_grad_depth: 0.0496 | loss_grad_point: 0.1185
+Epoch 0 | Step 11 | Batch 11/55 | Loss: 2.1424 | LR: 4.83e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.3178 | rkd_loss: 0.0227 | feature_total: 0.3633 | output_loss: 0.6497 | combined: 1.0130 | all_softmax_kl: 0.2602 | all_softmax_cos: 0.9712 | rkd_angle1_loss: 0.0074 | rkd_angle2_loss: 0.0148 | rkd_angle3_loss: 0.0006 | loss_camera: 0.1033 | loss_reg_depth: 0.0342 | loss_reg_point: 0.0652 | loss_conf_depth: -0.0119 | loss_conf_point: 0.0296 | loss_grad_depth: 0.0036 | loss_grad_point: 0.0125
+Epoch 0 | Step 12 | Batch 12/55 | Loss: 2.0697 | LR: 4.77e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.7380 | rkd_loss: 0.0814 | feature_total: 0.9009 | output_loss: 0.3690 | combined: 1.2699 | all_softmax_kl: 0.5931 | all_softmax_cos: 0.9276 | rkd_angle1_loss: 0.0139 | rkd_angle2_loss: 0.0611 | rkd_angle3_loss: 0.0065 | loss_camera: 0.0165 | loss_reg_depth: 0.0652 | loss_reg_point: 0.0993 | loss_conf_depth: 0.0256 | loss_conf_point: 0.0719 | loss_grad_depth: 0.0061 | loss_grad_point: 0.0187
+Epoch 0 | Step 13 | Batch 13/55 | Loss: 2.0196 | LR: 4.70e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.4527 | rkd_loss: 0.0181 | feature_total: 0.4888 | output_loss: 0.9288 | combined: 1.4176 | all_softmax_kl: 0.3356 | all_softmax_cos: 0.9415 | rkd_angle1_loss: 0.0048 | rkd_angle2_loss: 0.0122 | rkd_angle3_loss: 0.0010 | loss_camera: 0.0833 | loss_reg_depth: 0.0815 | loss_reg_point: 0.1474 | loss_conf_depth: 0.0795 | loss_conf_point: 0.1448 | loss_grad_depth: 0.0059 | loss_grad_point: 0.0529
+Epoch 0 | Step 14 | Batch 14/55 | Loss: 2.0650 | LR: 4.62e-05 | Speed: 0.5 samples/s
+  feat_loss: 1.1291 | rkd_loss: 0.0539 | feature_total: 1.2370 | output_loss: 1.4188 | combined: 2.6559 | all_softmax_kl: 0.8953 | all_softmax_cos: 0.8831 | rkd_angle1_loss: 0.0160 | rkd_angle2_loss: 0.0340 | rkd_angle3_loss: 0.0039 | loss_camera: 0.0797 | loss_reg_depth: 0.1048 | loss_reg_point: 0.3494 | loss_conf_depth: 0.0949 | loss_conf_point: 0.3464 | loss_grad_depth: 0.0104 | loss_grad_point: 0.1144
+Epoch 0 | Step 15 | Batch 15/55 | Loss: 2.0799 | LR: 4.53e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.7586 | rkd_loss: 0.0258 | feature_total: 0.8102 | output_loss: 1.4787 | combined: 2.2889 | all_softmax_kl: 0.5412 | all_softmax_cos: 0.8913 | rkd_angle1_loss: 0.0090 | rkd_angle2_loss: 0.0159 | rkd_angle3_loss: 0.0009 | loss_camera: 0.0778 | loss_reg_depth: 0.1031 | loss_reg_point: 0.4113 | loss_conf_depth: 0.0871 | loss_conf_point: 0.3946 | loss_grad_depth: 0.0252 | loss_grad_point: 0.0684
+Epoch 0 | Step 16 | Batch 16/55 | Loss: 1.9986 | LR: 4.44e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.4503 | rkd_loss: 0.0379 | feature_total: 0.5261 | output_loss: 0.2519 | combined: 0.7780 | all_softmax_kl: 0.3273 | all_softmax_cos: 0.9385 | rkd_angle1_loss: 0.0144 | rkd_angle2_loss: 0.0211 | rkd_angle3_loss: 0.0024 | loss_camera: 0.0182 | loss_reg_depth: 0.0671 | loss_reg_point: 0.0706 | loss_conf_depth: -0.0282 | loss_conf_point: 0.0310 | loss_grad_depth: 0.0082 | loss_grad_point: 0.0122
+Epoch 0 | Step 17 | Batch 17/55 | Loss: 2.1332 | LR: 4.34e-05 | Speed: 0.5 samples/s
+  feat_loss: 2.2158 | rkd_loss: 0.0316 | feature_total: 2.2791 | output_loss: 2.0075 | combined: 4.2866 | all_softmax_kl: 1.7729 | all_softmax_cos: 0.7785 | rkd_angle1_loss: 0.0049 | rkd_angle2_loss: 0.0251 | rkd_angle3_loss: 0.0017 | loss_camera: 0.1554 | loss_reg_depth: 0.0913 | loss_reg_point: 0.4946 | loss_conf_depth: 0.0515 | loss_conf_point: 0.4891 | loss_grad_depth: 0.0186 | loss_grad_point: 0.0856
+Epoch 0 | Step 18 | Batch 18/55 | Loss: 2.0320 | LR: 4.23e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.2156 | rkd_loss: 0.0198 | feature_total: 0.2553 | output_loss: 0.0569 | combined: 0.3122 | all_softmax_kl: 0.1694 | all_softmax_cos: 0.9769 | rkd_angle1_loss: 0.0099 | rkd_angle2_loss: 0.0098 | rkd_angle3_loss: 0.0001 | loss_camera: 0.0121 | loss_reg_depth: 0.0217 | loss_reg_point: 0.0461 | loss_conf_depth: -0.0867 | loss_conf_point: -0.0404 | loss_grad_depth: 0.0159 | loss_grad_point: 0.0400
+Epoch 0 | Step 19 | Batch 19/55 | Loss: 1.9914 | LR: 4.11e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.3024 | rkd_loss: 0.0353 | feature_total: 0.3730 | output_loss: 0.8878 | combined: 1.2608 | all_softmax_kl: 0.2261 | all_softmax_cos: 0.9618 | rkd_angle1_loss: 0.0135 | rkd_angle2_loss: 0.0210 | rkd_angle3_loss: 0.0007 | loss_camera: 0.0441 | loss_reg_depth: 0.0956 | loss_reg_point: 0.2088 | loss_conf_depth: 0.0752 | loss_conf_point: 0.1987 | loss_grad_depth: 0.0191 | loss_grad_point: 0.0699
+Epoch 0 | Step 20 | Batch 20/55 | Loss: 2.1153 | LR: 3.99e-05 | Speed: 0.5 samples/s
+  feat_loss: 2.8499 | rkd_loss: 0.2209 | feature_total: 3.2917 | output_loss: 1.1769 | combined: 4.4687 | all_softmax_kl: 2.3989 | all_softmax_cos: 0.7745 | rkd_angle1_loss: 0.0485 | rkd_angle2_loss: 0.1314 | rkd_angle3_loss: 0.0410 | loss_camera: 0.0880 | loss_reg_depth: 0.0218 | loss_reg_point: 0.3677 | loss_conf_depth: -0.0082 | loss_conf_point: 0.3236 | loss_grad_depth: 0.0074 | loss_grad_point: 0.0249
+Epoch 0 | Step 21 | Batch 21/55 | Loss: 2.1609 | LR: 3.86e-05 | Speed: 0.5 samples/s
+  feat_loss: 1.7787 | rkd_loss: 0.0274 | feature_total: 1.8335 | output_loss: 1.2393 | combined: 3.0729 | all_softmax_kl: 1.3354 | all_softmax_cos: 0.7784 | rkd_angle1_loss: 0.0178 | rkd_angle2_loss: 0.0050 | rkd_angle3_loss: 0.0046 | loss_camera: 0.0920 | loss_reg_depth: 0.0203 | loss_reg_point: 0.3428 | loss_conf_depth: 0.0069 | loss_conf_point: 0.3428 | loss_grad_depth: 0.0089 | loss_grad_point: 0.0574
+Epoch 0 | Step 22 | Batch 22/55 | Loss: 2.0642 | LR: 3.73e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.1582 | rkd_loss: 0.0051 | feature_total: 0.1685 | output_loss: -0.1350 | combined: 0.0335 | all_softmax_kl: 0.1199 | all_softmax_cos: 0.9808 | rkd_angle1_loss: 0.0025 | rkd_angle2_loss: 0.0025 | rkd_angle3_loss: 0.0001 | loss_camera: 0.0077 | loss_reg_depth: 0.0286 | loss_reg_point: 0.0313 | loss_conf_depth: -0.1492 | loss_conf_point: -0.1027 | loss_grad_depth: 0.0040 | loss_grad_point: 0.0146
+Epoch 0 | Step 23 | Batch 23/55 | Loss: 2.0923 | LR: 3.59e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.8212 | rkd_loss: 0.0322 | feature_total: 0.8856 | output_loss: 1.8249 | combined: 2.7105 | all_softmax_kl: 0.5948 | all_softmax_cos: 0.8868 | rkd_angle1_loss: 0.0067 | rkd_angle2_loss: 0.0219 | rkd_angle3_loss: 0.0036 | loss_camera: 0.2061 | loss_reg_depth: 0.1044 | loss_reg_point: 0.2621 | loss_conf_depth: 0.0998 | loss_conf_point: 0.2621 | loss_grad_depth: 0.0079 | loss_grad_point: 0.0581
+Epoch 0 | Step 24 | Batch 24/55 | Loss: 2.0397 | LR: 3.45e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.2889 | rkd_loss: 0.0416 | feature_total: 0.3721 | output_loss: 0.4573 | combined: 0.8294 | all_softmax_kl: 0.2150 | all_softmax_cos: 0.9630 | rkd_angle1_loss: 0.0181 | rkd_angle2_loss: 0.0220 | rkd_angle3_loss: 0.0015 | loss_camera: 0.0194 | loss_reg_depth: 0.0900 | loss_reg_point: 0.1141 | loss_conf_depth: 0.0386 | loss_conf_point: 0.0860 | loss_grad_depth: 0.0118 | loss_grad_point: 0.0195
+Epoch 0 | Step 25 | Batch 25/55 | Loss: 2.1774 | LR: 3.31e-05 | Speed: 0.5 samples/s
+  feat_loss: 3.4382 | rkd_loss: 0.0955 | feature_total: 3.6292 | output_loss: 1.8539 | combined: 5.4830 | all_softmax_kl: 2.8979 | all_softmax_cos: 0.7298 | rkd_angle1_loss: 0.0117 | rkd_angle2_loss: 0.0651 | rkd_angle3_loss: 0.0186 | loss_camera: 0.1015 | loss_reg_depth: 0.2490 | loss_reg_point: 0.4029 | loss_conf_depth: 0.2554 | loss_conf_point: 0.4047 | loss_grad_depth: 0.0092 | loss_grad_point: 0.0250
+Epoch 0 | Step 26 | Batch 26/55 | Loss: 2.3365 | LR: 3.16e-05 | Speed: 0.5 samples/s
+  feat_loss: 3.2161 | rkd_loss: 0.0370 | feature_total: 3.2902 | output_loss: 3.0235 | combined: 6.3137 | all_softmax_kl: 2.5464 | all_softmax_cos: 0.6652 | rkd_angle1_loss: 0.0062 | rkd_angle2_loss: 0.0270 | rkd_angle3_loss: 0.0038 | loss_camera: 0.2615 | loss_reg_depth: 0.1652 | loss_reg_point: 0.5079 | loss_conf_depth: 0.1570 | loss_conf_point: 0.5079 | loss_grad_depth: 0.0059 | loss_grad_point: 0.3721
+Epoch 0 | Step 27 | Batch 27/55 | Loss: 2.2601 | LR: 3.01e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.1121 | rkd_loss: 0.0058 | feature_total: 0.1237 | output_loss: 0.1516 | combined: 0.2753 | all_softmax_kl: 0.0885 | all_softmax_cos: 0.9882 | rkd_angle1_loss: 0.0026 | rkd_angle2_loss: 0.0031 | rkd_angle3_loss: 0.0002 | loss_camera: 0.0034 | loss_reg_depth: 0.0414 | loss_reg_point: 0.0490 | loss_conf_depth: -0.0598 | loss_conf_point: 0.0123 | loss_grad_depth: 0.0353 | loss_grad_point: 0.0562
+Epoch 0 | Step 28 | Batch 28/55 | Loss: 2.2077 | LR: 2.86e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.1699 | rkd_loss: 0.0085 | feature_total: 0.1869 | output_loss: 0.6051 | combined: 0.7920 | all_softmax_kl: 0.1269 | all_softmax_cos: 0.9785 | rkd_angle1_loss: 0.0037 | rkd_angle2_loss: 0.0037 | rkd_angle3_loss: 0.0011 | loss_camera: 0.0221 | loss_reg_depth: 0.1243 | loss_reg_point: 0.1393 | loss_conf_depth: 0.0754 | loss_conf_point: 0.1278 | loss_grad_depth: 0.0134 | loss_grad_point: 0.0146
+Epoch 0 | Step 29 | Batch 29/55 | Loss: 2.1573 | LR: 2.70e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.1555 | rkd_loss: 0.0097 | feature_total: 0.1749 | output_loss: 0.5717 | combined: 0.7466 | all_softmax_kl: 0.1160 | all_softmax_cos: 0.9802 | rkd_angle1_loss: 0.0029 | rkd_angle2_loss: 0.0040 | rkd_angle3_loss: 0.0027 | loss_camera: 0.0159 | loss_reg_depth: 0.1276 | loss_reg_point: 0.1356 | loss_conf_depth: 0.0823 | loss_conf_point: 0.1194 | loss_grad_depth: 0.0124 | loss_grad_point: 0.0147
+Epoch 0 | Step 30 | Batch 30/55 | Loss: 2.0955 | LR: 2.55e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.1517 | rkd_loss: 0.0175 | feature_total: 0.1867 | output_loss: 0.1154 | combined: 0.3021 | all_softmax_kl: 0.1072 | all_softmax_cos: 0.9777 | rkd_angle1_loss: 0.0084 | rkd_angle2_loss: 0.0083 | rkd_angle3_loss: 0.0007 | loss_camera: 0.0117 | loss_reg_depth: 0.0428 | loss_reg_point: 0.0388 | loss_conf_depth: -0.0389 | loss_conf_point: -0.0063 | loss_grad_depth: 0.0047 | loss_grad_point: 0.0160
+Epoch 0 | Step 31 | Batch 31/55 | Loss: 2.0388 | LR: 2.40e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.1802 | rkd_loss: 0.0162 | feature_total: 0.2125 | output_loss: 0.1266 | combined: 0.3392 | all_softmax_kl: 0.1149 | all_softmax_cos: 0.9673 | rkd_angle1_loss: 0.0045 | rkd_angle2_loss: 0.0104 | rkd_angle3_loss: 0.0013 | loss_camera: 0.0230 | loss_reg_depth: 0.0202 | loss_reg_point: 0.0366 | loss_conf_depth: -0.0770 | loss_conf_point: 0.0045 | loss_grad_depth: 0.0033 | loss_grad_point: 0.0240
+Epoch 0 | Step 32 | Batch 32/55 | Loss: 1.9777 | LR: 2.24e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0837 | rkd_loss: 0.0081 | feature_total: 0.0998 | output_loss: -0.0168 | combined: 0.0831 | all_softmax_kl: 0.0661 | all_softmax_cos: 0.9912 | rkd_angle1_loss: 0.0037 | rkd_angle2_loss: 0.0043 | rkd_angle3_loss: 0.0001 | loss_camera: 0.0141 | loss_reg_depth: 0.0370 | loss_reg_point: 0.0541 | loss_conf_depth: -0.1391 | loss_conf_point: -0.0569 | loss_grad_depth: 0.0031 | loss_grad_point: 0.0145
+Epoch 0 | Step 33 | Batch 33/55 | Loss: 1.9328 | LR: 2.09e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.0998 | rkd_loss: 0.0190 | feature_total: 0.1378 | output_loss: 0.3584 | combined: 0.4962 | all_softmax_kl: 0.0796 | all_softmax_cos: 0.9899 | rkd_angle1_loss: 0.0096 | rkd_angle2_loss: 0.0087 | rkd_angle3_loss: 0.0008 | loss_camera: 0.0119 | loss_reg_depth: 0.0693 | loss_reg_point: 0.0706 | loss_conf_depth: 0.0653 | loss_conf_point: 0.0774 | loss_grad_depth: 0.0039 | loss_grad_point: 0.0122
+Epoch 0 | Step 34 | Batch 34/55 | Loss: 1.9089 | LR: 1.94e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.8320 | rkd_loss: 0.0498 | feature_total: 0.9316 | output_loss: 0.1891 | combined: 1.1206 | all_softmax_kl: 0.6247 | all_softmax_cos: 0.8964 | rkd_angle1_loss: 0.0176 | rkd_angle2_loss: 0.0284 | rkd_angle3_loss: 0.0038 | loss_camera: 0.0259 | loss_reg_depth: 0.0347 | loss_reg_point: 0.0552 | loss_conf_depth: -0.0384 | loss_conf_point: -0.0153 | loss_grad_depth: 0.0053 | loss_grad_point: 0.0179
+Epoch 0 | Step 35 | Batch 35/55 | Loss: 1.9076 | LR: 1.79e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.8457 | rkd_loss: 0.0089 | feature_total: 0.8634 | output_loss: 0.9992 | combined: 1.8626 | all_softmax_kl: 0.6221 | all_softmax_cos: 0.8882 | rkd_angle1_loss: 0.0040 | rkd_angle2_loss: 0.0046 | rkd_angle3_loss: 0.0003 | loss_camera: 0.0495 | loss_reg_depth: 0.1671 | loss_reg_point: 0.2018 | loss_conf_depth: 0.1438 | loss_conf_point: 0.2067 | loss_grad_depth: 0.0055 | loss_grad_point: 0.0266
+Epoch 0 | Step 36 | Batch 36/55 | Loss: 1.8884 | LR: 1.65e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.5609 | rkd_loss: 0.0131 | feature_total: 0.5871 | output_loss: 0.6278 | combined: 1.2149 | all_softmax_kl: 0.3433 | all_softmax_cos: 0.8912 | rkd_angle1_loss: 0.0015 | rkd_angle2_loss: 0.0090 | rkd_angle3_loss: 0.0026 | loss_camera: 0.0328 | loss_reg_depth: 0.0696 | loss_reg_point: 0.1455 | loss_conf_depth: 0.0476 | loss_conf_point: 0.1448 | loss_grad_depth: 0.0071 | loss_grad_point: 0.0492
+Epoch 0 | Step 37 | Batch 37/55 | Loss: 1.8975 | LR: 1.51e-05 | Speed: 0.5 samples/s
+  feat_loss: 0.9510 | rkd_loss: 0.0259 | feature_total: 1.0029 | output_loss: 1.2240 | combined: 2.2269 | all_softmax_kl: 0.6650 | all_softmax_cos: 0.8570 | rkd_angle1_loss: 0.0105 | rkd_angle2_loss: 0.0140 | rkd_angle3_loss: 0.0015 | loss_camera: 0.1079 | loss_reg_depth: 0.0921 | loss_reg_point: 0.2171 | loss_conf_depth: 0.0858 | loss_conf_point: 0.2148 | loss_grad_depth: 0.0094 | loss_grad_point: 0.0655
+Epoch 0 | Step 38 | Batch 38/55 | Loss: 2.0548 | LR: 1.37e-05 | Speed: 0.6 samples/s
+  feat_loss: 3.6987 | rkd_loss: 0.1806 | feature_total: 4.0598 | output_loss: 3.8129 | combined: 7.8727 | all_softmax_kl: 2.7794 | all_softmax_cos: 0.5403 | rkd_angle1_loss: 0.0649 | rkd_angle2_loss: 0.0843 | rkd_angle3_loss: 0.0314 | loss_camera: 0.2015 | loss_reg_depth: 0.4000 | loss_reg_point: 0.7581 | loss_conf_depth: 0.4091 | loss_conf_point: 0.7685 | loss_grad_depth: 0.0109 | loss_grad_point: 0.4587
+Epoch 0 | Step 39 | Batch 39/55 | Loss: 2.0123 | LR: 1.24e-05 | Speed: 0.6 samples/s
+  feat_loss: 0.2229 | rkd_loss: 0.0154 | feature_total: 0.2537 | output_loss: 0.1442 | combined: 0.3979 | all_softmax_kl: 0.1841 | all_softmax_cos: 0.9806 | rkd_angle1_loss: 0.0044 | rkd_angle2_loss: 0.0103 | rkd_angle3_loss: 0.0007 | loss_camera: 0.0127 | loss_reg_depth: 0.0358 | loss_reg_point: 0.0673 | loss_conf_depth: -0.0474 | loss_conf_point: 0.0105 | loss_grad_depth: 0.0029 | loss_grad_point: 0.0117
+Epoch 0 | Step 40 | Batch 40/55 | Loss: 2.3522 | LR: 1.11e-05 | Speed: 0.6 samples/s
+  feat_loss: 9.9422 | rkd_loss: 0.1483 | feature_total: 10.2388 | output_loss: 5.3724 | combined: 15.6112 | all_softmax_kl: 8.1374 | all_softmax_cos: 0.0976 | rkd_angle1_loss: 0.0175 | rkd_angle2_loss: 0.1198 | rkd_angle3_loss: 0.0110 | loss_camera: 0.2969 | loss_reg_depth: 0.1142 | loss_reg_point: 1.6050 | loss_conf_depth: 0.0859 | loss_conf_point: 1.5920 | loss_grad_depth: 0.0053 | loss_grad_point: 0.4855
+Epoch 0 | Step 41 | Batch 41/55 | Loss: 2.4626 | LR: 9.88e-06 | Speed: 0.6 samples/s
+  feat_loss: 4.6925 | rkd_loss: 0.0300 | feature_total: 4.7526 | output_loss: 2.1239 | combined: 6.8764 | all_softmax_kl: 4.1196 | all_softmax_cos: 0.7136 | rkd_angle1_loss: 0.0057 | rkd_angle2_loss: 0.0221 | rkd_angle3_loss: 0.0022 | loss_camera: 0.1977 | loss_reg_depth: 0.0132 | loss_reg_point: 0.3754 | loss_conf_depth: 0.0052 | loss_conf_point: 0.3732 | loss_grad_depth: 0.0025 | loss_grad_point: 0.3659
+Epoch 0 | Step 42 | Batch 42/55 | Loss: 2.4300 | LR: 8.73e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.4497 | rkd_loss: 0.0195 | feature_total: 0.4887 | output_loss: 0.6061 | combined: 1.0948 | all_softmax_kl: 0.3274 | all_softmax_cos: 0.9389 | rkd_angle1_loss: 0.0075 | rkd_angle2_loss: 0.0114 | rkd_angle3_loss: 0.0006 | loss_camera: 0.0259 | loss_reg_depth: 0.0996 | loss_reg_point: 0.1337 | loss_conf_depth: 0.0680 | loss_conf_point: 0.1484 | loss_grad_depth: 0.0062 | loss_grad_point: 0.0207
+Epoch 0 | Step 43 | Batch 43/55 | Loss: 2.4111 | LR: 7.64e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.5819 | rkd_loss: 0.0415 | feature_total: 0.6649 | output_loss: 0.9532 | combined: 1.6181 | all_softmax_kl: 0.4662 | all_softmax_cos: 0.9422 | rkd_angle1_loss: 0.0051 | rkd_angle2_loss: 0.0330 | rkd_angle3_loss: 0.0034 | loss_camera: 0.1104 | loss_reg_depth: 0.0841 | loss_reg_point: 0.1474 | loss_conf_depth: 0.0189 | loss_conf_point: 0.1306 | loss_grad_depth: 0.0046 | loss_grad_point: 0.0158
+Epoch 0 | Step 44 | Batch 44/55 | Loss: 2.4375 | LR: 6.62e-06 | Speed: 0.6 samples/s
+  feat_loss: 1.4853 | rkd_loss: 0.0261 | feature_total: 1.5375 | output_loss: 2.0352 | combined: 3.5727 | all_softmax_kl: 1.1777 | all_softmax_cos: 0.8462 | rkd_angle1_loss: 0.0073 | rkd_angle2_loss: 0.0163 | rkd_angle3_loss: 0.0025 | loss_camera: 0.1607 | loss_reg_depth: 0.0652 | loss_reg_point: 0.4988 | loss_conf_depth: 0.0133 | loss_conf_point: 0.4787 | loss_grad_depth: 0.0264 | loss_grad_point: 0.1491
+Epoch 0 | Step 45 | Batch 45/55 | Loss: 2.4072 | LR: 5.68e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.2484 | rkd_loss: 0.0393 | feature_total: 0.3269 | output_loss: 0.7461 | combined: 1.0730 | all_softmax_kl: 0.1912 | all_softmax_cos: 0.9714 | rkd_angle1_loss: 0.0160 | rkd_angle2_loss: 0.0217 | rkd_angle3_loss: 0.0015 | loss_camera: 0.0232 | loss_reg_depth: 0.1304 | loss_reg_point: 0.1658 | loss_conf_depth: 0.1212 | loss_conf_point: 0.1840 | loss_grad_depth: 0.0077 | loss_grad_point: 0.0210
+Epoch 0 | Step 46 | Batch 46/55 | Loss: 2.3591 | LR: 4.81e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.2318 | rkd_loss: 0.0421 | feature_total: 0.3161 | output_loss: -0.1212 | combined: 0.1949 | all_softmax_kl: 0.1781 | all_softmax_cos: 0.9731 | rkd_angle1_loss: 0.0184 | rkd_angle2_loss: 0.0225 | rkd_angle3_loss: 0.0013 | loss_camera: 0.0146 | loss_reg_depth: 0.0132 | loss_reg_point: 0.0370 | loss_conf_depth: -0.1909 | loss_conf_point: -0.0720 | loss_grad_depth: 0.0058 | loss_grad_point: 0.0128
+Epoch 0 | Step 47 | Batch 47/55 | Loss: 2.3209 | LR: 4.03e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.1424 | rkd_loss: 0.0095 | feature_total: 0.1613 | output_loss: 0.4006 | combined: 0.5620 | all_softmax_kl: 0.1072 | all_softmax_cos: 0.9824 | rkd_angle1_loss: 0.0037 | rkd_angle2_loss: 0.0056 | rkd_angle3_loss: 0.0002 | loss_camera: 0.0197 | loss_reg_depth: 0.0652 | loss_reg_point: 0.1161 | loss_conf_depth: 0.0008 | loss_conf_point: 0.0937 | loss_grad_depth: 0.0057 | loss_grad_point: 0.0206
+Epoch 0 | Step 48 | Batch 48/55 | Loss: 2.3535 | LR: 3.33e-06 | Speed: 0.6 samples/s
+  feat_loss: 1.9161 | rkd_loss: 0.0592 | feature_total: 2.0345 | output_loss: 1.8502 | combined: 3.8847 | all_softmax_kl: 1.5235 | all_softmax_cos: 0.8037 | rkd_angle1_loss: 0.0181 | rkd_angle2_loss: 0.0388 | rkd_angle3_loss: 0.0023 | loss_camera: 0.1328 | loss_reg_depth: 0.0397 | loss_reg_point: 0.2876 | loss_conf_depth: 0.0375 | loss_conf_point: 0.2859 | loss_grad_depth: 0.0040 | loss_grad_point: 0.5312
+Epoch 0 | Step 49 | Batch 49/55 | Loss: 2.3089 | LR: 2.72e-06 | Speed: 0.6 samples/s
+[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
+[ETH3D] electro: 39/45 images (filtered 6, missing 0)
+[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
+[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
+[ETH3D] playground: 32/38 images (filtered 6, missing 0)
+[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
+[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
+[ETH3D] relief: 19/31 images (filtered 12, missing 0)
+[ETH3D] facade: 76/76 images (filtered 0, missing 0)
+[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
+[ETH3D] electro: 39/45 images (filtered 6, missing 0)
+[ETH3D] facade: 76/76 images (filtered 0, missing 0)
+[ETH3D] office: 26/26 images (filtered 0, missing 0)
+[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
+[ETH3D] relief: 19/31 images (filtered 12, missing 0)
+[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
+[ETH3D] playground: 32/38 images (filtered 6, missing 0)
+[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
+[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
+[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
+[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
+  feat_loss: 0.1373 | rkd_loss: 0.0065 | feature_total: 0.1503 | output_loss: 0.0173 | combined: 0.1676 | all_softmax_kl: 0.1108 | all_softmax_cos: 0.9868 | rkd_angle1_loss: 0.0025 | rkd_angle2_loss: 0.0038 | rkd_angle3_loss: 0.0003 | loss_camera: 0.0172 | loss_reg_depth: 0.0267 | loss_reg_point: 0.0510 | loss_conf_depth: -0.0862 | loss_conf_point: -0.0744 | loss_grad_depth: 0.0034 | loss_grad_point: 0.0108
+Epoch 0 | Step 50 | Batch 50/55 | Loss: 2.2673 | LR: 2.20e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.2853 | rkd_loss: 0.0092 | feature_total: 0.3037 | output_loss: -0.0719 | combined: 0.2319 | all_softmax_kl: 0.2284 | all_softmax_cos: 0.9716 | rkd_angle1_loss: 0.0032 | rkd_angle2_loss: 0.0057 | rkd_angle3_loss: 0.0004 | loss_camera: 0.0071 | loss_reg_depth: 0.0277 | loss_reg_point: 0.0374 | loss_conf_depth: -0.1168 | loss_conf_point: -0.0727 | loss_grad_depth: 0.0039 | loss_grad_point: 0.0129
+Epoch 0 | Step 51 | Batch 51/55 | Loss: 2.2395 | LR: 1.77e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.3296 | rkd_loss: 0.0250 | feature_total: 0.3795 | output_loss: 0.4671 | combined: 0.8466 | all_softmax_kl: 0.2391 | all_softmax_cos: 0.9548 | rkd_angle1_loss: 0.0106 | rkd_angle2_loss: 0.0134 | rkd_angle3_loss: 0.0009 | loss_camera: 0.0229 | loss_reg_depth: 0.0970 | loss_reg_point: 0.0919 | loss_conf_depth: 0.0595 | loss_conf_point: 0.0815 | loss_grad_depth: 0.0063 | loss_grad_point: 0.0163
+Epoch 0 | Step 52 | Batch 52/55 | Loss: 2.2957 | LR: 1.43e-06 | Speed: 0.6 samples/s
+  feat_loss: 1.8969 | rkd_loss: 0.0239 | feature_total: 1.9447 | output_loss: 3.2216 | combined: 5.1663 | all_softmax_kl: 1.4917 | all_softmax_cos: 0.7974 | rkd_angle1_loss: 0.0052 | rkd_angle2_loss: 0.0139 | rkd_angle3_loss: 0.0047 | loss_camera: 0.3397 | loss_reg_depth: 0.1222 | loss_reg_point: 0.5296 | loss_conf_depth: 0.1180 | loss_conf_point: 0.5296 | loss_grad_depth: 0.0075 | loss_grad_point: 0.2165
+Epoch 0 | Step 53 | Batch 53/55 | Loss: 2.6026 | LR: 1.19e-06 | Speed: 0.6 samples/s
+  feat_loss: 11.7884 | rkd_loss: 0.4365 | feature_total: 12.6614 | output_loss: 5.8961 | combined: 18.5574 | all_softmax_kl: 10.1230 | all_softmax_cos: 0.1673 | rkd_angle1_loss: 0.1008 | rkd_angle2_loss: 0.1418 | rkd_angle3_loss: 0.1939 | loss_camera: 0.1847 | loss_reg_depth: 0.5915 | loss_reg_point: 1.2662 | loss_conf_depth: 0.6090 | loss_conf_point: 1.3006 | loss_grad_depth: 0.0233 | loss_grad_point: 1.1818
+Epoch 0 | Step 54 | Batch 54/55 | Loss: 2.5587 | LR: 1.05e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.0763 | rkd_loss: 0.0120 | feature_total: 0.1003 | output_loss: 0.1342 | combined: 0.2345 | all_softmax_kl: 0.0557 | all_softmax_cos: 0.9897 | rkd_angle1_loss: 0.0059 | rkd_angle2_loss: 0.0059 | rkd_angle3_loss: 0.0002 | loss_camera: 0.0043 | loss_reg_depth: 0.0461 | loss_reg_point: 0.0566 | loss_conf_depth: -0.0271 | loss_conf_point: -0.0190 | loss_grad_depth: 0.0138 | loss_grad_point: 0.0422
+Epoch 0 | Step 55 | Batch 55/55 | Loss: 2.5362 | LR: 1.00e-06 | Speed: 0.6 samples/s
+  feat_loss: 0.5418 | rkd_loss: 0.0490 | feature_total: 0.6398 | output_loss: 0.6815 | combined: 1.3214 | all_softmax_kl: 0.3713 | all_softmax_cos: 0.9147 | rkd_angle1_loss: 0.0095 | rkd_angle2_loss: 0.0341 | rkd_angle3_loss: 0.0054 | loss_camera: 0.0429 | loss_reg_depth: 0.0531 | loss_reg_point: 0.1738 | loss_conf_depth: 0.0490 | loss_conf_point: 0.1738 | loss_grad_depth: 0.0045 | loss_grad_point: 0.0126
+Saved LoRA weights to ./checkpoints/vggt_distill_combined/eth3d/epoch_0_lora_peft
+Saved checkpoint to ./checkpoints/vggt_distill_combined/eth3d/epoch_0.pt
+Saved LoRA weights to ./checkpoints/vggt_distill_combined/eth3d/latest_lora_peft
+
+Training complete!
+Combined training complete! Model saved to: ./checkpoints/vggt_distill_combined/eth3d/
+
+============================================================
+[Combined] Benchmarking maxframe, seed 42
+============================================================
+  [LoRA maxframe] eth3d, seed=42
+Loading base model: facebook/vggt-1b
+Loading LoRA weights: ./checkpoints/vggt_distill_combined/eth3d/epoch_0_lora.pt
+Loading student model: facebook/vggt-1b
+Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
+Total PEFT LoRA parameters: 12,582,912
+Camera token is trainable
+Student parameters: 1,269,120,428 total, 12,584,960 trainable
+Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_distill_combined/eth3d/epoch_0_lora_peft
+Loaded camera token
+[INFO] Total inference tasks: 11
+Inference:   0%|          | 0/11 [00:00<?, ?it/s]/root/autodl-tmp/da3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=False):
+Inference:   9%|▉         | 1/11 [00:20<03:24, 20.47s/it]Inference:  18%|█▊        | 2/11 [00:40<03:01, 20.17s/it]Inference:  27%|██▋       | 3/11 [00:56<02:27, 18.44s/it]Inference:  36%|███▋      | 4/11 [01:03<01:35, 13.67s/it]Inference:  45%|████▌     | 5/11 [01:12<01:12, 12.07s/it]Inference:  55%|█████▍    | 6/11 [01:32<01:13, 14.77s/it]Inference:  64%|██████▎   | 7/11 [02:17<01:38, 24.62s/it]Inference:  73%|███████▎  | 8/11 [02:29<01:02, 20.79s/it]Inference:  82%|████████▏ | 9/11 [02:47<00:39, 19.67s/it]Inference:  91%|█████████ | 10/11 [02:56<00:16, 16.61s/it]Inference: 100%|██████████| 11/11 [03:18<00:00, 18.19s/it]Inference: 100%|██████████| 11/11 [03:18<00:00, 18.06s/it]
+[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
+[ETH3D] electro: 39/45 images (filtered 6, missing 0)
+[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
+[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
+[ETH3D] relief: 19/31 images (filtered 12, missing 0)
+[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
+[ETH3D] facade: 76/76 images (filtered 0, missing 0)
+[ETH3D] office: 26/26 images (filtered 0, missing 0)
+[ETH3D] playground: 32/38 images (filtered 6, missing 0)
+[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
+[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
+
+============================================================
+Evaluating POSE for all datasets...
+============================================================
+Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
+eth3d scenes:   0%|          | 0/11 [00:00<?, ?it/s][A
+                                                    [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 27.99it/s]
+
+============================================================
+Evaluating RECON_UNPOSED for all datasets...
+============================================================
+Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
+eth3d fusion:   0%|          | 0/11 [00:00<?, ?it/s][A
+eth3d fusion:   9%|▉         | 1/11 [01:36<16:02, 96.25s/it][A
+eth3d fusion:  18%|█▊        | 2/11 [01:39<06:14, 41.60s/it][A
+eth3d fusion:  55%|█████▍    | 6/11 [02:53<01:59, 23.81s/it][A
+eth3d fusion:  64%|██████▎   | 7/11 [04:45<02:51, 42.90s/it][Aeth3d fusion: 100%|██████████| 11/11 [04:45<00:00, 25.99s/it]
+Datasets (recon_unposed eval): 100%|██████████| 1/1 [05:29<00:00, 329.89s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [05:29<00:00, 329.89s/it]
+  recon_unposed | eth3d | courtyard: {'acc': 0.5117821276829603, 'comp': 0.3193927188637577, 'overall': 0.41558742327335896, 'precision': 0.21345340703720359, 'recall': 0.46979010173950453, 'fscore': 0.2935360424812286}
+  recon_unposed | eth3d | electro: {'acc': 0.15927869623937418, 'comp': 4.7009077926592, 'overall': 2.430093244449287, 'precision': 0.8281863957854294, 'recall': 0.5585797185135476, 'fscore': 0.6671754076835477}
+  recon_unposed | eth3d | kicker: {'acc': 0.051730034163318145, 'comp': 0.0473676908209324, 'overall': 0.04954886249212527, 'precision': 0.9971749153807201, 'recall': 0.9993570693793576, 'fscore': 0.9982647998631872}
+  recon_unposed | eth3d | pipes: {'acc': 0.17145131425202753, 'comp': 0.20854860665109443, 'overall': 0.18999996045156098, 'precision': 0.810952380952381, 'recall': 0.7653736991485336, 'fscore': 0.7875040976332756}
+  recon_unposed | eth3d | relief: {'acc': 0.5029845599882706, 'comp': 0.5182644088831085, 'overall': 0.5106244844356895, 'precision': 0.372247096524921, 'recall': 0.3114742179974191, 'fscore': 0.33915974485280176}
+  recon_unposed | eth3d | delivery_area: {'acc': 0.5736587667907762, 'comp': 1.1740045661513472, 'overall': 0.8738316664710617, 'precision': 0.3921822417809992, 'recall': 0.24138716690241796, 'fscore': 0.2988394292889801}
+  recon_unposed | eth3d | facade: {'acc': 0.2819916710380736, 'comp': 0.26597571290977545, 'overall': 0.2739836919739245, 'precision': 0.5606239686717955, 'recall': 0.6410629305885355, 'fscore': 0.5981512231449531}
+  recon_unposed | eth3d | office: {'acc': 0.07389444018144893, 'comp': 0.07578246536747116, 'overall': 0.07483845277446005, 'precision': 0.9926367788237487, 'recall': 0.9934416127470399, 'fscore': 0.9930390327108533}
+  recon_unposed | eth3d | playground: {'acc': 0.40332674254826906, 'comp': 0.6905924805165786, 'overall': 0.5469596115324238, 'precision': 0.8181003985491021, 'recall': 0.6270566727605119, 'fscore': 0.7099509445480108}
+  recon_unposed | eth3d | relief_2: {'acc': 0.8252188000545062, 'comp': 1.301389632611677, 'overall': 1.0633042163330915, 'precision': 0.04550263333409995, 'recall': 0.04688286729404089, 'fscore': 0.046182440006872744}
+  recon_unposed | eth3d | terrains: {'acc': 0.3398472353944241, 'comp': 0.19722449086081556, 'overall': 0.2685358631276198, 'precision': 0.6586928034658893, 'recall': 0.7431199987222284, 'fscore': 0.6983639962566491}
+
+[1;36m========================================================================================================================[0m
+[1;36m📊 SUMMARY[0m
+[1;36m========================================================================================================================[0m
+
+[1;35m🎯 POSE ESTIMATION[0m
+---------------------------------------------------------------------------------------
+[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
+---------------------------------------------------------------------------------------
+Auc3           [1;32m0.2822      [0mN/A         0.2822      N/A         N/A         N/A         
+Auc30          [1;32m0.8205      [0mN/A         0.8205      N/A         N/A         N/A         
+
+[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
+---------------------------------------------------------------------------------------
+[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
+---------------------------------------------------------------------------------------
+F-score        [1;32m0.5846      [0mN/A         0.5846      N/A         N/A         N/A         
+Overall        [1;32m0.6088      [0mN/A         0.6088      N/A         N/A         N/A         
+
+[1;35m🏗️  RECON_POSED (GT Pose)[0m
+---------------------------------------------------------------------------------------
+[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
+---------------------------------------------------------------------------------------
+F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
+Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
+
+[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
+
+====================================================================================================
+[1;32m✅ Evaluation Complete[0m
+====================================================================================================
+
+[Combined] Benchmark complete!
