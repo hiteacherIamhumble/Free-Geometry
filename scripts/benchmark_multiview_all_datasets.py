@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Benchmark DA3 or VGGT on multiple datasets at multiple input-view counts.
+Benchmark DA3 or VGGT, including Free-Geometry LoRA variants, on multiple datasets at multiple input-view counts.
 
 This replaces the old fixed teacher/student 8v->4v workflow with direct
 multi-view benchmarking. Each requested view count is saved as its own
@@ -41,10 +41,10 @@ DEFAULT_VGGT_LORA_ROOT = "checkpoints/vggt_lora_final"
 
 
 class LoRADepthAnything3:
-    """Minimal wrapper to make a DA3 LoRA model match the benchmark API."""
+    """Minimal wrapper to make a Free-Geometry DA3 LoRA model match the benchmark API."""
 
     def __init__(self, base_model="depth-anything/DA3-GIANT-1.1", lora_path=None, device="cuda"):
-        from depth_anything_3.distillation.models import StudentModel
+        from depth_anything_3.test_time_adaption.models import StudentModel
 
         print(f"Loading DA3 base model: {base_model}")
         print(f"Loading DA3 LoRA weights: {lora_path}")
@@ -101,7 +101,7 @@ class LoRADepthAnything3:
 
 
 class LoRAVGGT:
-    """Minimal wrapper to make a VGGT LoRA model match the benchmark API."""
+    """Minimal wrapper to make a Free-Geometry VGGT LoRA model match the benchmark API."""
 
     def __init__(
         self,
@@ -113,7 +113,7 @@ class LoRAVGGT:
         device="cuda",
         image_size=504,
     ):
-        from vggt.vggt.distillation.models import VGGTStudentModel
+        from vggt.vggt.test_time_adaption.models import VGGTStudentModel
         from vggt.utils.pose_enc import pose_encoding_to_extri_intri
 
         print(f"Loading VGGT base model: {base_model}")

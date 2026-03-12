@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # =============================================================================
-# DA3 Giant: Tuned LoRA Distillation + RKD Distance Loss
+# DA3 Giant: Tuned LoRA Free-Geometry + CF Distance Loss
 #
-# Same as run_da3_tuned_lora.sh but adds KL-based RKD distance loss
+# Same as run_da3_tuned_lora.sh but adds KL-based CF distance loss
 # with T=10, Huber(beta=0.5), d3_weight=0 (d1+d2 only).
 # =============================================================================
 
@@ -19,16 +19,16 @@ mkdir -p logs
 
 # === Configuration ===
 MODEL_NAME="depth-anything/DA3-GIANT-1.1"
-OUTPUT_DIR=./checkpoints/all_da3
-BENCHMARK_ROOT=./workspace/all_da3
+OUTPUT_DIR=./checkpoints/all_da3_v2
+BENCHMARK_ROOT=./workspace/all_da3_v2
 
 NUM_VIEWS=8
 
-# Feature + RKD settings (shared across all datasets)
-RKD_WEIGHT=2.0
-RKD_TOPK=4
-RKD_NUM_REF=256
-RKD_NUM_SHARED=256
+# Feature + CF settings (shared across all datasets)
+CF_WEIGHT=2.0
+CF_TOPK=4
+CF_NUM_REF=256
+CF_NUM_SHARED=256
 
 # Patch Huber + cosine (always enabled)
 PATCH_HUBER_WEIGHT=${PATCH_HUBER_WEIGHT:-1.0}
@@ -39,26 +39,18 @@ PATCH_HUBER_DELTA=${PATCH_HUBER_DELTA:-1.0}
 USE_FINETUNE=${USE_FINETUNE:-0}
 FINETUNE_LR=${FINETUNE_LR:-5e-6}
 
-# RKD Distance loss
-RKD_DIST_WEIGHT=1.0
-RKD_DIST_TEMP=10.0
-RKD_D1_WEIGHT=1.0
-RKD_D2_WEIGHT=1.0
-RKD_D3_WEIGHT=0.0
-RKD_DIST_MODE=kl
-
-# Output loss weights
-OUTPUT_WEIGHT=0.0
-CAMERA_WEIGHT=5.0
-DEPTH_WEIGHT=3.0
-DEPTH_GRAD=grad
-DEPTH_VALID_RANGE=0.98
-
+# CF Distance loss
+CF_DIST_WEIGHT=1.0
+CF_DIST_TEMP=10.0
+CF_D1_WEIGHT=1.0
+CF_D2_WEIGHT=1.0
+CF_D3_WEIGHT=0.0
+CF_DIST_MODE=kl
 
 # Benchmark
-MAX_FRAMES_LIST="4 8 16 32"
+MAX_FRAMES_LIST="16"
 BASELINE_SEEDS="43 44 45"
-LORA_SEEDS="${LORA_SEEDS:-43 44 45}"
+LORA_SEEDS="${LORA_SEEDS:-43}"
 
 ALL_DATASETS="eth3d scannetpp hiroom 7scenes"
 
@@ -67,11 +59,12 @@ ALL_DATASETS="eth3d scannetpp hiroom 7scenes"
 # =============================================================================
 get_training_config() {
     local DATASET=$1
+    # "samples epochs seed_start seed_end lr lora_rank lora_alpha eta_min"
     case "${DATASET}" in
-        scannetpp) echo "10 5 40 49 5e-5 32 32" ;;
-        hiroom)    echo "5 5 40 44 1e-4 32 32" ;;
-        7scenes)   echo "10 5 40 49 1e-4 32 32" ;;
-        eth3d)     echo "5 5 40 44 5e-5 32 32" ;;
+        scannetpp) echo "10 3 40 49 1e-5 32 32 1e-8" ;;
+        hiroom)    echo "5 5 40 44 1e-4 32 32 1e-7" ;;
+        7scenes)   echo "20 3 40 49 5e-5 32 32 1e-8" ;;
+        eth3d)     echo "10 3 40 44 1e-4 32 32 1e-7" ;;
         *)
             echo "ERROR: Unknown dataset '${DATASET}'" >&2
             return 1
@@ -93,20 +86,16 @@ train_single_dataset() {
     local DS_LR=$(echo ${CONFIG} | cut -d' ' -f5)
     local DS_LORA_RANK=$(echo ${CONFIG} | cut -d' ' -f6)
     local DS_LORA_ALPHA=$(echo ${CONFIG} | cut -d' ' -f7)
+    local DS_ETA_MIN=$(echo ${CONFIG} | cut -d' ' -f8)
     local SEEDS="$(seq -s ' ' ${SEED_START} ${SEED_END})"
 
     echo ""
     echo "============================================================"
-    echo "Training DA3 on ${DATASET} — TUNED LoRA DISTILL + RKD DIST"
+    echo "Training DA3 on ${DATASET} — TUNED LoRA FREE-GEOMETRY + CF DIST"
     echo "  Samples/scene: ${SAMPLES}, Seeds: ${SEEDS}, Epochs: ${DS_EPOCHS}"
     echo "  LoRA rank=${DS_LORA_RANK}, alpha=${DS_LORA_ALPHA}, LR=${DS_LR}, cosine scheduler"
-    echo "  RKD dist: weight=${RKD_DIST_WEIGHT}, T=${RKD_DIST_TEMP}, d1=${RKD_D1_WEIGHT}, d2=${RKD_D2_WEIGHT}, d3=${RKD_D3_WEIGHT}"
+    echo "  CF dist: weight=${CF_DIST_WEIGHT}, T=${CF_DIST_TEMP}, d1=${CF_D1_WEIGHT}, d2=${CF_D2_WEIGHT}, d3=${CF_D3_WEIGHT}"
     echo "============================================================"
-
-    local EXTRA_ARGS=""
-    if [ "${DATASET}" = "scannetpp" ]; then
-        EXTRA_ARGS="--use_scannetpp_test_split"
-    fi
 
     # Finetune mode: override LR and add --finetune flag
     local FINETUNE_ARGS=""
@@ -116,40 +105,31 @@ train_single_dataset() {
         echo "  MODE: Full finetune (layers 13-39), LR=${DS_LR}"
     fi
 
-    python -u ./scripts/train_distill.py \
+    python -u ./scripts/train_da3.py \
         --dataset "${DATASET}" \
         --samples_per_scene ${SAMPLES} \
         --seeds_list ${SEEDS} \
-        ${EXTRA_ARGS} \
         ${FINETUNE_ARGS} \
         --model_name ${MODEL_NAME} \
         --num_views ${NUM_VIEWS} \
-        --combined_loss \
-        --patch_huber_cosine \
         --patch_huber_weight ${PATCH_HUBER_WEIGHT} \
         --patch_huber_cos_weight ${PATCH_HUBER_COS_WEIGHT} \
         --patch_huber_delta ${PATCH_HUBER_DELTA} \
-        --distill_all_layers \
-        --rkd_weight ${RKD_WEIGHT} \
-        --rkd_topk ${RKD_TOPK} \
-        --rkd_num_ref_samples ${RKD_NUM_REF} \
-        --rkd_num_shared_samples ${RKD_NUM_SHARED} \
-        --rkd_angle1_weight 1.0 \
-        --rkd_angle2_weight 1.0 \
-        --rkd_angle3_weight 1.0 \
-        --rkd_selection_mode mixed \
-        --use_rkd_distance \
-        --rkd_distance_weight ${RKD_DIST_WEIGHT} \
-        --rkd_distance_temperature ${RKD_DIST_TEMP} \
-        --rkd_distance_mode ${RKD_DIST_MODE} \
-        --rkd_d1_weight ${RKD_D1_WEIGHT} \
-        --rkd_d2_weight ${RKD_D2_WEIGHT} \
-        --rkd_d3_weight ${RKD_D3_WEIGHT} \
-        --output_weight ${OUTPUT_WEIGHT} \
-        --camera_weight ${CAMERA_WEIGHT} \
-        --depth_weight ${DEPTH_WEIGHT} \
-        --depth_gradient_loss ${DEPTH_GRAD} \
-        --depth_valid_range ${DEPTH_VALID_RANGE} \
+        --cf_weight ${CF_WEIGHT} \
+        --cf_topk ${CF_TOPK} \
+        --cf_num_ref_samples ${CF_NUM_REF} \
+        --cf_num_shared_samples ${CF_NUM_SHARED} \
+        --cf_angle1_weight 1.0 \
+        --cf_angle2_weight 1.0 \
+        --cf_angle3_weight 1.0 \
+        --cf_selection_mode mixed \
+        --use_cf_distance \
+        --cf_distance_weight ${CF_DIST_WEIGHT} \
+        --cf_distance_temperature ${CF_DIST_TEMP} \
+        --cf_distance_mode ${CF_DIST_MODE} \
+        --cf_d1_weight ${CF_D1_WEIGHT} \
+        --cf_d2_weight ${CF_D2_WEIGHT} \
+        --cf_d3_weight ${CF_D3_WEIGHT} \
         --epochs ${DS_EPOCHS} \
         --batch_size 4 \
         --num_workers 2 \
@@ -158,7 +138,7 @@ train_single_dataset() {
         --lora_alpha ${DS_LORA_ALPHA} \
         --lr_scheduler cosine \
         --warmup_ratio 0.15 \
-        --eta_min 1e-7 \
+        --eta_min ${DS_ETA_MIN} \
         --weight_decay 1e-5 \
         --output_dir "${OUTPUT_DIR}/${DATASET}"
 
@@ -168,7 +148,7 @@ train_single_dataset() {
 run_training() {
     echo ""
     echo "============================================================"
-    echo "Training all datasets (TUNED + RKD DIST): ${ALL_DATASETS}"
+    echo "Training all datasets (TUNED + CF DIST): ${ALL_DATASETS}"
     echo "============================================================"
 
     for DATASET in ${ALL_DATASETS}; do
@@ -204,7 +184,7 @@ benchmark_lora_single() {
     fi
 
     echo "  [LoRA epoch=${EPOCH}] ${DATASET}, max_frames=${MAX_FRAMES}, seeds: ${SEED_LIST}"
-    python -u ./scripts/benchmark_lora.py \
+    python -u ./scripts/benchmark_da3.py \
         --lora_path "${LORA_PATH}" \
         --base_model "${MODEL_NAME}" \
         --lora_rank ${DS_LORA_RANK} \
@@ -317,7 +297,7 @@ for mk in sorted(all_keys):
 run_lora_benchmark() {
     echo ""
     echo "============================================================"
-    echo "Benchmarking DA3 Tuned LoRA + RKD Dist — all epochs"
+    echo "Benchmarking DA3 Tuned LoRA + CF Dist — all epochs"
     echo "  Datasets: ${ALL_DATASETS}"
     echo "  Max frames: ${MAX_FRAMES_LIST}"
     echo "  Seeds: ${LORA_SEEDS}"
@@ -403,7 +383,7 @@ usage() {
     echo "  benchmark_all       - Both benchmarks (baseline first)"
     echo "  all                 - Train all + benchmark all (default)"
     echo ""
-    echo "Same as run_da3_tuned_lora.sh + RKD distance loss (T=${RKD_DIST_TEMP}, d1+d2 only)"
+    echo "Same as run_da3_tuned_lora.sh + CF distance loss (T=${CF_DIST_TEMP}, d1+d2 only)"
     echo "Benchmark frames: ${MAX_FRAMES_LIST}"
 }
 
@@ -436,9 +416,7 @@ case "${COMMAND}" in
         run_lora_benchmark
         ;;
     all)
-        # 1) Baseline all seeds together
-        run_baseline_benchmark
-        # 2) Train + LoRA benchmark (all seeds together)
+        # Train + LoRA benchmark (seed 43, 16v only)
         run_training
         run_lora_benchmark
         ;;

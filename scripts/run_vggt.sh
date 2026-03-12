@@ -2,11 +2,11 @@
 set -e
 
 # =============================================================================
-# VGGT Experiment: Patch Huber + Cosine + RKD on All 4 Datasets
+# VGGT Free-Geometry: Patch Huber + Cosine + CF on All 4 Datasets
 # =============================================================================
 #
-# This experiment:
-# - Trains on all 4 datasets with patch huber + cosine + cross-frame RKD angle + RKD distance
+# This Free-Geometry setup:
+# - Trains on all 4 datasets with patch huber + cosine + cross-frame CF angle + CF distance
 # - No baseline benchmark
 # - LoRA benchmark only: 4v, 8v, maxframe with seeds 42, 43, 44
 #
@@ -29,8 +29,6 @@ set -e
 MODEL_NAME=facebook/vggt-1b
 OUTPUT_DIR=./checkpoints/all_vggt_v3
 BENCHMARK_ROOT=./workspace/all_vggt_v3
-DATA_BASE=/home/22097845d/Depth-Anything-3/workspace/benchmark_dataset
-
 # Common training settings
 LR=1e-4
 BATCH_SIZE=2
@@ -41,30 +39,30 @@ NUM_VIEWS=8
 # DPT decoder feature layers: [4, 11, 17, 23]
 OUTPUT_LAYERS="4 11 17 23"
 
-# Base loss settings (DA3-style patch huber + cosine)
+# Free-Geometry base loss settings (patch huber + cosine)
 PATCH_HUBER_WEIGHT=1.0
 PATCH_HUBER_COS_WEIGHT=2.0
 PATCH_HUBER_DELTA=1.0
 
-# Cross-frame RKD angle loss settings
-RKD_WEIGHT=2.0
-RKD_TOPK=4
-RKD_NUM_REF_SAMPLES=256
-RKD_NUM_SHARED_SAMPLES=256
-RKD_ANGLE1_WEIGHT=1.0
-RKD_ANGLE2_WEIGHT=1.0
-RKD_ANGLE3_WEIGHT=1.0
+# Cross-frame CF angle loss settings
+CF_WEIGHT=2.0
+CF_TOPK=4
+CF_NUM_REF_SAMPLES=256
+CF_NUM_SHARED_SAMPLES=256
+CF_ANGLE1_WEIGHT=1.0
+CF_ANGLE2_WEIGHT=1.0
+CF_ANGLE3_WEIGHT=1.0
 
-# Cross-frame RKD distance loss settings (DA3-style)
-RKD_DIST_WEIGHT=1.0
-RKD_DIST_CHUNK_SIZE=16
-RKD_DIST_TYPE=l2
-RKD_DIST_TEMP=1.0
-RKD_DIST_MODE=kl
-RKD_DIST_HUBER_BETA=0.5
-RKD_D1_WEIGHT=1.0
-RKD_D2_WEIGHT=1.0
-RKD_D3_WEIGHT=0.0
+# Free-Geometry cross-frame CF distance loss settings
+CF_DIST_WEIGHT=1.0
+CF_DIST_CHUNK_SIZE=16
+CF_DIST_TYPE=l2
+CF_DIST_TEMP=1.0
+CF_DIST_MODE=kl
+CF_DIST_HUBER_BETA=0.5
+CF_D1_WEIGHT=1.0
+CF_D2_WEIGHT=1.0
+CF_D3_WEIGHT=0.0
 
 # Benchmark settings
 BENCHMARK_SEEDS="43 44 45"
@@ -72,7 +70,7 @@ LORA_BENCHMARK_SEEDS="${LORA_BENCHMARK_SEEDS:-43}"
 ALL_DATASETS="scannetpp 7scenes eth3d"
 MODES="pose recon_unposed"
 
-# DA3-style image size (longest side, aspect ratio preserved)
+# Free-Geometry image size (longest side, aspect ratio preserved)
 IMAGE_SIZE=504
 
 # =============================================================================
@@ -102,47 +100,44 @@ train_single_dataset() {
 
     echo ""
     echo "============================================================"
-    echo "Training on ${DATASET}"
+    echo "Training Free-Geometry on ${DATASET}"
     echo "  Image size: ${IMAGE_SIZE} (longest side, aspect ratio preserved)"
     echo "  Samples per scene: ${SAMPLES}"
     echo "  Batch size: ${BATCH_SIZE}"
     echo "  Seeds: ${SEEDS}"
     echo "  Epochs: ${DS_EPOCHS}"
     echo "  LR: ${DS_LR}, cosine scheduler with warmup"
-    echo "  Loss: patch huber (w=${PATCH_HUBER_WEIGHT}, delta=${PATCH_HUBER_DELTA}) + cosine (w=${PATCH_HUBER_COS_WEIGHT}) + RKD-angle (w=${RKD_WEIGHT}) + RKD-dist (w=${RKD_DIST_WEIGHT}, mode=${RKD_DIST_MODE})"
+    echo "  Loss: patch huber (w=${PATCH_HUBER_WEIGHT}, delta=${PATCH_HUBER_DELTA}) + cosine (w=${PATCH_HUBER_COS_WEIGHT}) + CF-angle (w=${CF_WEIGHT}) + CF-dist (w=${CF_DIST_WEIGHT}, mode=${CF_DIST_MODE})"
     echo "============================================================"
 
-    python ./scripts/train_distill_vggt.py \
-        --data_root "${DATA_BASE}/${DATASET}" \
+    python ./scripts/train_vggt.py \
         --dataset "${DATASET}" \
         --samples_per_scene ${SAMPLES} \
         --seeds_list ${SEEDS} \
         --model_name ${MODEL_NAME} \
         --num_views ${NUM_VIEWS} \
         --output_layers ${OUTPUT_LAYERS} \
-        --patch_huber_cosine \
         --patch_huber_weight ${PATCH_HUBER_WEIGHT} \
         --patch_huber_cos_weight ${PATCH_HUBER_COS_WEIGHT} \
         --patch_huber_delta ${PATCH_HUBER_DELTA} \
-        --cross_frame_rkd \
-        --rkd_weight ${RKD_WEIGHT} \
-        --rkd_topk ${RKD_TOPK} \
-        --rkd_num_ref_samples ${RKD_NUM_REF_SAMPLES} \
-        --rkd_num_shared_samples ${RKD_NUM_SHARED_SAMPLES} \
-        --rkd_angle1_weight ${RKD_ANGLE1_WEIGHT} \
-        --rkd_angle2_weight ${RKD_ANGLE2_WEIGHT} \
-        --rkd_angle3_weight ${RKD_ANGLE3_WEIGHT} \
-        --rkd_selection_mode mixed \
-        --use_rkd_distance \
-        --rkd_distance_weight ${RKD_DIST_WEIGHT} \
-        --rkd_distance_chunk_size ${RKD_DIST_CHUNK_SIZE} \
-        --rkd_distance_type ${RKD_DIST_TYPE} \
-        --rkd_distance_temperature ${RKD_DIST_TEMP} \
-        --rkd_distance_mode ${RKD_DIST_MODE} \
-        --rkd_distance_huber_beta ${RKD_DIST_HUBER_BETA} \
-        --rkd_d1_weight ${RKD_D1_WEIGHT} \
-        --rkd_d2_weight ${RKD_D2_WEIGHT} \
-        --rkd_d3_weight ${RKD_D3_WEIGHT} \
+        --cf_weight ${CF_WEIGHT} \
+        --cf_topk ${CF_TOPK} \
+        --cf_num_ref_samples ${CF_NUM_REF_SAMPLES} \
+        --cf_num_shared_samples ${CF_NUM_SHARED_SAMPLES} \
+        --cf_angle1_weight ${CF_ANGLE1_WEIGHT} \
+        --cf_angle2_weight ${CF_ANGLE2_WEIGHT} \
+        --cf_angle3_weight ${CF_ANGLE3_WEIGHT} \
+        --cf_selection_mode mixed \
+        --use_cf_distance \
+        --cf_distance_weight ${CF_DIST_WEIGHT} \
+        --cf_distance_chunk_size ${CF_DIST_CHUNK_SIZE} \
+        --cf_distance_type ${CF_DIST_TYPE} \
+        --cf_distance_temperature ${CF_DIST_TEMP} \
+        --cf_distance_mode ${CF_DIST_MODE} \
+        --cf_distance_huber_beta ${CF_DIST_HUBER_BETA} \
+        --cf_d1_weight ${CF_D1_WEIGHT} \
+        --cf_d2_weight ${CF_D2_WEIGHT} \
+        --cf_d3_weight ${CF_D3_WEIGHT} \
         --epochs ${DS_EPOCHS} \
         --batch_size ${BATCH_SIZE} \
         --num_workers 2 \
@@ -159,14 +154,14 @@ train_single_dataset() {
         --save_interval 0
 
     echo ""
-    echo "Training on ${DATASET} complete!"
+    echo "Free-Geometry training on ${DATASET} complete!"
     echo "  Model saved to: ${OUTPUT_DIR}/${DATASET}/"
 }
 
 run_training() {
     echo ""
     echo "============================================================"
-    echo "Training: 4 datasets"
+    echo "Free-Geometry training: 4 datasets"
     echo "  Datasets: ${ALL_DATASETS}"
     echo "============================================================"
 
@@ -176,7 +171,7 @@ run_training() {
 
     echo ""
     echo "============================================================"
-    echo "All training complete! Models saved to:"
+    echo "All Free-Geometry training complete! Models saved to:"
     for DATASET in ${ALL_DATASETS}; do
         echo "  - ${OUTPUT_DIR}/${DATASET}/"
     done
@@ -222,7 +217,7 @@ benchmark_base_setting() {
 
     echo "  [Base ${SETTING}] ${DATASET}, seeds: ${SEED_LIST}"
 
-    local CMD="python ./scripts/benchmark_lora_vggt.py \
+    local CMD="python ./scripts/benchmark_vggt.py \
         --base_model ${MODEL_NAME} \
         --datasets ${DATASET} \
         --modes ${MODES} \
@@ -256,7 +251,7 @@ benchmark_lora_setting() {
 
     echo "  [LoRA epoch=${EPOCH} ${SETTING}] ${DATASET}, seeds: ${SEED_LIST}"
 
-    local CMD="python ./scripts/benchmark_lora_vggt.py \
+    local CMD="python ./scripts/benchmark_vggt.py \
         --lora_path ${LORA_PATH} \
         --base_model ${MODEL_NAME} \
         --lora_rank ${LORA_RANK} \
@@ -367,7 +362,7 @@ usage() {
     echo ""
     echo "Key settings:"
     echo "  Datasets: ${ALL_DATASETS}"
-    echo "  Loss: patch huber + cosine + cross-frame RKD angle + RKD distance"
+    echo "  Loss: patch huber + cosine + cross-frame CF angle + CF distance"
     echo "  Image size: ${IMAGE_SIZE} (DA3-style, aspect ratio preserved)"
     echo "  Benchmark: baseline + LoRA, 4v/8v/16v/32v/64v, seeds ${BENCHMARK_SEEDS}"
     echo ""
@@ -428,8 +423,8 @@ echo "============================================================"
 echo "=== VGGT Experiment Complete ==="
 echo "============================================================"
 echo ""
-echo "Experiment: patch huber + cosine + RKD angle + RKD distance on all 4 datasets"
-echo "  Loss: patch huber (w=${PATCH_HUBER_WEIGHT}, delta=${PATCH_HUBER_DELTA}) + cosine (w=${PATCH_HUBER_COS_WEIGHT}) + RKD-angle (w=${RKD_WEIGHT}, topk=${RKD_TOPK}) + RKD-dist (w=${RKD_DIST_WEIGHT}, mode=${RKD_DIST_MODE})"
+echo "Experiment: patch huber + cosine + CF angle + CF distance on all 4 datasets"
+echo "  Loss: patch huber (w=${PATCH_HUBER_WEIGHT}, delta=${PATCH_HUBER_DELTA}) + cosine (w=${PATCH_HUBER_COS_WEIGHT}) + CF-angle (w=${CF_WEIGHT}, topk=${CF_TOPK}) + CF-dist (w=${CF_DIST_WEIGHT}, mode=${CF_DIST_MODE})"
 echo ""
 echo "Output directories:"
 echo "  Training:    ${OUTPUT_DIR}/{dataset}"

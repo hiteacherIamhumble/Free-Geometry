@@ -948,7 +948,7 @@ class ExperimentRunner:
         if gap_closed is not None:
             if gap_closed > 0.5:
                 print("Result: Spike dims ARE KEY for pose estimation")
-                print("Action: Focus distillation loss on these dimensions")
+                print("Action: Focus test-time adaption loss on these dimensions")
             elif gap_closed < 0.2:
                 print("Result: Spike dims are NOT KEY for pose estimation")
                 print("Action: Decoder ignores them; try other alignment strategies")

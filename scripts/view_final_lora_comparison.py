@@ -12,7 +12,7 @@ This targets the regenerated fixed-input 8v/16v/32v benchmark layout:
 
 It compares:
   - original model reconstruction
-  - LoRA ("Free Geometry") reconstruction
+  - LoRA ("Free-Geometry") reconstruction
   - GT threshold overlays and depth-threshold maps
 
 Unlike scripts/view_pointclouds.py, HiRoom threshold visualization here uses the
@@ -42,7 +42,7 @@ import view_pointclouds as vp
 
 EXPERIMENTS: Dict[str, str] = {
     "baseline": "Original Model",
-    "lora": "LoRA (Free Geometry)",
+    "lora": "LoRA (Free-Geometry)",
 }
 NO_SCENE_SENTINEL = "__NO_SCENE_AVAILABLE__"
 DEFAULT_WORK_ROOTS = {
