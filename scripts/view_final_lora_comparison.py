@@ -49,6 +49,7 @@ DEFAULT_WORK_ROOTS = {
     "da3": "./results/multiview_da3_hiroom_scannetpp_lora_fixed",
     "vggt": "./results/multiview_vggt_hiroom_scannetpp_lora_fixed",
 }
+DEFAULT_VIEWER_MAX_POINTS = vp.DEFAULT_VIEWER_MAX_POINTS
 
 
 def _seed_tag(seed: str | int) -> str:
@@ -121,8 +122,21 @@ def _fused_ply_path(model_family: str, exp_key: str, frame_count: int, dataset_n
     )
 
 
-def _viewer_cache_dir(work_root: str, frame_count: int, dataset_name: str, seed: str | int) -> str:
-    return os.path.join(work_root, "_viewer_cache", f"frames_{int(frame_count)}", dataset_name, _seed_tag(seed))
+def _viewer_cache_dir(
+    work_root: str,
+    frame_count: int,
+    dataset_name: str,
+    seed: str | int,
+    viewer_max_points: int = DEFAULT_VIEWER_MAX_POINTS,
+) -> str:
+    return os.path.join(
+        work_root,
+        "_viewer_cache_v2",
+        vp._cache_tag_for_max_points(viewer_max_points),
+        f"frames_{int(frame_count)}",
+        dataset_name,
+        _seed_tag(seed),
+    )
 
 
 def _load_json(path: str) -> dict:
@@ -222,7 +236,16 @@ def _format_metrics_md(model_family: str, frame_count: int, dataset_name: str, s
     return "\n".join([header, sep, body])
 
 
-def _ensure_gt_glb(model_family: str, work_root: str, frame_count: int, dataset_name: str, seed: str | int, scene: str) -> Optional[str]:
+def _ensure_gt_glb(
+    model_family: str,
+    work_root: str,
+    frame_count: int,
+    dataset_name: str,
+    seed: str | int,
+    scene: str,
+    *,
+    viewer_max_points: int = DEFAULT_VIEWER_MAX_POINTS,
+) -> Optional[str]:
     gt_meta = _load_gt_meta(model_family, frame_count, dataset_name, seed, scene)
     if gt_meta is None:
         return None
@@ -231,13 +254,19 @@ def _ensure_gt_glb(model_family: str, work_root: str, frame_count: int, dataset_
     if gt_ply is None or not os.path.exists(gt_ply):
         return None
 
-    out_glb = os.path.join(_viewer_cache_dir(work_root, frame_count, dataset_name, seed), "gt", vp._scene_slug(scene), "scene.glb")
+    out_glb = os.path.join(
+        _viewer_cache_dir(work_root, frame_count, dataset_name, seed, viewer_max_points),
+        "gt",
+        vp._scene_slug(scene),
+        "scene.glb",
+    )
     return vp._ensure_glb_from_ply_with_cameras(
         ply_path=gt_ply,
         out_glb_path=out_glb,
         extrinsics_w2c=gt_meta["extrinsics"],
         intrinsics=gt_meta["intrinsics"],
         image_sizes=vp._read_image_sizes(gt_meta["image_files"]),
+        num_max_points=viewer_max_points,
     )
 
 
@@ -249,6 +278,8 @@ def _ensure_exp_fused_glb(
     seed: str | int,
     scene: str,
     exp_key: str,
+    *,
+    viewer_max_points: int = DEFAULT_VIEWER_MAX_POINTS,
 ) -> Optional[str]:
     gt_meta = _load_gt_meta(model_family, frame_count, dataset_name, seed, scene)
     if gt_meta is None:
@@ -256,7 +287,7 @@ def _ensure_exp_fused_glb(
 
     fuse_ply = _fused_ply_path(model_family, exp_key, frame_count, dataset_name, seed, scene)
     out_glb = os.path.join(
-        _viewer_cache_dir(work_root, frame_count, dataset_name, seed),
+        _viewer_cache_dir(work_root, frame_count, dataset_name, seed, viewer_max_points),
         exp_key,
         "visualizations_fuse",
         vp._scene_slug(scene),
@@ -268,11 +299,27 @@ def _ensure_exp_fused_glb(
         extrinsics_w2c=gt_meta["extrinsics"],
         intrinsics=gt_meta["intrinsics"],
         image_sizes=vp._read_image_sizes(gt_meta["image_files"]),
+        num_max_points=viewer_max_points,
     )
 
 
-def _comparison_glb_path(work_root: str, frame_count: int, dataset_name: str, seed: str | int, name: str, scene: str) -> str:
-    return os.path.join(_viewer_cache_dir(work_root, frame_count, dataset_name, seed), "comparisons", name, vp._scene_slug(scene), "scene.glb")
+def _comparison_glb_path(
+    work_root: str,
+    frame_count: int,
+    dataset_name: str,
+    seed: str | int,
+    name: str,
+    scene: str,
+    *,
+    viewer_max_points: int = DEFAULT_VIEWER_MAX_POINTS,
+) -> str:
+    return os.path.join(
+        _viewer_cache_dir(work_root, frame_count, dataset_name, seed, viewer_max_points),
+        "comparisons",
+        name,
+        vp._scene_slug(scene),
+        "scene.glb",
+    )
 
 
 def _ensure_exp_vs_gt_threshold_overlay_glb(
@@ -285,6 +332,7 @@ def _ensure_exp_vs_gt_threshold_overlay_glb(
     *,
     exp_key: str,
     out_name: str,
+    viewer_max_points: int = DEFAULT_VIEWER_MAX_POINTS,
 ) -> Optional[str]:
     threshold, down_sample = vp._dataset_recon_eval_params(dataset_name)
     if threshold is None:
@@ -298,7 +346,15 @@ def _ensure_exp_vs_gt_threshold_overlay_glb(
     if not os.path.exists(pred_ply):
         return None
 
-    out_glb = _comparison_glb_path(work_root, frame_count, dataset_name, seed, out_name, scene)
+    out_glb = _comparison_glb_path(
+        work_root,
+        frame_count,
+        dataset_name,
+        seed,
+        out_name,
+        scene,
+        viewer_max_points=viewer_max_points,
+    )
     if os.path.exists(out_glb):
         return out_glb
 
@@ -333,6 +389,8 @@ def _ensure_exp_vs_gt_threshold_overlay_glb(
         pred_points = pred_points[rng.choice(pred_points.shape[0], size=350_000, replace=False)]
     if gt_points.shape[0] > 350_000:
         gt_points = gt_points[rng.choice(gt_points.shape[0], size=350_000, replace=False)]
+    pred_points, _ = vp._cap_point_cloud_arrays(pred_points, None, num_max_points=viewer_max_points)
+    gt_points, _ = vp._cap_point_cloud_arrays(gt_points, None, num_max_points=viewer_max_points)
 
     dist_pred_to_gt = nn_correspondance(gt_points, pred_points)
     dist_gt_to_pred = nn_correspondance(pred_points, gt_points)
@@ -377,6 +435,8 @@ def _ensure_lora_vs_baseline_delta_overlay_glb(
     dataset_name: str,
     seed: str | int,
     scene: str,
+    *,
+    viewer_max_points: int = DEFAULT_VIEWER_MAX_POINTS,
 ) -> Optional[str]:
     threshold, down_sample = vp._dataset_recon_eval_params(dataset_name)
     if threshold is None:
@@ -391,7 +451,15 @@ def _ensure_lora_vs_baseline_delta_overlay_glb(
     if not os.path.exists(baseline_ply) or not os.path.exists(lora_ply):
         return None
 
-    out_glb = _comparison_glb_path(work_root, frame_count, dataset_name, seed, "lora_vs_baseline_delta_threshold", scene)
+    out_glb = _comparison_glb_path(
+        work_root,
+        frame_count,
+        dataset_name,
+        seed,
+        "lora_vs_baseline_delta_threshold",
+        scene,
+        viewer_max_points=viewer_max_points,
+    )
     if os.path.exists(out_glb):
         return out_glb
 
@@ -421,6 +489,9 @@ def _ensure_lora_vs_baseline_delta_overlay_glb(
     baseline_points = np.asarray(baseline_pcd.points, dtype=np.float32)
     lora_points = np.asarray(lora_pcd.points, dtype=np.float32)
     gt_points = np.asarray(gt_pcd.points, dtype=np.float32)
+    baseline_points, _ = vp._cap_point_cloud_arrays(baseline_points, None, num_max_points=viewer_max_points)
+    lora_points, _ = vp._cap_point_cloud_arrays(lora_points, None, num_max_points=viewer_max_points)
+    gt_points, _ = vp._cap_point_cloud_arrays(gt_points, None, num_max_points=viewer_max_points)
     if baseline_points.shape[0] == 0 or lora_points.shape[0] == 0 or gt_points.shape[0] == 0:
         return None
 
@@ -647,7 +718,16 @@ def _prepare_depth_error_galleries(model_family: str, work_root: str, frame_coun
     return galleries["baseline"], galleries["lora"], galleries["lora_minus_baseline"], summary
 
 
-def build_app(*, model_family: str, work_root: str, frame_count: int, dataset_name: str, seed: str | int, default_scene: Optional[str] = None):
+def build_app(
+    *,
+    model_family: str,
+    work_root: str,
+    frame_count: int,
+    dataset_name: str,
+    seed: str | int,
+    default_scene: Optional[str] = None,
+    viewer_max_points: int = DEFAULT_VIEWER_MAX_POINTS,
+):
     scenes = _list_scenes(model_family, frame_count, dataset_name, seed)
     if scenes:
         scene_choices = scenes
@@ -669,9 +749,15 @@ def build_app(*, model_family: str, work_root: str, frame_count: int, dataset_na
         info_md = gr.Markdown("")
 
         gr.Markdown("### Input Frames")
+        load_inputs_btn = gr.Button("Load Input Frames")
+        input_status_md = gr.Markdown("Input frames are lazy-loaded.")
         input_gallery = gr.Gallery(value=[], columns=5, height=220, label="Input frames")
 
         gr.Markdown("### 3D Point Cloud Comparison")
+        load_models_btn = gr.Button("Load 3D Point Clouds")
+        model_status_md = gr.Markdown(
+            f"3D models are lazy-loaded and capped at `{int(viewer_max_points):,}` points per scene to keep remote sessions stable."
+        )
         with gr.Row():
             gt_model = gr.Model3D(value=None, label="GT Fused", height=480, clear_color=(1.0, 1.0, 1.0, 1.0))
             baseline_model = gr.Model3D(value=None, label=EXPERIMENTS["baseline"], height=480, clear_color=(1.0, 1.0, 1.0, 1.0))
@@ -690,6 +776,8 @@ def build_app(*, model_family: str, work_root: str, frame_count: int, dataset_na
         threshold_md = gr.Markdown("Click 'Render Threshold Overlays'.")
 
         gr.Markdown("### Predicted Depth Maps")
+        load_depths_btn = gr.Button("Load Predicted Depth Maps")
+        pred_depth_status_md = gr.Markdown("Predicted depth maps are lazy-loaded.")
         with gr.Tab(EXPERIMENTS["baseline"]):
             baseline_depth_gallery = gr.Gallery(value=[], columns=2, height=260, label="RGB | predicted depth")
         with gr.Tab(EXPERIMENTS["lora"]):
@@ -716,15 +804,18 @@ def build_app(*, model_family: str, work_root: str, frame_count: int, dataset_na
                     None,
                     None,
                     None,
+                    "No valid scene selected.",
                     [],
                     [],
+                    "No valid scene selected.",
+                    "No valid scene selected.",
                     "",
                 )
 
             gt_meta = _load_gt_meta(model_family, frame_count, dataset_name, seed, scene)
-            input_imgs = gt_meta["image_files"] if gt_meta else []
+            cache_root = _viewer_cache_dir(work_root, frame_count, dataset_name, seed, viewer_max_points)
             info = [
-                f"viewer_cache_root: `{os.path.abspath(work_root)}`",
+                f"viewer_cache_root: `{os.path.abspath(cache_root)}`",
                 f"dataset: `{dataset_name}`",
                 f"scene: `{scene}`",
                 f"frames: `{frame_count}`",
@@ -737,23 +828,99 @@ def build_app(*, model_family: str, work_root: str, frame_count: int, dataset_na
                 info.append(f"gt_meta: `{gt_meta['meta_path']}`")
                 info.append(f"GT source: `{gt_meta['meta_source_exp']}`")
 
-            gt_glb = _ensure_gt_glb(model_family, work_root, frame_count, dataset_name, seed, scene)
-            baseline_glb = _ensure_exp_fused_glb(model_family, work_root, frame_count, dataset_name, seed, scene, "baseline")
-            lora_glb = _ensure_exp_fused_glb(model_family, work_root, frame_count, dataset_name, seed, scene, "lora")
-            baseline_depth = _prepare_pred_depth_gallery(model_family, work_root, "baseline", frame_count, dataset_name, seed, scene)
-            lora_depth = _prepare_pred_depth_gallery(model_family, work_root, "lora", frame_count, dataset_name, seed, scene)
             metrics = _format_metrics_md(model_family, frame_count, dataset_name, seed, scene)
 
             return (
                 "  \n".join(info),
-                input_imgs,
-                gt_glb,
-                baseline_glb,
-                lora_glb,
-                baseline_depth,
-                lora_depth,
+                [],
+                None,
+                None,
+                None,
+                f"Ready to load input frames for `{scene}`. Click `Load Input Frames`.",
+                [],
+                [],
+                f"Ready to load predicted depth maps for `{scene}`. Click `Load Predicted Depth Maps`.",
+                f"Ready to load 3D models for `{scene}`. Click `Load 3D Point Clouds`.",
                 metrics,
             )
+
+        def _load_inputs(scene: str):
+            if (not scene) or scene == NO_SCENE_SENTINEL:
+                return [], "No valid scene selected."
+
+            gt_meta = _load_gt_meta(model_family, frame_count, dataset_name, seed, scene)
+            input_imgs = gt_meta["image_files"] if gt_meta else []
+            if not input_imgs:
+                return [], f"No input frames found for `{scene}`."
+            return input_imgs, f"Loaded `{len(input_imgs)}` input frames for `{scene}`."
+
+        def _load_pred_depths(scene: str):
+            if (not scene) or scene == NO_SCENE_SENTINEL:
+                return [], [], "No valid scene selected."
+
+            baseline_depth = _prepare_pred_depth_gallery(
+                model_family,
+                work_root,
+                "baseline",
+                frame_count,
+                dataset_name,
+                seed,
+                scene,
+            )
+            lora_depth = _prepare_pred_depth_gallery(
+                model_family,
+                work_root,
+                "lora",
+                frame_count,
+                dataset_name,
+                seed,
+                scene,
+            )
+            status = (
+                f"Loaded predicted depth maps for `{scene}`: "
+                f"`{len(baseline_depth)}` original panels, `{len(lora_depth)}` LoRA panels."
+            )
+            return baseline_depth, lora_depth, status
+
+        def _load_models(scene: str):
+            if (not scene) or scene == NO_SCENE_SENTINEL:
+                return None, None, None, "No valid scene selected."
+
+            gt_glb = _ensure_gt_glb(
+                model_family,
+                work_root,
+                frame_count,
+                dataset_name,
+                seed,
+                scene,
+                viewer_max_points=viewer_max_points,
+            )
+            baseline_glb = _ensure_exp_fused_glb(
+                model_family,
+                work_root,
+                frame_count,
+                dataset_name,
+                seed,
+                scene,
+                "baseline",
+                viewer_max_points=viewer_max_points,
+            )
+            lora_glb = _ensure_exp_fused_glb(
+                model_family,
+                work_root,
+                frame_count,
+                dataset_name,
+                seed,
+                scene,
+                "lora",
+                viewer_max_points=viewer_max_points,
+            )
+            status = (
+                f"Loaded 3D models for `{scene}` from cache root "
+                f"`{os.path.abspath(_viewer_cache_dir(work_root, frame_count, dataset_name, seed, viewer_max_points))}` "
+                f"with a `{int(viewer_max_points):,}`-point cap."
+            )
+            return gt_glb, baseline_glb, lora_glb, status
 
         def _load_threshold_overlays(scene: str):
             if (not scene) or scene == NO_SCENE_SENTINEL:
@@ -776,6 +943,7 @@ def build_app(*, model_family: str, work_root: str, frame_count: int, dataset_na
                 scene,
                 exp_key="baseline",
                 out_name="baseline_vs_gt_threshold",
+                viewer_max_points=viewer_max_points,
             )
             lora_glb = _ensure_exp_vs_gt_threshold_overlay_glb(
                 model_family,
@@ -786,6 +954,7 @@ def build_app(*, model_family: str, work_root: str, frame_count: int, dataset_na
                 scene,
                 exp_key="lora",
                 out_name="lora_vs_gt_threshold",
+                viewer_max_points=viewer_max_points,
             )
             delta_glb = _ensure_lora_vs_baseline_delta_overlay_glb(
                 model_family,
@@ -794,6 +963,7 @@ def build_app(*, model_family: str, work_root: str, frame_count: int, dataset_na
                 dataset_name,
                 seed,
                 scene,
+                viewer_max_points=viewer_max_points,
             )
             out = (baseline_glb, lora_glb, delta_glb, "Rendered threshold overlays using original benchmark thresholds.")
             threshold_cache[scene] = out
@@ -811,13 +981,52 @@ def build_app(*, model_family: str, work_root: str, frame_count: int, dataset_na
         scene_dd.change(
             fn=_update,
             inputs=[scene_dd],
-            outputs=[info_md, input_gallery, gt_model, baseline_model, lora_model, baseline_depth_gallery, lora_depth_gallery, metrics_md],
+            outputs=[
+                info_md,
+                input_gallery,
+                gt_model,
+                baseline_model,
+                lora_model,
+                input_status_md,
+                baseline_depth_gallery,
+                lora_depth_gallery,
+                pred_depth_status_md,
+                model_status_md,
+                metrics_md,
+            ],
             queue=False,
         )
         demo.load(
             fn=_update,
             inputs=[scene_dd],
-            outputs=[info_md, input_gallery, gt_model, baseline_model, lora_model, baseline_depth_gallery, lora_depth_gallery, metrics_md],
+            outputs=[
+                info_md,
+                input_gallery,
+                gt_model,
+                baseline_model,
+                lora_model,
+                input_status_md,
+                baseline_depth_gallery,
+                lora_depth_gallery,
+                pred_depth_status_md,
+                model_status_md,
+                metrics_md,
+            ],
+        )
+        load_inputs_btn.click(
+            fn=_load_inputs,
+            inputs=[scene_dd],
+            outputs=[input_gallery, input_status_md],
+        )
+        load_depths_btn.click(
+            fn=_load_pred_depths,
+            inputs=[scene_dd],
+            outputs=[baseline_depth_gallery, lora_depth_gallery, pred_depth_status_md],
+        )
+        load_models_btn.click(
+            fn=_load_models,
+            inputs=[scene_dd],
+            outputs=[gt_model, baseline_model, lora_model, model_status_md],
         )
         render_thresh_btn.click(
             fn=_load_threshold_overlays,
@@ -841,6 +1050,7 @@ def main():
     parser.add_argument("--frames", type=int, choices=[8, 16, 32], default=8)
     parser.add_argument("--seed", type=str, default="43")
     parser.add_argument("--scene", type=str, default=None)
+    parser.add_argument("--viewer_max_points", type=int, default=DEFAULT_VIEWER_MAX_POINTS)
     parser.add_argument("--host", default="0.0.0.0")
     parser.add_argument("--port", type=int, default=7860)
     parser.add_argument("--share", action="store_true")
@@ -857,6 +1067,7 @@ def main():
         dataset_name=args.dataset,
         seed=args.seed,
         default_scene=args.scene,
+        viewer_max_points=max(1_000, int(args.viewer_max_points)),
     )
     demo.launch(server_name=args.host, server_port=args.port, share=args.share)
 

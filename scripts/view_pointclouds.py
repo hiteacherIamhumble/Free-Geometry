@@ -44,10 +44,43 @@ EXPERIMENTS: Dict[str, str] = {
 }
 GT_KEY = "gt"
 NO_SCENE_SENTINEL = "__NO_SCENE_AVAILABLE__"
+DEFAULT_VIEWER_MAX_POINTS = 150_000
 
 
 def _scene_slug(scene: str) -> str:
     return "-".join(scene.split("/")[-3:])
+
+
+def _cache_tag_for_max_points(num_max_points: int) -> str:
+    return f"pts_{int(num_max_points)}"
+
+
+def _cap_point_cloud_arrays(
+    points: np.ndarray,
+    colors: Optional[np.ndarray],
+    *,
+    num_max_points: int = DEFAULT_VIEWER_MAX_POINTS,
+) -> Tuple[np.ndarray, Optional[np.ndarray]]:
+    if points.shape[0] == 0:
+        return points, colors
+
+    finite_mask = np.isfinite(points).all(axis=1)
+    colors_aligned = colors is not None and colors.shape[0] == points.shape[0]
+
+    points = points[finite_mask]
+    if colors_aligned:
+        colors = colors[finite_mask]
+    else:
+        colors = None
+
+    if points.shape[0] > int(num_max_points):
+        rng = np.random.default_rng(seed=42)
+        keep_idx = rng.choice(points.shape[0], size=int(num_max_points), replace=False)
+        points = points[keep_idx]
+        if colors is not None:
+            colors = colors[keep_idx]
+
+    return points, colors
 
 
 def _find_raw_glb(work_dir: str, exp_key: str, dataset_name: str, scene: str) -> Optional[str]:
@@ -598,6 +631,7 @@ def _ensure_glb_from_ply_with_cameras(
     intrinsics,
     image_sizes: List[Tuple[int, int]],
     camera_size: float = 0.03,
+    num_max_points: int = DEFAULT_VIEWER_MAX_POINTS,
 ) -> Optional[str]:
     """
     Convert a point cloud PLY into a GLB and add camera frustums.
@@ -628,6 +662,12 @@ def _ensure_glb_from_ply_with_cameras(
         colors_u8 = np.clip(colors * 255.0, 0, 255).astype(np.uint8)
     else:
         colors_u8 = None
+
+    points_world, colors_u8 = _cap_point_cloud_arrays(
+        points_world,
+        colors_u8,
+        num_max_points=num_max_points,
+    )
 
     A = _compute_alignment_transform_first_cam_glTF_center_by_points(extrinsics_w2c[0], points_world)
     points = trimesh.transform_points(points_world, A) if points_world.shape[0] > 0 else points_world
