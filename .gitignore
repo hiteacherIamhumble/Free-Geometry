@@ -38,3 +38,6 @@ temp*.png
 data/
 checkpoints/
 .claude
+workspace
+results
+logs
