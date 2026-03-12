@@ -101,33 +101,39 @@ def parallel_execution(
         }
         return action_args, action_kwargs
 
+    # Some container/sandbox environments disallow POSIX semaphores used by
+    # multiprocessing.pool.ThreadPool. Fall back to sequential execution.
+    if num_processes is not None and int(num_processes) <= 1:
+        sequential = True
+
+    pool = None
     if not sequential:
-        # Create ThreadPool
-        pool = ThreadPool(processes=num_processes)
+        try:
+            pool = ThreadPool(processes=num_processes)
+        except (PermissionError, OSError):
+            sequential = True
 
-        # Spawn threads
-        results = []
-        asyncs = []
-        length = get_length(args, kwargs)
-        for i in range(length):
-            action_args, action_kwargs = get_action_args(length, args, kwargs, i)
-            async_result = pool.apply_async(action, action_args, action_kwargs)
-            asyncs.append(async_result)
-
-        # Join threads and get return values
-        if not async_return:
-            for async_result in tqdm(asyncs, desc=desc, disable=not print_progress):
-                results.append(async_result.get())  # will sync the corresponding thread
-            pool.close()
-            pool.join()
-            return results
-        else:
-            return pool
-    else:
+    if sequential:
         results = []
         length = get_length(args, kwargs)
         for i in tqdm(range(length), desc=desc, disable=not print_progress):
             action_args, action_kwargs = get_action_args(length, args, kwargs, i)
-            async_result = action(*action_args, **action_kwargs)
-            results.append(async_result)
+            results.append(action(*action_args, **action_kwargs))
         return results
+
+    # Parallel path
+    results = []
+    asyncs = []
+    length = get_length(args, kwargs)
+    for i in range(length):
+        action_args, action_kwargs = get_action_args(length, args, kwargs, i)
+        asyncs.append(pool.apply_async(action, action_args, action_kwargs))
+
+    if async_return:
+        return pool
+
+    for async_result in tqdm(asyncs, desc=desc, disable=not print_progress):
+        results.append(async_result.get())  # will sync the corresponding thread
+    pool.close()
+    pool.join()
+    return results

@@ -16,10 +16,16 @@ from depth_anything_3.distillation.losses import (
     GlobalTokenSoftmaxKLCosineLoss,
     CombinedTokenSoftmaxKLCosineLoss,
     AllTokenSoftmaxKLCosineLoss,
+    PatchL2CosineLoss,
+    PatchHuberCosineLoss,
+    DA3CrossFrameRKDAngleLoss,
+    DA3CrossFrameRKDDistanceLoss,
 )
+from depth_anything_3.distillation.output_loss import DA3MultitaskDistillLoss
 from depth_anything_3.distillation.models import (
     TeacherModel,
     StudentModel,
+    DA3StudentFinetune,
     DistillationOutput,
 )
 from depth_anything_3.distillation.inspect import (
@@ -38,9 +44,15 @@ __all__ = [
     'GlobalTokenSoftmaxKLCosineLoss',
     'CombinedTokenSoftmaxKLCosineLoss',
     'AllTokenSoftmaxKLCosineLoss',
+    'PatchL2CosineLoss',
+    'PatchHuberCosineLoss',
+    'DA3CrossFrameRKDAngleLoss',
+    'DA3CrossFrameRKDDistanceLoss',
+    'DA3MultitaskDistillLoss',
     # Models
     'TeacherModel',
     'StudentModel',
+    'DA3StudentFinetune',
     'DistillationOutput',
     # Inspect
     'save_distillation_tokens',

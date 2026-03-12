@@ -1,872 +1,0 @@
-nohup: ignoring input
-
-============================================================
-Training: 8v4v_random (8v→4v, random sampling)
-  Dataset: scannetpp
-  Teacher views: 8, Student views: 4
-  Samples per scene: 6
-  Seeds: 30 31 32 42 43 44
-  Sampling: RANDOM (no subset sequential)
-============================================================
-/home/22097845d/Depth-Anything-3/./scripts/train_distill_vggt.py:670: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
-  scaler = GradScaler(enabled=args.use_amp)
-Using device: cuda
-
-Configuration:
-  Teacher views: 8
-  Student views: 4 (indices: [0, 2, 4, 6])
-  Output layers: [19, 23]
-  LoRA rank: 16, alpha: 16.0
-  LoRA layers: 0-23
-
-Creating dataset...
-Loaded 20 scenes for scannetpp (all scenes for training)
-Generating 6 samples per scene = 120 total samples
-Train samples: 120
-
-Creating models...
-Loading teacher model: facebook/vggt-1b
-Teacher parameters: 1,256,537,516 total, 0 trainable
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-
-Using VGGTAllTokenSoftmaxKLCosineLoss (full 2048-dim softmax KL + cosine)
-VGGTAllTokenSoftmaxKLCosineLoss: layer=23, kl_w=1.0, cos_w=2.0
-  Uses full 2048-dim token (no frame/global split)
-
-Starting training...
-
-============================================================
-Epoch 1/1
-============================================================
-/home/22097845d/Depth-Anything-3/./scripts/train_distill_vggt.py:330: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with autocast(enabled=args.use_amp):
-Epoch 0 | Step 1 | Batch 1/120 | Loss: 0.0671 | LR: 1.00e-04 | Speed: 0.4 samples/s
-  Loss details: all_softmax_kl: 0.0518 | all_softmax_cos: 0.9924 | all_softmax_total: 0.0671
-Epoch 0 | Step 2 | Batch 2/120 | Loss: 0.0859 | LR: 1.00e-04 | Speed: 0.5 samples/s
-  Loss details: all_softmax_kl: 0.0785 | all_softmax_cos: 0.9869 | all_softmax_total: 0.1047
-Epoch 0 | Step 3 | Batch 3/120 | Loss: 0.0883 | LR: 1.00e-04 | Speed: 0.6 samples/s
-  Loss details: all_softmax_kl: 0.0750 | all_softmax_cos: 0.9910 | all_softmax_total: 0.0930
-Epoch 0 | Step 4 | Batch 4/120 | Loss: 0.2536 | LR: 1.00e-04 | Speed: 0.7 samples/s
-  Loss details: all_softmax_kl: 0.6029 | all_softmax_cos: 0.9267 | all_softmax_total: 0.7495
-Epoch 0 | Step 5 | Batch 5/120 | Loss: 0.2696 | LR: 1.00e-04 | Speed: 0.7 samples/s
-  Loss details: all_softmax_kl: 0.2694 | all_softmax_cos: 0.9678 | all_softmax_total: 0.3338
-Epoch 0 | Step 6 | Batch 6/120 | Loss: 0.5551 | LR: 1.00e-04 | Speed: 0.8 samples/s
-  Loss details: all_softmax_kl: 1.4337 | all_softmax_cos: 0.7255 | all_softmax_total: 1.9827
-Epoch 0 | Step 7 | Batch 7/120 | Loss: 0.5087 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  Loss details: all_softmax_kl: 0.1912 | all_softmax_cos: 0.9806 | all_softmax_total: 0.2301
-Epoch 0 | Step 8 | Batch 8/120 | Loss: 0.8226 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  Loss details: all_softmax_kl: 2.4263 | all_softmax_cos: 0.7031 | all_softmax_total: 3.0202
-Epoch 0 | Step 9 | Batch 9/120 | Loss: 0.7844 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  Loss details: all_softmax_kl: 0.3486 | all_softmax_cos: 0.9351 | all_softmax_total: 0.4784
-Epoch 0 | Step 10 | Batch 10/120 | Loss: 0.7199 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  Loss details: all_softmax_kl: 0.1070 | all_softmax_cos: 0.9837 | all_softmax_total: 0.1396
-Epoch 0 | Step 11 | Batch 11/120 | Loss: 0.6616 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  Loss details: all_softmax_kl: 0.0562 | all_softmax_cos: 0.9888 | all_softmax_total: 0.0786
-Epoch 0 | Step 12 | Batch 12/120 | Loss: 0.6146 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  Loss details: all_softmax_kl: 0.0769 | all_softmax_cos: 0.9899 | all_softmax_total: 0.0971
-Epoch 0 | Step 13 | Batch 13/120 | Loss: 0.5792 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  Loss details: all_softmax_kl: 0.1170 | all_softmax_cos: 0.9811 | all_softmax_total: 0.1548
-Epoch 0 | Step 14 | Batch 14/120 | Loss: 0.5433 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  Loss details: all_softmax_kl: 0.0586 | all_softmax_cos: 0.9909 | all_softmax_total: 0.0769
-Epoch 0 | Step 15 | Batch 15/120 | Loss: 0.5138 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  Loss details: all_softmax_kl: 0.0767 | all_softmax_cos: 0.9880 | all_softmax_total: 0.1007
-Epoch 0 | Step 16 | Batch 16/120 | Loss: 0.4964 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  Loss details: all_softmax_kl: 0.1569 | all_softmax_cos: 0.9612 | all_softmax_total: 0.2346
-Epoch 0 | Step 17 | Batch 17/120 | Loss: 0.4721 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 0.0691 | all_softmax_cos: 0.9928 | all_softmax_total: 0.0834
-Epoch 0 | Step 18 | Batch 18/120 | Loss: 0.5356 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 1.2115 | all_softmax_cos: 0.7984 | all_softmax_total: 1.6147
-Epoch 0 | Step 19 | Batch 19/120 | Loss: 0.5133 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 0.0868 | all_softmax_cos: 0.9871 | all_softmax_total: 0.1126
-Epoch 0 | Step 20 | Batch 20/120 | Loss: 0.4904 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 0.0451 | all_softmax_cos: 0.9951 | all_softmax_total: 0.0549
-Epoch 0 | Step 21 | Batch 21/120 | Loss: 0.4696 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 0.0430 | all_softmax_cos: 0.9945 | all_softmax_total: 0.0540
-Epoch 0 | Step 22 | Batch 22/120 | Loss: 0.4627 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 0.2592 | all_softmax_cos: 0.9709 | all_softmax_total: 0.3174
-Epoch 0 | Step 23 | Batch 23/120 | Loss: 0.5718 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 2.4515 | all_softmax_cos: 0.7397 | all_softmax_total: 2.9721
-Epoch 0 | Step 24 | Batch 24/120 | Loss: 0.5520 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 0.0781 | all_softmax_cos: 0.9911 | all_softmax_total: 0.0958
-Epoch 0 | Step 25 | Batch 25/120 | Loss: 0.5326 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 0.0536 | all_softmax_cos: 0.9933 | all_softmax_total: 0.0669
-Epoch 0 | Step 26 | Batch 26/120 | Loss: 0.6133 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 2.1607 | all_softmax_cos: 0.7641 | all_softmax_total: 2.6325
-Epoch 0 | Step 27 | Batch 27/120 | Loss: 0.5923 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 0.0366 | all_softmax_cos: 0.9954 | all_softmax_total: 0.0457
-Epoch 0 | Step 28 | Batch 28/120 | Loss: 0.5783 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 0.1501 | all_softmax_cos: 0.9750 | all_softmax_total: 0.2001
-Epoch 0 | Step 29 | Batch 29/120 | Loss: 0.5601 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 0.0423 | all_softmax_cos: 0.9955 | all_softmax_total: 0.0513
-Epoch 0 | Step 30 | Batch 30/120 | Loss: 0.5426 | LR: 1.00e-04 | Speed: 1.1 samples/s
-  Loss details: all_softmax_kl: 0.0260 | all_softmax_cos: 0.9962 | all_softmax_total: 0.0336
-Epoch 0 | Step 31 | Batch 31/120 | Loss: 0.5278 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0654 | all_softmax_cos: 0.9907 | all_softmax_total: 0.0841
-Epoch 0 | Step 32 | Batch 32/120 | Loss: 0.5132 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0461 | all_softmax_cos: 0.9918 | all_softmax_total: 0.0625
-Epoch 0 | Step 33 | Batch 33/120 | Loss: 0.5006 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0760 | all_softmax_cos: 0.9903 | all_softmax_total: 0.0955
-Epoch 0 | Step 34 | Batch 34/120 | Loss: 0.4883 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0626 | all_softmax_cos: 0.9904 | all_softmax_total: 0.0819
-Epoch 0 | Step 35 | Batch 35/120 | Loss: 0.4774 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0873 | all_softmax_cos: 0.9894 | all_softmax_total: 0.1085
-Epoch 0 | Step 36 | Batch 36/120 | Loss: 0.4661 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0533 | all_softmax_cos: 0.9920 | all_softmax_total: 0.0694
-Epoch 0 | Step 37 | Batch 37/120 | Loss: 0.5245 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 2.0860 | all_softmax_cos: 0.7284 | all_softmax_total: 2.6291
-Epoch 0 | Step 38 | Batch 38/120 | Loss: 0.5119 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0329 | all_softmax_cos: 0.9938 | all_softmax_total: 0.0453
-Epoch 0 | Step 39 | Batch 39/120 | Loss: 0.6614 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 5.3657 | all_softmax_cos: 0.5122 | all_softmax_total: 6.3413
-Epoch 0 | Step 40 | Batch 40/120 | Loss: 0.6466 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0548 | all_softmax_cos: 0.9934 | all_softmax_total: 0.0680
-Epoch 0 | Step 41 | Batch 41/120 | Loss: 0.6331 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0742 | all_softmax_cos: 0.9903 | all_softmax_total: 0.0936
-Epoch 0 | Step 42 | Batch 42/120 | Loss: 0.6265 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.2814 | all_softmax_cos: 0.9623 | all_softmax_total: 0.3569
-Epoch 0 | Step 43 | Batch 43/120 | Loss: 0.6146 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0985 | all_softmax_cos: 0.9923 | all_softmax_total: 0.1140
-Epoch 0 | Step 44 | Batch 44/120 | Loss: 0.6022 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0568 | all_softmax_cos: 0.9934 | all_softmax_total: 0.0700
-Epoch 0 | Step 45 | Batch 45/120 | Loss: 0.6295 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 1.2431 | all_softmax_cos: 0.7073 | all_softmax_total: 1.8286
-Epoch 0 | Step 46 | Batch 46/120 | Loss: 0.6175 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0723 | all_softmax_cos: 0.9963 | all_softmax_total: 0.0796
-Epoch 0 | Step 47 | Batch 47/120 | Loss: 0.6084 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1622 | all_softmax_cos: 0.9861 | all_softmax_total: 0.1899
-Epoch 0 | Step 48 | Batch 48/120 | Loss: 0.5988 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1038 | all_softmax_cos: 0.9772 | all_softmax_total: 0.1493
-Epoch 0 | Step 49 | Batch 49/120 | Loss: 0.5896 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1139 | all_softmax_cos: 0.9844 | all_softmax_total: 0.1451
-Epoch 0 | Step 50 | Batch 50/120 | Loss: 0.6129 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 1.3745 | all_softmax_cos: 0.8102 | all_softmax_total: 1.7540
-Epoch 0 | Step 51 | Batch 51/120 | Loss: 0.6047 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1535 | all_softmax_cos: 0.9784 | all_softmax_total: 0.1967
-Epoch 0 | Step 52 | Batch 52/120 | Loss: 0.5971 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1476 | all_softmax_cos: 0.9696 | all_softmax_total: 0.2083
-Epoch 0 | Step 53 | Batch 53/120 | Loss: 0.5900 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1709 | all_softmax_cos: 0.9752 | all_softmax_total: 0.2205
-Epoch 0 | Step 54 | Batch 54/120 | Loss: 0.5820 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0898 | all_softmax_cos: 0.9665 | all_softmax_total: 0.1568
-Epoch 0 | Step 55 | Batch 55/120 | Loss: 0.5758 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1928 | all_softmax_cos: 0.9759 | all_softmax_total: 0.2411
-Epoch 0 | Step 56 | Batch 56/120 | Loss: 0.5775 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.5433 | all_softmax_cos: 0.9341 | all_softmax_total: 0.6750
-Epoch 0 | Step 57 | Batch 57/120 | Loss: 0.5689 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0670 | all_softmax_cos: 0.9904 | all_softmax_total: 0.0862
-Epoch 0 | Step 58 | Batch 58/120 | Loss: 0.5613 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1008 | all_softmax_cos: 0.9867 | all_softmax_total: 0.1274
-Epoch 0 | Step 59 | Batch 59/120 | Loss: 0.5574 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.2404 | all_softmax_cos: 0.9552 | all_softmax_total: 0.3301
-Epoch 0 | Step 60 | Batch 60/120 | Loss: 0.5549 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.2989 | all_softmax_cos: 0.9466 | all_softmax_total: 0.4058
-Epoch 0 | Step 61 | Batch 61/120 | Loss: 0.5471 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0700 | all_softmax_cos: 0.9950 | all_softmax_total: 0.0801
-Epoch 0 | Step 62 | Batch 62/120 | Loss: 0.5410 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1488 | all_softmax_cos: 0.9889 | all_softmax_total: 0.1709
-Epoch 0 | Step 63 | Batch 63/120 | Loss: 0.5338 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0673 | all_softmax_cos: 0.9914 | all_softmax_total: 0.0845
-Epoch 0 | Step 64 | Batch 64/120 | Loss: 0.5329 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.3834 | all_softmax_cos: 0.9519 | all_softmax_total: 0.4796
-Epoch 0 | Step 65 | Batch 65/120 | Loss: 0.5308 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.3228 | all_softmax_cos: 0.9643 | all_softmax_total: 0.3941
-Epoch 0 | Step 66 | Batch 66/120 | Loss: 0.5239 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0620 | all_softmax_cos: 0.9915 | all_softmax_total: 0.0790
-Epoch 0 | Step 67 | Batch 67/120 | Loss: 0.5170 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0436 | all_softmax_cos: 0.9928 | all_softmax_total: 0.0580
-Epoch 0 | Step 68 | Batch 68/120 | Loss: 0.5120 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1356 | all_softmax_cos: 0.9796 | all_softmax_total: 0.1763
-Epoch 0 | Step 69 | Batch 69/120 | Loss: 0.5247 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 1.0754 | all_softmax_cos: 0.8431 | all_softmax_total: 1.3893
-Epoch 0 | Step 70 | Batch 70/120 | Loss: 0.5290 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.5370 | all_softmax_cos: 0.8537 | all_softmax_total: 0.8295
-Epoch 0 | Step 71 | Batch 71/120 | Loss: 0.5415 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 1.1063 | all_softmax_cos: 0.8478 | all_softmax_total: 1.4107
-Epoch 0 | Step 72 | Batch 72/120 | Loss: 0.5346 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0355 | all_softmax_cos: 0.9928 | all_softmax_total: 0.0499
-Epoch 0 | Step 73 | Batch 73/120 | Loss: 0.5283 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0540 | all_softmax_cos: 0.9919 | all_softmax_total: 0.0702
-Epoch 0 | Step 74 | Batch 74/120 | Loss: 0.5588 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 2.1954 | all_softmax_cos: 0.7047 | all_softmax_total: 2.7861
-Epoch 0 | Step 75 | Batch 75/120 | Loss: 0.5523 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0547 | all_softmax_cos: 0.9918 | all_softmax_total: 0.0712
-Epoch 0 | Step 76 | Batch 76/120 | Loss: 0.5459 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0449 | all_softmax_cos: 0.9884 | all_softmax_total: 0.0681
-Epoch 0 | Step 77 | Batch 77/120 | Loss: 0.5424 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.2238 | all_softmax_cos: 0.9748 | all_softmax_total: 0.2742
-Epoch 0 | Step 78 | Batch 78/120 | Loss: 0.5375 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1212 | all_softmax_cos: 0.9780 | all_softmax_total: 0.1651
-Epoch 0 | Step 79 | Batch 79/120 | Loss: 0.5314 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0414 | all_softmax_cos: 0.9937 | all_softmax_total: 0.0540
-Epoch 0 | Step 80 | Batch 80/120 | Loss: 0.5266 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1168 | all_softmax_cos: 0.9855 | all_softmax_total: 0.1458
-Epoch 0 | Step 81 | Batch 81/120 | Loss: 0.5215 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0948 | all_softmax_cos: 0.9914 | all_softmax_total: 0.1121
-Epoch 0 | Step 82 | Batch 82/120 | Loss: 0.5165 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0932 | all_softmax_cos: 0.9908 | all_softmax_total: 0.1116
-Epoch 0 | Step 83 | Batch 83/120 | Loss: 0.5112 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0676 | all_softmax_cos: 0.9954 | all_softmax_total: 0.0769
-Epoch 0 | Step 84 | Batch 84/120 | Loss: 0.5068 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1145 | all_softmax_cos: 0.9851 | all_softmax_total: 0.1443
-Epoch 0 | Step 85 | Batch 85/120 | Loss: 0.5025 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1016 | all_softmax_cos: 0.9823 | all_softmax_total: 0.1371
-Epoch 0 | Step 86 | Batch 86/120 | Loss: 0.4975 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0555 | all_softmax_cos: 0.9919 | all_softmax_total: 0.0718
-Epoch 0 | Step 87 | Batch 87/120 | Loss: 0.4995 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.4963 | all_softmax_cos: 0.9128 | all_softmax_total: 0.6707
-Epoch 0 | Step 88 | Batch 88/120 | Loss: 0.4948 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0697 | all_softmax_cos: 0.9914 | all_softmax_total: 0.0868
-Epoch 0 | Step 89 | Batch 89/120 | Loss: 0.4991 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.5841 | all_softmax_cos: 0.8498 | all_softmax_total: 0.8845
-Epoch 0 | Step 90 | Batch 90/120 | Loss: 0.4952 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1254 | all_softmax_cos: 0.9892 | all_softmax_total: 0.1470
-Epoch 0 | Step 91 | Batch 91/120 | Loss: 0.5225 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 2.4640 | all_softmax_cos: 0.7447 | all_softmax_total: 2.9746
-Detected model format: '.bin'
-[ScanNet++] cc5237fd77: 301 images
-Detected model format: '.bin'
-[ScanNet++] 578511c8a9: 534 images
-Detected model format: '.bin'
-[ScanNet++] c4c04e6d6c: 396 images
-Detected model format: '.bin'
-[ScanNet++] f3d64c30f8: 363 images
-Detected model format: '.bin'
-[ScanNet++] 21d970d8de: 315 images
-Detected model format: '.bin'
-[ScanNet++] bcd2436daf: 150 images
-Detected model format: '.bin'
-[ScanNet++] 38d58a7a31: 435 images
-Detected model format: '.bin'
-[ScanNet++] bde1e479ad: 373 images
-Detected model format: '.bin'
-[ScanNet++] acd95847c5: 388 images
-Detected model format: '.bin'
-[ScanNet++] 5f99900f09: 298 images
-Detected model format: '.bin'
-[ScanNet++] 9071e139d9: 235 images
-Detected model format: '.bin'
-[ScanNet++] 3e8bba0176: 230 images
-Detected model format: '.bin'
-[ScanNet++] 1ada7a0617: 100 images
-Detected model format: '.bin'
-[ScanNet++] 286b55a2bf: 159 images
-Detected model format: '.bin'
-[ScanNet++] 09c1414f1b: 397 images
-Detected model format: '.bin'
-[ScanNet++] 7bc286c1b6: 135 images
-Detected model format: '.bin'
-[ScanNet++] 40aec5fffa: 235 images
-Detected model format: '.bin'
-[ScanNet++] c5439f4607: 353 images
-Detected model format: '.bin'
-[ScanNet++] 7831862f02: 288 images
-Detected model format: '.bin'
-[ScanNet++] fb5a96b1a2: 289 images
-Detected model format: '.bin'
-[ScanNet++] 40aec5fffa: 235 images
-Detected model format: '.bin'
-[ScanNet++] 7831862f02: 288 images
-Detected model format: '.bin'
-[ScanNet++] acd95847c5: 388 images
-Detected model format: '.bin'
-[ScanNet++] fb5a96b1a2: 289 images
-Detected model format: '.bin'
-[ScanNet++] 21d970d8de: 315 images
-Detected model format: '.bin'
-[ScanNet++] cc5237fd77: 301 images
-Detected model format: '.bin'
-[ScanNet++] 1ada7a0617: 100 images
-Detected model format: '.bin'
-[ScanNet++] 09c1414f1b: 397 images
-Detected model format: '.bin'
-[ScanNet++] 286b55a2bf: 159 images
-Detected model format: '.bin'
-[ScanNet++] 7bc286c1b6: 135 images
-Detected model format: '.bin'
-[ScanNet++] c4c04e6d6c: 396 images
-Detected model format: '.bin'
-[ScanNet++] 3e8bba0176: 230 images
-Detected model format: '.bin'
-[ScanNet++] bcd2436daf: 150 images
-Detected model format: '.bin'
-[ScanNet++] c5439f4607: 353 images
-Detected model format: '.bin'
-[ScanNet++] bde1e479ad: 373 images
-Detected model format: '.bin'
-[ScanNet++] 38d58a7a31: 435 images
-Detected model format: '.bin'
-[ScanNet++] 5f99900f09: 298 images
-Detected model format: '.bin'
-[ScanNet++] f3d64c30f8: 363 images
-Detected model format: '.bin'
-[ScanNet++] 9071e139d9: 235 images
-Epoch 0 | Step 92 | Batch 92/120 | Loss: 0.5177 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0687 | all_softmax_cos: 0.9909 | all_softmax_total: 0.0869
-Epoch 0 | Step 93 | Batch 93/120 | Loss: 0.5132 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0786 | all_softmax_cos: 0.9918 | all_softmax_total: 0.0950
-Epoch 0 | Step 94 | Batch 94/120 | Loss: 0.5118 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.2844 | all_softmax_cos: 0.9503 | all_softmax_total: 0.3839
-Epoch 0 | Step 95 | Batch 95/120 | Loss: 0.5076 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0861 | all_softmax_cos: 0.9859 | all_softmax_total: 0.1142
-Epoch 0 | Step 96 | Batch 96/120 | Loss: 0.5041 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1095 | all_softmax_cos: 0.9729 | all_softmax_total: 0.1637
-Epoch 0 | Step 97 | Batch 97/120 | Loss: 0.5003 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1080 | all_softmax_cos: 0.9845 | all_softmax_total: 0.1390
-Epoch 0 | Step 98 | Batch 98/120 | Loss: 0.4976 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1860 | all_softmax_cos: 0.9758 | all_softmax_total: 0.2345
-Epoch 0 | Step 99 | Batch 99/120 | Loss: 0.4930 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0351 | all_softmax_cos: 0.9942 | all_softmax_total: 0.0467
-Epoch 0 | Step 100 | Batch 100/120 | Loss: 0.4887 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0485 | all_softmax_cos: 0.9941 | all_softmax_total: 0.0603
-Epoch 0 | Step 101 | Batch 101/120 | Loss: 0.4861 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1967 | all_softmax_cos: 0.9858 | all_softmax_total: 0.2250
-Epoch 0 | Step 102 | Batch 102/120 | Loss: 0.4843 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.2331 | all_softmax_cos: 0.9648 | all_softmax_total: 0.3035
-Epoch 0 | Step 103 | Batch 103/120 | Loss: 0.4808 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0926 | all_softmax_cos: 0.9862 | all_softmax_total: 0.1202
-Epoch 0 | Step 104 | Batch 104/120 | Loss: 0.4766 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0425 | all_softmax_cos: 0.9957 | all_softmax_total: 0.0510
-Epoch 0 | Step 105 | Batch 105/120 | Loss: 0.4730 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0687 | all_softmax_cos: 0.9885 | all_softmax_total: 0.0916
-Epoch 0 | Step 106 | Batch 106/120 | Loss: 0.4693 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0655 | all_softmax_cos: 0.9905 | all_softmax_total: 0.0846
-Epoch 0 | Step 107 | Batch 107/120 | Loss: 0.4667 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1601 | all_softmax_cos: 0.9849 | all_softmax_total: 0.1903
-Epoch 0 | Step 108 | Batch 108/120 | Loss: 0.4628 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0378 | all_softmax_cos: 0.9956 | all_softmax_total: 0.0465
-Epoch 0 | Step 109 | Batch 109/120 | Loss: 0.4591 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0442 | all_softmax_cos: 0.9925 | all_softmax_total: 0.0593
-Epoch 0 | Step 110 | Batch 110/120 | Loss: 0.4577 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.2113 | all_softmax_cos: 0.9524 | all_softmax_total: 0.3064
-Epoch 0 | Step 111 | Batch 111/120 | Loss: 0.4546 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0875 | all_softmax_cos: 0.9900 | all_softmax_total: 0.1075
-Epoch 0 | Step 112 | Batch 112/120 | Loss: 0.4508 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0231 | all_softmax_cos: 0.9935 | all_softmax_total: 0.0362
-Epoch 0 | Step 113 | Batch 113/120 | Loss: 0.4478 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0929 | all_softmax_cos: 0.9906 | all_softmax_total: 0.1116
-Epoch 0 | Step 114 | Batch 114/120 | Loss: 0.4449 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0884 | all_softmax_cos: 0.9861 | all_softmax_total: 0.1162
-Epoch 0 | Step 115 | Batch 115/120 | Loss: 0.4448 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.3639 | all_softmax_cos: 0.9655 | all_softmax_total: 0.4328
-Epoch 0 | Step 116 | Batch 116/120 | Loss: 0.4424 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.1202 | all_softmax_cos: 0.9762 | all_softmax_total: 0.1677
-Epoch 0 | Step 117 | Batch 117/120 | Loss: 0.4396 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0926 | all_softmax_cos: 0.9876 | all_softmax_total: 0.1173
-Epoch 0 | Step 118 | Batch 118/120 | Loss: 0.4432 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.5993 | all_softmax_cos: 0.8682 | all_softmax_total: 0.8630
-Epoch 0 | Step 119 | Batch 119/120 | Loss: 0.4400 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.0453 | all_softmax_cos: 0.9913 | all_softmax_total: 0.0627
-Epoch 0 | Step 120 | Batch 120/120 | Loss: 0.4398 | LR: 1.00e-04 | Speed: 1.2 samples/s
-  Loss details: all_softmax_kl: 0.3606 | all_softmax_cos: 0.9731 | all_softmax_total: 0.4143
-Saved camera token to ./checkpoints/vggt_experiment_v7/8v4v_random/epoch_0_lora.pt
-Saved PEFT LoRA weights to ./checkpoints/vggt_experiment_v7/8v4v_random/epoch_0_lora_peft
-Saved checkpoint to ./checkpoints/vggt_experiment_v7/8v4v_random/epoch_0.pt
-Saved camera token to ./checkpoints/vggt_experiment_v7/8v4v_random/latest_lora.pt
-Saved PEFT LoRA weights to ./checkpoints/vggt_experiment_v7/8v4v_random/latest_lora_peft
-
-Training complete!
-
-============================================================
-Training complete! Model saved to:
-  - ./checkpoints/vggt_experiment_v7/8v4v_random/epoch_0_lora.pt
-============================================================
-
-============================================================
-LORA BENCHMARK: 8v4v_random
-  Settings: 4v, 8v, maxframe (all with random sampling)
-  Seeds: 42
-============================================================
-
---- 8v4v_random 4v ---
-  [LoRA-8v4v_random 4v] seed=42
-Loading base model: facebook/vggt-1b
-Loading LoRA weights: ./checkpoints/vggt_experiment_v7/8v4v_random/epoch_0_lora.pt
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_experiment_v7/8v4v_random/epoch_0_lora_peft
-Loaded camera token
-[INFO] Total inference tasks: 20
-Inference:   0%|          | 0/20 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   5%|▌         | 1/20 [00:03<00:59,  3.11s/it]Inference:  10%|█         | 2/20 [00:04<00:38,  2.13s/it]Inference:  15%|█▌        | 3/20 [00:06<00:32,  1.92s/it]Inference:  20%|██        | 4/20 [00:07<00:29,  1.85s/it]Inference:  25%|██▌       | 5/20 [00:10<00:30,  2.05s/it]Inference:  30%|███       | 6/20 [00:13<00:32,  2.32s/it]Inference:  35%|███▌      | 7/20 [00:15<00:29,  2.28s/it]Inference:  40%|████      | 8/20 [00:17<00:27,  2.31s/it]Inference:  45%|████▌     | 9/20 [00:19<00:24,  2.24s/it]Inference:  50%|█████     | 10/20 [00:21<00:20,  2.00s/it]Inference:  55%|█████▌    | 11/20 [00:23<00:19,  2.17s/it]Inference:  60%|██████    | 12/20 [00:25<00:16,  2.05s/it]Inference:  65%|██████▌   | 13/20 [00:27<00:14,  2.05s/it]Inference:  70%|███████   | 14/20 [00:29<00:12,  2.08s/it]Inference:  75%|███████▌  | 15/20 [00:32<00:10,  2.10s/it]Inference:  80%|████████  | 16/20 [00:34<00:08,  2.16s/it]Inference:  85%|████████▌ | 17/20 [00:36<00:06,  2.17s/it]Inference:  90%|█████████ | 18/20 [00:38<00:04,  2.15s/it]Inference:  95%|█████████▌| 19/20 [00:40<00:02,  2.02s/it]Inference: 100%|██████████| 20/20 [00:42<00:00,  2.16s/it]Inference: 100%|██████████| 20/20 [00:42<00:00,  2.14s/it]
-Detected model format: '.bin'
-[ScanNet++] 09c1414f1b: 397 images
-  [Sampling] 09c1414f1b: 397 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] 1ada7a0617: 100 images
-  [Sampling] 1ada7a0617: 100 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] 40aec5fffa: 235 images
-  [Sampling] 40aec5fffa: 235 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] 3e8bba0176: 230 images
-  [Sampling] 3e8bba0176: 230 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] acd95847c5: 388 images
-  [Sampling] acd95847c5: 388 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] 578511c8a9: 534 images
-  [Sampling] 578511c8a9: 534 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] 5f99900f09: 298 images
-  [Sampling] 5f99900f09: 298 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] c4c04e6d6c: 396 images
-  [Sampling] c4c04e6d6c: 396 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] f3d64c30f8: 363 images
-  [Sampling] f3d64c30f8: 363 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] 7bc286c1b6: 135 images
-  [Sampling] 7bc286c1b6: 135 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] c5439f4607: 353 images
-  [Sampling] c5439f4607: 353 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] 286b55a2bf: 159 images
-  [Sampling] 286b55a2bf: 159 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] fb5a96b1a2: 289 images
-  [Sampling] fb5a96b1a2: 289 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] 7831862f02: 288 images
-  [Sampling] 7831862f02: 288 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] 38d58a7a31: 435 images
-  [Sampling] 38d58a7a31: 435 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] bde1e479ad: 373 images
-  [Sampling] bde1e479ad: 373 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] 9071e139d9: 235 images
-  [Sampling] 9071e139d9: 235 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] 21d970d8de: 315 images
-  [Sampling] 21d970d8de: 315 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] bcd2436daf: 150 images
-  [Sampling] bcd2436daf: 150 -> 8 -> 4 frames (even-indexed, seed=42)
-Detected model format: '.bin'
-[ScanNet++] cc5237fd77: 301 images
-  [Sampling] cc5237fd77: 301 -> 8 -> 4 frames (even-indexed, seed=42)
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-scannetpp scenes:   0%|          | 0/20 [00:00<?, ?it/s][A
-                                                        [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 25.83it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-scannetpp fusion:   0%|          | 0/20 [00:00<?, ?it/s][A
-scannetpp fusion:   5%|▌         | 1/20 [00:03<01:12,  3.82s/it][A
-scannetpp fusion:  10%|█         | 2/20 [00:04<00:34,  1.91s/it][A
-scannetpp fusion:  25%|██▌       | 5/20 [00:05<00:12,  1.19it/s][A
-scannetpp fusion:  30%|███       | 6/20 [00:07<00:14,  1.03s/it][A
-scannetpp fusion:  35%|███▌      | 7/20 [00:10<00:22,  1.72s/it][A
-scannetpp fusion:  45%|████▌     | 9/20 [00:11<00:12,  1.13s/it][A
-scannetpp fusion:  50%|█████     | 10/20 [00:12<00:09,  1.02it/s][A
-scannetpp fusion:  55%|█████▌    | 11/20 [00:13<00:10,  1.12s/it][A
-scannetpp fusion:  60%|██████    | 12/20 [00:14<00:07,  1.07it/s][A
-scannetpp fusion:  65%|██████▌   | 13/20 [00:16<00:10,  1.43s/it][A
-scannetpp fusion:  75%|███████▌  | 15/20 [00:19<00:06,  1.40s/it][A
-scannetpp fusion:  85%|████████▌ | 17/20 [00:20<00:03,  1.11s/it][A
-scannetpp fusion:  90%|█████████ | 18/20 [00:22<00:02,  1.21s/it][A
-scannetpp fusion:  95%|█████████▌| 19/20 [00:23<00:01,  1.29s/it][Ascannetpp fusion: 100%|██████████| 20/20 [00:23<00:00,  1.19s/it]
-Datasets (recon_unposed eval): 100%|██████████| 1/1 [04:13<00:00, 253.05s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [04:13<00:00, 253.05s/it]
-  recon_unposed | scannetpp | 09c1414f1b: {'acc': 0.056367402058791476, 'comp': 1.5587892270685815, 'overall': 0.8075783145636865, 'precision': 0.5400667842837348, 'recall': 0.09898399159893592, 'fscore': 0.16730428333982775}
-  recon_unposed | scannetpp | 1ada7a0617: {'acc': 0.07771414788497351, 'comp': 0.9374059911117941, 'overall': 0.5075600694983838, 'precision': 0.29050930499031963, 'recall': 0.05282781054593895, 'fscore': 0.08939884347714959}
-  recon_unposed | scannetpp | 40aec5fffa: {'acc': 0.0676919759196982, 'comp': 0.42877819507255865, 'overall': 0.24823508549612844, 'precision': 0.4506226769927885, 'recall': 0.17805009031880095, 'fscore': 0.2552469663394843}
-  recon_unposed | scannetpp | 3e8bba0176: {'acc': 0.08518395987906618, 'comp': 1.004135720495721, 'overall': 0.5446598401873937, 'precision': 0.38168310611296097, 'recall': 0.09040911787009438, 'fscore': 0.14619021952299305}
-  recon_unposed | scannetpp | acd95847c5: {'acc': 0.06361629170023483, 'comp': 0.705176873970437, 'overall': 0.38439658283533595, 'precision': 0.43386114741310317, 'recall': 0.1700994666753918, 'fscore': 0.24438530614292328}
-  recon_unposed | scannetpp | 578511c8a9: {'acc': 0.14769642992203358, 'comp': 1.721903449837651, 'overall': 0.9347999398798423, 'precision': 0.23723985662300848, 'recall': 0.034189738838199035, 'fscore': 0.05976628102156742}
-  recon_unposed | scannetpp | 5f99900f09: {'acc': 0.2756409852938739, 'comp': 0.9738200326447978, 'overall': 0.6247305089693358, 'precision': 0.09284482436422466, 'recall': 0.028998251474237232, 'fscore': 0.044193525917954404}
-  recon_unposed | scannetpp | c4c04e6d6c: {'acc': 0.1945073705886856, 'comp': 1.1960653960114767, 'overall': 0.6952863833000811, 'precision': 0.14084543125533733, 'recall': 0.02504298965826249, 'fscore': 0.0425248568756708}
-  recon_unposed | scannetpp | f3d64c30f8: {'acc': 0.260458150474011, 'comp': 1.4268184473519365, 'overall': 0.8436382989129738, 'precision': 0.11912288826691904, 'recall': 0.01677459395529117, 'fscore': 0.029408022117609272}
-  recon_unposed | scannetpp | 7bc286c1b6: {'acc': 0.04414392090989614, 'comp': 0.6316713547308151, 'overall': 0.33790763782035566, 'precision': 0.6120872090161917, 'recall': 0.16899415388573633, 'fscore': 0.26486142137015983}
-  recon_unposed | scannetpp | c5439f4607: {'acc': 0.11826924287086611, 'comp': 0.44795558351711506, 'overall': 0.2831124131939906, 'precision': 0.33496090581708465, 'recall': 0.11076857525972154, 'fscore': 0.16648278330358313}
-  recon_unposed | scannetpp | 286b55a2bf: {'acc': 0.0733129221692852, 'comp': 0.5894871777176689, 'overall': 0.33140004994347705, 'precision': 0.6202713487629689, 'recall': 0.11196874404421574, 'fscore': 0.18969462221427244}
-  recon_unposed | scannetpp | fb5a96b1a2: {'acc': 0.09192037118398352, 'comp': 0.9446228578443261, 'overall': 0.5182716145141548, 'precision': 0.3455009082017605, 'recall': 0.12246289329869682, 'fscore': 0.18083040064231845}
-  recon_unposed | scannetpp | 7831862f02: {'acc': 0.3279876505151754, 'comp': 1.6834884967167156, 'overall': 1.0057380736159456, 'precision': 0.10728308528698043, 'recall': 0.019222987147435817, 'fscore': 0.03260399014724027}
-  recon_unposed | scannetpp | 38d58a7a31: {'acc': 0.12369414921468536, 'comp': 0.7668415216847284, 'overall': 0.4452678354497069, 'precision': 0.18713980028530672, 'recall': 0.048954525324974164, 'fscore': 0.07760745683909583}
-  recon_unposed | scannetpp | bde1e479ad: {'acc': 0.06523225794041496, 'comp': 0.6906404456181564, 'overall': 0.3779363517792857, 'precision': 0.46234765875561257, 'recall': 0.14193008599805193, 'fscore': 0.2171883493572402}
-  recon_unposed | scannetpp | 9071e139d9: {'acc': 0.0603582864869632, 'comp': 0.7945119196381387, 'overall': 0.42743510306255095, 'precision': 0.5715427072850914, 'recall': 0.1963229714769066, 'fscore': 0.2922567467817346}
-  recon_unposed | scannetpp | 21d970d8de: {'acc': 0.11982555695018839, 'comp': 0.8311529782039427, 'overall': 0.47548926757706556, 'precision': 0.3091658351513922, 'recall': 0.09448529337479517, 'fscore': 0.14473698979809843}
-  recon_unposed | scannetpp | bcd2436daf: {'acc': 0.04747809271124659, 'comp': 0.5142398788853676, 'overall': 0.2808589857983071, 'precision': 0.5676209279368213, 'recall': 0.21375657545485258, 'fscore': 0.31056104171317883}
-  recon_unposed | scannetpp | cc5237fd77: {'acc': 0.03869617123147119, 'comp': 0.49364362740436063, 'overall': 0.2661698993179159, 'precision': 0.7237957528848062, 'recall': 0.28206431271682597, 'fscore': 0.4059350968719464}
-
-[1;36m========================================================================================================================[0m
-[1;36m📊 SUMMARY[0m
-[1;36m========================================================================================================================[0m
-
-[1;35m🎯 POSE ESTIMATION[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-Auc3           [1;32m0.4361      [0mN/A         N/A         N/A         N/A         0.4361      
-Auc30          [1;32m0.8486      [0mN/A         N/A         N/A         N/A         0.8486      
-
-[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32m0.1681      [0mN/A         N/A         N/A         N/A         0.1681      
-Overall        [1;32m0.5170      [0mN/A         N/A         N/A         N/A         0.5170      
-
-[1;35m🏗️  RECON_POSED (GT Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-
-[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
-
-====================================================================================================
-[1;32m✅ Evaluation Complete[0m
-====================================================================================================
-
-
---- 8v4v_random 8v ---
-  [LoRA-8v4v_random 8v] seed=42
-Loading base model: facebook/vggt-1b
-Loading LoRA weights: ./checkpoints/vggt_experiment_v7/8v4v_random/epoch_0_lora.pt
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_experiment_v7/8v4v_random/epoch_0_lora_peft
-Loaded camera token
-[INFO] Total inference tasks: 20
-Inference:   0%|          | 0/20 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   5%|▌         | 1/20 [00:04<01:26,  4.53s/it]Inference:  10%|█         | 2/20 [00:07<01:03,  3.55s/it]Inference:  15%|█▌        | 3/20 [00:10<00:56,  3.35s/it]Inference:  20%|██        | 4/20 [00:13<00:52,  3.30s/it]Inference:  25%|██▌       | 5/20 [00:17<00:52,  3.50s/it]Inference:  30%|███       | 6/20 [00:21<00:53,  3.79s/it]Inference:  35%|███▌      | 7/20 [00:25<00:48,  3.75s/it]Inference:  40%|████      | 8/20 [00:29<00:45,  3.79s/it]Inference:  45%|████▌     | 9/20 [00:33<00:41,  3.77s/it]Inference:  50%|█████     | 10/20 [00:36<00:35,  3.54s/it]Inference:  55%|█████▌    | 11/20 [00:40<00:33,  3.77s/it]Inference:  60%|██████    | 12/20 [00:43<00:29,  3.68s/it]Inference:  65%|██████▌   | 13/20 [00:47<00:25,  3.66s/it]Inference:  70%|███████   | 14/20 [00:51<00:21,  3.66s/it]Inference:  75%|███████▌  | 15/20 [00:54<00:18,  3.65s/it]Inference:  80%|████████  | 16/20 [00:58<00:14,  3.72s/it]Inference:  85%|████████▌ | 17/20 [01:02<00:11,  3.72s/it]Inference:  90%|█████████ | 18/20 [01:06<00:07,  3.71s/it]Inference:  95%|█████████▌| 19/20 [01:09<00:03,  3.58s/it]Inference: 100%|██████████| 20/20 [01:13<00:00,  3.70s/it]Inference: 100%|██████████| 20/20 [01:13<00:00,  3.67s/it]
-Detected model format: '.bin'
-[ScanNet++] 09c1414f1b: 397 images
-  [Sampling] 09c1414f1b: 397 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 1ada7a0617: 100 images
-  [Sampling] 1ada7a0617: 100 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 40aec5fffa: 235 images
-  [Sampling] 40aec5fffa: 235 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 3e8bba0176: 230 images
-  [Sampling] 3e8bba0176: 230 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] acd95847c5: 388 images
-  [Sampling] acd95847c5: 388 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 578511c8a9: 534 images
-  [Sampling] 578511c8a9: 534 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 5f99900f09: 298 images
-  [Sampling] 5f99900f09: 298 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] c4c04e6d6c: 396 images
-  [Sampling] c4c04e6d6c: 396 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] f3d64c30f8: 363 images
-  [Sampling] f3d64c30f8: 363 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 7bc286c1b6: 135 images
-  [Sampling] 7bc286c1b6: 135 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] c5439f4607: 353 images
-  [Sampling] c5439f4607: 353 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 286b55a2bf: 159 images
-  [Sampling] 286b55a2bf: 159 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] fb5a96b1a2: 289 images
-  [Sampling] fb5a96b1a2: 289 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 7831862f02: 288 images
-  [Sampling] 7831862f02: 288 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 38d58a7a31: 435 images
-  [Sampling] 38d58a7a31: 435 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] bde1e479ad: 373 images
-  [Sampling] bde1e479ad: 373 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 9071e139d9: 235 images
-  [Sampling] 9071e139d9: 235 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 21d970d8de: 315 images
-  [Sampling] 21d970d8de: 315 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] bcd2436daf: 150 images
-  [Sampling] bcd2436daf: 150 -> 8 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] cc5237fd77: 301 images
-  [Sampling] cc5237fd77: 301 -> 8 frames (seed=42)
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-scannetpp scenes:   0%|          | 0/20 [00:00<?, ?it/s][A
-                                                        [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 22.91it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-scannetpp fusion:   0%|          | 0/20 [00:00<?, ?it/s][A
-scannetpp fusion:   5%|▌         | 1/20 [00:06<02:03,  6.52s/it][A
-scannetpp fusion:  25%|██▌       | 5/20 [00:08<00:21,  1.44s/it][A
-scannetpp fusion:  30%|███       | 6/20 [00:10<00:20,  1.49s/it][A
-scannetpp fusion:  35%|███▌      | 7/20 [00:13<00:23,  1.81s/it][A
-scannetpp fusion:  40%|████      | 8/20 [00:16<00:25,  2.09s/it][A
-scannetpp fusion:  45%|████▌     | 9/20 [00:16<00:18,  1.70s/it][A
-scannetpp fusion:  50%|█████     | 10/20 [00:17<00:14,  1.46s/it][A
-scannetpp fusion:  55%|█████▌    | 11/20 [00:19<00:14,  1.59s/it][A
-scannetpp fusion:  60%|██████    | 12/20 [00:20<00:11,  1.41s/it][A
-scannetpp fusion:  65%|██████▌   | 13/20 [00:22<00:10,  1.55s/it][A
-scannetpp fusion:  70%|███████   | 14/20 [00:24<00:09,  1.64s/it][A
-scannetpp fusion:  75%|███████▌  | 15/20 [00:26<00:09,  1.91s/it][A
-scannetpp fusion:  80%|████████  | 16/20 [00:28<00:07,  1.99s/it][A
-scannetpp fusion:  85%|████████▌ | 17/20 [00:30<00:05,  1.99s/it][A
-scannetpp fusion:  90%|█████████ | 18/20 [00:33<00:04,  2.04s/it][A
-scannetpp fusion:  95%|█████████▌| 19/20 [00:34<00:01,  1.76s/it][A
-scannetpp fusion: 100%|██████████| 20/20 [00:35<00:00,  1.67s/it][Ascannetpp fusion: 100%|██████████| 20/20 [00:35<00:00,  1.78s/it]
-Datasets (recon_unposed eval): 100%|██████████| 1/1 [03:27<00:00, 207.36s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [03:27<00:00, 207.36s/it]
-  recon_unposed | scannetpp | 09c1414f1b: {'acc': 0.04559021632002988, 'comp': 1.513825308692934, 'overall': 0.779707762506482, 'precision': 0.6732534165343843, 'recall': 0.15230846673466347, 'fscore': 0.24841795066938102}
-  recon_unposed | scannetpp | 1ada7a0617: {'acc': 0.05773754634296447, 'comp': 0.29394507412480736, 'overall': 0.1758413102338859, 'precision': 0.5479462444924048, 'recall': 0.2893979461911112, 'fscore': 0.3787558797053135}
-  recon_unposed | scannetpp | 40aec5fffa: {'acc': 0.04452309617683367, 'comp': 0.38159188745699696, 'overall': 0.2130574918169153, 'precision': 0.6813778113527627, 'recall': 0.3054227547838846, 'fscore': 0.4217838848770117}
-  recon_unposed | scannetpp | 3e8bba0176: {'acc': 0.04033205334908243, 'comp': 0.6332891803240132, 'overall': 0.3368106168365478, 'precision': 0.7021847965779833, 'recall': 0.26046775795143384, 'fscore': 0.37998444770482753}
-  recon_unposed | scannetpp | acd95847c5: {'acc': 0.05528456156702851, 'comp': 0.6261415188230435, 'overall': 0.340713040195036, 'precision': 0.4667928925138363, 'recall': 0.202231588778156, 'fscore': 0.2822027322561418}
-  recon_unposed | scannetpp | 578511c8a9: {'acc': 0.08052092171771959, 'comp': 1.0824185930720103, 'overall': 0.581469757394865, 'precision': 0.4860258177716506, 'recall': 0.09873364090010357, 'fscore': 0.1641259422089388}
-  recon_unposed | scannetpp | 5f99900f09: {'acc': 0.13123152639698013, 'comp': 0.6989994372370699, 'overall': 0.415115481817025, 'precision': 0.23433548956189357, 'recall': 0.10695874189660227, 'fscore': 0.14687754339213038}
-  recon_unposed | scannetpp | c4c04e6d6c: {'acc': 0.12016744920258458, 'comp': 0.673042887346804, 'overall': 0.3966051682746943, 'precision': 0.16968920859336167, 'recall': 0.07837501680785262, 'fscore': 0.10722541353236845}
-  recon_unposed | scannetpp | f3d64c30f8: {'acc': 0.2210979925212033, 'comp': 1.2313100497480696, 'overall': 0.7262040211346364, 'precision': 0.14045631097654218, 'recall': 0.023211709167322736, 'fscore': 0.03983956106069811}
-  recon_unposed | scannetpp | 7bc286c1b6: {'acc': 0.0459065249738082, 'comp': 0.44096154192611237, 'overall': 0.24343403344996029, 'precision': 0.6178682748339883, 'recall': 0.24568028378533013, 'fscore': 0.35156807706533233}
-  recon_unposed | scannetpp | c5439f4607: {'acc': 0.06488651468318804, 'comp': 0.30288437025456344, 'overall': 0.18388544246887573, 'precision': 0.6340823809026648, 'recall': 0.28608350828084905, 'fscore': 0.3942778453321481}
-  recon_unposed | scannetpp | 286b55a2bf: {'acc': 0.0541811309210536, 'comp': 0.45622453172646965, 'overall': 0.25520283132376165, 'precision': 0.5745193400299986, 'recall': 0.17387212918007747, 'fscore': 0.2669536065438728}
-  recon_unposed | scannetpp | fb5a96b1a2: {'acc': 0.04847123829966464, 'comp': 0.43546060051859603, 'overall': 0.24196591940913034, 'precision': 0.6396571348927966, 'recall': 0.33349264338579765, 'fscore': 0.438413394397167}
-  recon_unposed | scannetpp | 7831862f02: {'acc': 0.0432908326876851, 'comp': 0.6228434639188986, 'overall': 0.3330671483032918, 'precision': 0.7966915338931397, 'recall': 0.34045111359489394, 'fscore': 0.4770457259776598}
-  recon_unposed | scannetpp | 38d58a7a31: {'acc': 0.049656575125402766, 'comp': 0.5227452311586207, 'overall': 0.28620090314201174, 'precision': 0.6757885421714671, 'recall': 0.2944042836840739, 'fscore': 0.4101350502245812}
-  recon_unposed | scannetpp | bde1e479ad: {'acc': 0.041937831599199324, 'comp': 0.5475480901683848, 'overall': 0.29474296088379204, 'precision': 0.7167417310318124, 'recall': 0.2997987341271576, 'fscore': 0.4227638171311589}
-  recon_unposed | scannetpp | 9071e139d9: {'acc': 0.04451422407112, 'comp': 0.7075371766168149, 'overall': 0.3760257003439675, 'precision': 0.6601912702305052, 'recall': 0.28156387090360024, 'fscore': 0.39476505402245693}
-  recon_unposed | scannetpp | 21d970d8de: {'acc': 0.0649079483626998, 'comp': 0.4251084970519982, 'overall': 0.245008222707349, 'precision': 0.5280299024259502, 'recall': 0.2472283162464322, 'fscore': 0.33677538801998125}
-  recon_unposed | scannetpp | bcd2436daf: {'acc': 0.04056887294192628, 'comp': 0.47975225606197586, 'overall': 0.2601605645019511, 'precision': 0.6694764667009325, 'recall': 0.2924510672670609, 'fscore': 0.4070766253861764}
-  recon_unposed | scannetpp | cc5237fd77: {'acc': 0.03961571562651552, 'comp': 0.16480943818215274, 'overall': 0.10221257690433413, 'precision': 0.7079614969413458, 'recall': 0.4307923172384429, 'fscore': 0.5356458437026277}
-
-[1;36m========================================================================================================================[0m
-[1;36m📊 SUMMARY[0m
-[1;36m========================================================================================================================[0m
-
-[1;35m🎯 POSE ESTIMATION[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-Auc3           [1;32m0.4923      [0mN/A         N/A         N/A         N/A         0.4923      
-Auc30          [1;32m0.8959      [0mN/A         N/A         N/A         N/A         0.8959      
-
-[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32m0.3302      [0mN/A         N/A         N/A         N/A         0.3302      
-Overall        [1;32m0.3394      [0mN/A         N/A         N/A         N/A         0.3394      
-
-[1;35m🏗️  RECON_POSED (GT Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-
-[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
-
-====================================================================================================
-[1;32m✅ Evaluation Complete[0m
-====================================================================================================
-
-
---- 8v4v_random maxframe ---
-  [LoRA-8v4v_random maxframe] seed=42
-Loading base model: facebook/vggt-1b
-Loading LoRA weights: ./checkpoints/vggt_experiment_v7/8v4v_random/epoch_0_lora.pt
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_experiment_v7/8v4v_random/epoch_0_lora_peft
-Loaded camera token
-[INFO] Total inference tasks: 20
-Inference:   0%|          | 0/20 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   5%|▌         | 1/20 [01:22<26:14, 82.87s/it]Inference:  10%|█         | 2/20 [02:44<24:40, 82.25s/it]Inference:  15%|█▌        | 3/20 [04:07<23:23, 82.55s/it]Inference:  20%|██        | 4/20 [05:30<22:04, 82.78s/it]Inference:  25%|██▌       | 5/20 [06:56<20:55, 83.73s/it]Inference:  30%|███       | 6/20 [08:21<19:38, 84.21s/it]Inference:  35%|███▌      | 7/20 [09:45<18:13, 84.08s/it]Inference:  40%|████      | 8/20 [11:08<16:46, 83.86s/it]Inference:  45%|████▌     | 9/20 [12:31<15:20, 83.71s/it]Inference:  50%|█████     | 10/20 [13:54<13:53, 83.37s/it]Inference:  55%|█████▌    | 11/20 [15:18<12:31, 83.55s/it]Inference:  60%|██████    | 12/20 [16:41<11:06, 83.34s/it]Inference:  65%|██████▌   | 13/20 [18:04<09:43, 83.33s/it]Inference:  70%|███████   | 14/20 [19:27<08:19, 83.26s/it]Inference:  75%|███████▌  | 15/20 [20:51<06:56, 83.31s/it]Inference:  80%|████████  | 16/20 [22:14<05:33, 83.25s/it]Inference:  85%|████████▌ | 17/20 [23:37<04:09, 83.27s/it]Inference:  90%|█████████ | 18/20 [25:00<02:46, 83.31s/it]Inference:  95%|█████████▌| 19/20 [26:24<01:23, 83.34s/it]Inference: 100%|██████████| 20/20 [27:48<00:00, 83.56s/it]Inference: 100%|██████████| 20/20 [27:48<00:00, 83.42s/it]
-Detected model format: '.bin'
-[ScanNet++] 09c1414f1b: 397 images
-  [Sampling] 09c1414f1b: 397 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 1ada7a0617: 100 images
-Detected model format: '.bin'
-[ScanNet++] 40aec5fffa: 235 images
-  [Sampling] 40aec5fffa: 235 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 3e8bba0176: 230 images
-  [Sampling] 3e8bba0176: 230 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] acd95847c5: 388 images
-  [Sampling] acd95847c5: 388 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 578511c8a9: 534 images
-  [Sampling] 578511c8a9: 534 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 5f99900f09: 298 images
-  [Sampling] 5f99900f09: 298 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] c4c04e6d6c: 396 images
-  [Sampling] c4c04e6d6c: 396 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] f3d64c30f8: 363 images
-  [Sampling] f3d64c30f8: 363 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 7bc286c1b6: 135 images
-  [Sampling] 7bc286c1b6: 135 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] c5439f4607: 353 images
-  [Sampling] c5439f4607: 353 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 286b55a2bf: 159 images
-  [Sampling] 286b55a2bf: 159 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] fb5a96b1a2: 289 images
-  [Sampling] fb5a96b1a2: 289 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 7831862f02: 288 images
-  [Sampling] 7831862f02: 288 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 38d58a7a31: 435 images
-  [Sampling] 38d58a7a31: 435 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] bde1e479ad: 373 images
-  [Sampling] bde1e479ad: 373 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 9071e139d9: 235 images
-  [Sampling] 9071e139d9: 235 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] 21d970d8de: 315 images
-  [Sampling] 21d970d8de: 315 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] bcd2436daf: 150 images
-  [Sampling] bcd2436daf: 150 -> 100 frames (seed=42)
-Detected model format: '.bin'
-[ScanNet++] cc5237fd77: 301 images
-  [Sampling] cc5237fd77: 301 -> 100 frames (seed=42)
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-scannetpp scenes:   0%|          | 0/20 [00:00<?, ?it/s][A
-scannetpp scenes:  35%|███▌      | 7/20 [00:00<00:00, 65.77it/s][A
-scannetpp scenes:  85%|████████▌ | 17/20 [00:00<00:00, 82.58it/s][A
-                                                                 [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00,  4.13it/s]Datasets (pose eval): 100%|██████████| 1/1 [00:00<00:00,  4.13it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-scannetpp fusion:   0%|          | 0/20 [00:00<?, ?it/s][A
-scannetpp fusion:   5%|▌         | 1/20 [00:52<16:33, 52.29s/it][A
-scannetpp fusion:  25%|██▌       | 5/20 [01:11<02:58, 11.90s/it][A
-scannetpp fusion:  30%|███       | 6/20 [01:40<03:41, 15.83s/it][A
-scannetpp fusion:  40%|████      | 8/20 [01:55<02:30, 12.56s/it][A
-scannetpp fusion:  45%|████▌     | 9/20 [02:16<02:37, 14.32s/it][A
-scannetpp fusion:  50%|█████     | 10/20 [02:18<01:55, 11.53s/it][A
-scannetpp fusion:  55%|█████▌    | 11/20 [02:30<01:42, 11.44s/it][A
-scannetpp fusion:  60%|██████    | 12/20 [02:33<01:14,  9.30s/it][A
-scannetpp fusion:  65%|██████▌   | 13/20 [03:08<01:54, 16.41s/it][A
-scannetpp fusion:  75%|███████▌  | 15/20 [03:33<01:13, 14.74s/it][A
-scannetpp fusion:  80%|████████  | 16/20 [03:37<00:48, 12.19s/it][A
-scannetpp fusion:  85%|████████▌ | 17/20 [03:59<00:43, 14.60s/it][A
-scannetpp fusion:  90%|█████████ | 18/20 [04:14<00:29, 14.73s/it][A
-scannetpp fusion:  95%|█████████▌| 19/20 [04:20<00:12, 12.39s/it][A
-scannetpp fusion: 100%|██████████| 20/20 [04:28<00:00, 11.10s/it][Ascannetpp fusion: 100%|██████████| 20/20 [04:28<00:00, 13.43s/it]
-Datasets (recon_unposed eval): 100%|██████████| 1/1 [06:01<00:00, 361.07s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [06:01<00:00, 361.07s/it]
-  recon_unposed | scannetpp | 09c1414f1b: {'acc': 0.0586736290101757, 'comp': 0.139180573216589, 'overall': 0.09892710111338235, 'precision': 0.5792094087741371, 'recall': 0.4571011153032254, 'fscore': 0.5109612622731895}
-  recon_unposed | scannetpp | 1ada7a0617: {'acc': 0.06414844111367099, 'comp': 0.17818569415896843, 'overall': 0.12116706763631971, 'precision': 0.4674950477219521, 'recall': 0.3896086756510132, 'fscore': 0.4250130327274274}
-  recon_unposed | scannetpp | 40aec5fffa: {'acc': 0.050016269825974, 'comp': 0.14555455471905185, 'overall': 0.09778541227251292, 'precision': 0.6478283368406527, 'recall': 0.5332433159000929, 'fscore': 0.5849774307415045}
-  recon_unposed | scannetpp | 3e8bba0176: {'acc': 0.03969282872235809, 'comp': 0.09287917773354773, 'overall': 0.06628600322795292, 'precision': 0.7387024885477281, 'recall': 0.6628735386129169, 'fscore': 0.698736740750027}
-  recon_unposed | scannetpp | acd95847c5: {'acc': 0.029272803618444018, 'comp': 0.15336647553213992, 'overall': 0.09131963957529196, 'precision': 0.8339138888753181, 'recall': 0.6651449085305882, 'fscore': 0.7400291146660998}
-  recon_unposed | scannetpp | 578511c8a9: {'acc': 0.06135442811886442, 'comp': 0.22821652225328848, 'overall': 0.14478547518607646, 'precision': 0.5587906157503361, 'recall': 0.4528361438556105, 'fscore': 0.5002647177060635}
-  recon_unposed | scannetpp | 5f99900f09: {'acc': 0.04827441596878708, 'comp': 0.0965474832944282, 'overall': 0.07241094963160763, 'precision': 0.6681544878170573, 'recall': 0.618218060467607, 'fscore': 0.6422170188594235}
-  recon_unposed | scannetpp | c4c04e6d6c: {'acc': 0.06784663291681876, 'comp': 0.10180621467651428, 'overall': 0.08482642379666652, 'precision': 0.5154081661850124, 'recall': 0.5192002609870905, 'fscore': 0.5172972641051607}
-  recon_unposed | scannetpp | f3d64c30f8: {'acc': 0.0735721371772495, 'comp': 0.0761347283152044, 'overall': 0.07485343274622695, 'precision': 0.5262910836338377, 'recall': 0.5509884133226277, 'fscore': 0.5383566473445529}
-  recon_unposed | scannetpp | 7bc286c1b6: {'acc': 0.03384286180255703, 'comp': 0.15732770862854586, 'overall': 0.09558528521555144, 'precision': 0.861143588887033, 'recall': 0.6087914603783304, 'fscore': 0.7133061604810143}
-  recon_unposed | scannetpp | c5439f4607: {'acc': 0.06498820487159906, 'comp': 0.05807072277386952, 'overall': 0.06152946382273429, 'precision': 0.5844630729112954, 'recall': 0.6191894611882959, 'fscore': 0.6013253242907348}
-  recon_unposed | scannetpp | 286b55a2bf: {'acc': 0.022847017578724108, 'comp': 0.08937318776636925, 'overall': 0.05611010267254668, 'precision': 0.9368288590604027, 'recall': 0.7411840253583091, 'fscore': 0.8276010169859436}
-  recon_unposed | scannetpp | fb5a96b1a2: {'acc': 0.04456477531382944, 'comp': 0.07204203500009985, 'overall': 0.05830340515696465, 'precision': 0.6866768511133042, 'recall': 0.6626423499780222, 'fscore': 0.674445545470943}
-  recon_unposed | scannetpp | 7831862f02: {'acc': 0.04884027119226141, 'comp': 0.0631635327594095, 'overall': 0.05600190197583546, 'precision': 0.6317864690519477, 'recall': 0.6461139381903934, 'fscore': 0.6388698857925081}
-  recon_unposed | scannetpp | 38d58a7a31: {'acc': 0.04465283726245238, 'comp': 0.05146296424490559, 'overall': 0.04805790075367898, 'precision': 0.701480987688973, 'recall': 0.7708539090154263, 'fscore': 0.7345331047581782}
-  recon_unposed | scannetpp | bde1e479ad: {'acc': 0.04475976742223969, 'comp': 0.16122823377248952, 'overall': 0.1029940005973646, 'precision': 0.6804822893366984, 'recall': 0.6296249231826846, 'fscore': 0.6540664841114402}
-  recon_unposed | scannetpp | 9071e139d9: {'acc': 0.04535329521881722, 'comp': 0.13000782086307422, 'overall': 0.08768055804094572, 'precision': 0.662822924939106, 'recall': 0.5739179356200633, 'fscore': 0.6151748953951605}
-  recon_unposed | scannetpp | 21d970d8de: {'acc': 0.0520172216281489, 'comp': 0.08431984104503135, 'overall': 0.06816853133659012, 'precision': 0.5781481633796087, 'recall': 0.5639953720314282, 'fscore': 0.5709840810458584}
-  recon_unposed | scannetpp | bcd2436daf: {'acc': 0.030592146626345795, 'comp': 0.1767209713380319, 'overall': 0.10365655898218885, 'precision': 0.8265620078978608, 'recall': 0.6194145488529137, 'fscore': 0.7081505309760793}
-  recon_unposed | scannetpp | cc5237fd77: {'acc': 0.037338757149813696, 'comp': 0.03519240566280845, 'overall': 0.03626558140631107, 'precision': 0.7769421434021734, 'recall': 0.7861160596035089, 'fscore': 0.7815021796843487}
-
-[1;36m========================================================================================================================[0m
-[1;36m📊 SUMMARY[0m
-[1;36m========================================================================================================================[0m
-
-[1;35m🎯 POSE ESTIMATION[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-Auc3           [1;32m0.6020      [0mN/A         N/A         N/A         N/A         0.6020      
-Auc30          [1;32m0.9463      [0mN/A         N/A         N/A         N/A         0.9463      
-
-[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32m0.6339      [0mN/A         N/A         N/A         N/A         0.6339      
-Overall        [1;32m0.0813      [0mN/A         N/A         N/A         N/A         0.0813      
-
-[1;35m🏗️  RECON_POSED (GT Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-
-[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
-
-====================================================================================================
-[1;32m✅ Evaluation Complete[0m
-====================================================================================================
-
-
-============================================================
-LoRA benchmark complete!
-============================================================
-
-============================================================
-=== VGGT Experiment V7 Complete ===
-============================================================
-
-Experiment: 8v→4v with random sampling
-  Teacher: 8 views, Student: 4 views
-  Sampling: Random (no subset sequential)
-
-Output directories:
-  Training:   ./checkpoints/vggt_experiment_v7/8v4v_random
-  Benchmarks: ./workspace/vggt_experiment_v7
-

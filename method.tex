@@ -39,84 +39,81 @@ For distillation, we extract features from layer 39, which serves as the input t
 
 \subsection{Self-Supervised Distillation Loss}
 
-We propose a distillation loss that combines distributional alignment through KL divergence with directional alignment through cosine similarity. This combination ensures that the student learns both the relative importance of different feature channels and the overall direction of the feature vectors in the high-dimensional space. Given the selected teacher features $\mathbf{F}^{\mathcal{T}}_{\text{sel}} \in \mathbb{R}^{B \times M \times (P+1) \times C}$ and student features $\mathbf{F}^{\mathcal{S}} \in \mathbb{R}^{B \times M \times (P+1) \times C}$, we compute the loss over all tokens across batches, views, and spatial positions.
+Our distillation objective consists of two complementary components. The corresponding-frame loss aligns teacher and student features at the $M$ shared view positions on a per-token basis. The cross-frame loss transfers relational knowledge from the teacher's extra viewpoints that the student never observes. We describe each component below.
 
-\subsubsection{KL Divergence Loss}
+Let $\mathbf{F}^{\mathcal{T}} \in \mathbb{R}^{B \times N \times (P+1) \times C}$ denote the teacher features from all $N$ views at layer $l$, and $\mathbf{F}^{\mathcal{S}} \in \mathbb{R}^{B \times M \times (P+1) \times C}$ the student features from the $M$ shared views, where $B$ is the batch size, $P$ the number of spatial patch tokens, and $C$ the channel dimension. We select the teacher features at the student view indices to obtain $\mathbf{F}^{\mathcal{T}}_{\text{sel}} \in \mathbb{R}^{B \times M \times (P+1) \times C}$. For a given batch element, view $s$, and spatial position $p$, we write the teacher token as $\mathbf{f}^{\mathcal{T}}_{s,p} \in \mathbb{R}^{C}$ and the student token as $\mathbf{f}^{\mathcal{S}}_{s,p} \in \mathbb{R}^{C}$.
 
-The KL divergence component measures how well the student's channel-wise activation distribution matches that of the teacher. We first apply a softmax transformation along the channel dimension to convert raw feature activations into probability distributions, which is the standard formulation for computing KL divergence between continuous feature vectors. For a feature token $\mathbf{f} \in \mathbb{R}^{C}$, the softmax-normalized representation is:
+\subsubsection{Corresponding-Frame Loss}
+
+The corresponding-frame loss operates on matched token pairs $(\mathbf{f}^{\mathcal{T}}_{s,p},\, \mathbf{f}^{\mathcal{S}}_{s,p})$ at the same view $s$ and position $p$, combining a KL divergence term for distributional alignment with a cosine similarity term for directional alignment.
+
+\paragraph{KL divergence term.}
+We apply a channel-wise softmax to convert each token into a probability distribution. For a token $\mathbf{f} \in \mathbb{R}^{C}$ the normalized representation is:
 \begin{equation}
 \hat{f}_c = \frac{\exp(f_c)}{\sum_{j=1}^{C} \exp(f_j)},
 \label{eq:softmax}
 \end{equation}
-where $f_c$ denotes the $c$-th channel. Applying this transformation to both teacher and student features yields $\hat{\mathbf{F}}^{\mathcal{T}}_{\text{sel}} = \text{softmax}(\mathbf{F}^{\mathcal{T}}_{\text{sel}}, \text{dim}=-1)$ and $\hat{\mathbf{F}}^{\mathcal{S}} = \text{softmax}(\mathbf{F}^{\mathcal{S}}, \text{dim}=-1)$, each of shape $\mathbb{R}^{B \times M \times (P+1) \times C}$. The KL divergence loss is then computed as the mean over all tokens:
+where $f_c$ is the $c$-th channel. Writing $\hat{\mathbf{f}}^{\mathcal{T}}_{s,p}$ and $\hat{\mathbf{f}}^{\mathcal{S}}_{s,p}$ for the softmax-normalized teacher and student tokens, the KL divergence loss is:
 \begin{equation}
 \mathcal{L}_{\text{KL}} = \frac{1}{BM(P+1)} \sum_{b,s,p} \sum_{c=1}^{C} \hat{f}^{\mathcal{T}}_{b,s,p,c} \left( \log \hat{f}^{\mathcal{T}}_{b,s,p,c} - \log \hat{f}^{\mathcal{S}}_{b,s,p,c} \right),
 \label{eq:kl_loss}
 \end{equation}
-where the outer summation runs over batch index $b \in [1, B]$, view index $s \in [1, M]$, and token position $p \in [0, P]$. This loss encourages the student to produce feature activations with similar relative magnitudes across channels as the teacher, which is important for preserving the semantic structure encoded in the feature space.
+where the outer sum runs over batch index $b \in [1, B]$, view $s \in [1, M]$, and token position $p \in [0, P]$. This term encourages the student to reproduce the relative channel activation magnitudes of the teacher.
 
-\subsubsection{Cosine Similarity Loss}
-
-While KL divergence captures distributional properties, it does not directly constrain the direction of feature vectors in the embedding space. To address this, we include a cosine similarity loss that operates on the raw features without softmax normalization. We first apply L2 normalization along the channel dimension to obtain unit vectors $\bar{\mathbf{F}}^{\mathcal{T}}_{\text{sel}} = \mathbf{F}^{\mathcal{T}}_{\text{sel}} / \|\mathbf{F}^{\mathcal{T}}_{\text{sel}}\|_2$ and $\bar{\mathbf{F}}^{\mathcal{S}} = \mathbf{F}^{\mathcal{S}} / \|\mathbf{F}^{\mathcal{S}}\|_2$, where the normalization is applied independently to each token. The cosine similarity between corresponding tokens is computed as the dot product of these normalized vectors:
-\begin{equation}
-\text{sim}(\mathbf{f}^{\mathcal{T}}, \mathbf{f}^{\mathcal{S}}) = \frac{\mathbf{f}^{\mathcal{T}} \cdot \mathbf{f}^{\mathcal{S}}}{\|\mathbf{f}^{\mathcal{T}}\| \|\mathbf{f}^{\mathcal{S}}\|} = \bar{\mathbf{f}}^{\mathcal{T}} \cdot \bar{\mathbf{f}}^{\mathcal{S}},
-\label{eq:cosine_sim}
-\end{equation}
-and the cosine loss is defined as the mean over all tokens:
+\paragraph{Cosine similarity term.}
+We L2-normalize each token along the channel dimension to obtain unit vectors $\bar{\mathbf{f}}^{\mathcal{T}}_{s,p} = \mathbf{f}^{\mathcal{T}}_{s,p} / \|\mathbf{f}^{\mathcal{T}}_{s,p}\|_2$ and $\bar{\mathbf{f}}^{\mathcal{S}}_{s,p} = \mathbf{f}^{\mathcal{S}}_{s,p} / \|\mathbf{f}^{\mathcal{S}}_{s,p}\|_2$. The cosine loss is:
 \begin{equation}
 \mathcal{L}_{\text{cos}} = 1 - \frac{1}{BM(P+1)} \sum_{b,s,p} \left( \bar{\mathbf{f}}^{\mathcal{T}}_{b,s,p} \cdot \bar{\mathbf{f}}^{\mathcal{S}}_{b,s,p} \right).
 \label{eq:cos_loss}
 \end{equation}
-This loss directly maximizes the alignment between teacher and student feature directions, ensuring that semantically similar inputs produce similarly oriented representations regardless of their absolute magnitudes.
+This term directly maximizes the directional alignment between corresponding teacher and student tokens regardless of their magnitudes.
+
+\subsubsection{Cross-Frame Relational Distillation}
+
+The corresponding-frame loss aligns features at shared view positions but does not capture the geometric relationships that the teacher encodes from its additional viewpoints. To transfer this structural knowledge we introduce two cross-frame losses, one angle-wise and one distance-wise, that operate on triplets formed across the teacher's frame set.
+
+We partition the teacher's $N$ frames into three roles according to the student's view indices. The first student frame (teacher index 0) serves as the \emph{reference} frame. The remaining student frames (teacher indices 2, 4, 6) are \emph{shared} frames visible to both networks. The teacher-only frames (indices 1, 3, 5, 7) are \emph{extra} frames that the student never observes. For computational efficiency we randomly sample $N_r$ reference patches from the reference frame and $N_s$ shared patches from each shared frame. Let $\mathbf{r}^{\mathcal{T}} \in \mathbb{R}^{C}$ and $\mathbf{r}^{\mathcal{S}} \in \mathbb{R}^{C}$ denote a sampled reference patch in the teacher and student representations respectively, and $\mathbf{s}^{\mathcal{T}} \in \mathbb{R}^{C}$, $\mathbf{s}^{\mathcal{S}} \in \mathbb{R}^{C}$ a sampled shared-frame patch. For each teacher reference patch $\mathbf{r}^{\mathcal{T}}$ we compute cosine similarity against all patches across the extra frames and select the top-$K$ most similar patches $\{\mathbf{h}_1, \ldots, \mathbf{h}_K\} \subset \mathbb{R}^{C}$. These high-similarity patches encode the geometric information that the teacher has extracted from the views unavailable to the student. The top-$K$ search and all teacher-side quantities are computed without gradients so that the losses only backpropagate through the student's feature representations. In our experiments we set $N_r = N_s = 256$ and $K = 4$, and process the computation in chunks to bound peak memory usage.
+
+\paragraph{Angle-wise loss.}
+For each triplet we compute three angles defined by the cosine of the angle at each vertex of the triangle formed in feature space. Using the teacher triplet $(\mathbf{r}^{\mathcal{T}}, \mathbf{s}^{\mathcal{T}}, \mathbf{h})$ and the student triplet $(\mathbf{r}^{\mathcal{S}}, \mathbf{s}^{\mathcal{S}}, \mathbf{h})$, the three angles are:
+\begin{align}
+\psi_1(\mathbf{r}, \mathbf{s}, \mathbf{h}) &= \cos\angle(\mathbf{s} - \mathbf{r},\; \mathbf{h} - \mathbf{r}), \label{eq:angle1} \\
+\psi_2(\mathbf{r}, \mathbf{s}, \mathbf{h}) &= \cos\angle(\mathbf{r} - \mathbf{h},\; \mathbf{s} - \mathbf{h}), \label{eq:angle2} \\
+\psi_3(\mathbf{r}, \mathbf{s}, \mathbf{h}) &= \cos\angle(\mathbf{r} - \mathbf{s},\; \mathbf{h} - \mathbf{s}), \label{eq:angle3}
+\end{align}
+where $\cos\angle(\mathbf{a}, \mathbf{b}) = \frac{\mathbf{a} \cdot \mathbf{b}}{\|\mathbf{a}\| \|\mathbf{b}\|}$. Together these three angles fully characterize the shape of the triangle. The student is trained to match the teacher's angular structure by minimizing the L1 distance between corresponding angles:
+\begin{equation}
+\mathcal{L}_{\text{CF-angle}} = \frac{1}{|\mathcal{P}|} \sum_{(\mathbf{r}, \mathbf{s}, \mathbf{h}) \in \mathcal{P}} \sum_{i=1}^{3} \omega_i \left|\psi_i^{\mathcal{S}} - \psi_i^{\mathcal{T}}\right|,
+\label{eq:cf_angle_loss}
+\end{equation}
+where $\mathcal{P}$ is the set of all sampled triplets, $\psi_i^{\mathcal{T}}$ and $\psi_i^{\mathcal{S}}$ are the teacher and student angles respectively, and $\omega_i$ are per-angle weights set to 1 for all three terms. Because the angles are scale-invariant this loss captures the relational geometry of the triangle without being affected by the absolute magnitude of the feature vectors.
+
+\paragraph{Distance-wise loss.}
+The angle-wise loss preserves the shape of each triplet triangle but is invariant to its scale. To also transfer the scale information we add a complementary distance-wise loss that operates on the three edges of the same triplet. Rather than matching raw Euclidean distances, which can be noisy in high-dimensional spaces, we convert each pairwise difference vector into a distribution via a temperature-scaled softmax and then measure the KL divergence between the teacher and student distributions. For an edge between two points $\mathbf{a}$ and $\mathbf{b}$, the difference profile is $\mathbf{d} = \mathbf{a} - \mathbf{b} \in \mathbb{R}^{C}$ and we form the distribution $\hat{\mathbf{d}} = \text{softmax}(\mathbf{d}/\tau)$ where $\tau$ is a temperature parameter. The three edges of the triplet give rise to three KL terms:
+\begin{align}
+\delta_1 &= D_{\text{KL}}\!\left(\hat{\mathbf{d}}^{\mathcal{T}}_{\mathbf{r}\mathbf{s}} \;\|\; \hat{\mathbf{d}}^{\mathcal{S}}_{\mathbf{r}\mathbf{s}}\right), \label{eq:dist_d1} \\
+\delta_2 &= D_{\text{KL}}\!\left(\hat{\mathbf{d}}^{\mathcal{T}}_{\mathbf{r}\mathbf{h}} \;\|\; \hat{\mathbf{d}}^{\mathcal{S}}_{\mathbf{r}\mathbf{h}}\right), \label{eq:dist_d2} \\
+\delta_3 &= D_{\text{KL}}\!\left(\hat{\mathbf{d}}^{\mathcal{T}}_{\mathbf{s}\mathbf{h}} \;\|\; \hat{\mathbf{d}}^{\mathcal{S}}_{\mathbf{s}\mathbf{h}}\right), \label{eq:dist_d3}
+\end{align}
+where $\hat{\mathbf{d}}^{\mathcal{T}}_{\mathbf{r}\mathbf{s}} = \text{softmax}((\mathbf{r}^{\mathcal{T}} - \mathbf{s}^{\mathcal{T}})/\tau)$ and $\hat{\mathbf{d}}^{\mathcal{S}}_{\mathbf{r}\mathbf{s}} = \text{softmax}((\mathbf{r}^{\mathcal{S}} - \mathbf{s}^{\mathcal{S}})/\tau)$, and likewise for the other two edges. Each per-triplet KL value is passed through a Huber function ($\beta = 0.5$) to dampen outliers, and the loss is averaged over all triplets:
+\begin{equation}
+\mathcal{L}_{\text{CF-dist}} = \frac{1}{|\mathcal{P}|} \sum_{(\mathbf{r}, \mathbf{s}, \mathbf{h}) \in \mathcal{P}} \sum_{j=1}^{3} \mu_j \cdot \ell_{\beta}(\delta_j),
+\label{eq:cf_dist_loss}
+\end{equation}
+where $\ell_{\beta}$ is the Huber loss with threshold $\beta = 0.5$ and $\mu_j$ are per-edge weights set to 1. Combined with the angle-wise loss, the distance-wise loss ensures that the student reproduces both the shape and the scale of the relational triangles that the teacher forms with its extra-frame features.
 
 \subsubsection{Combined Loss Function}
 
-The total distillation loss combines the KL divergence and cosine similarity components with respective weights:
+The total distillation loss combines the corresponding-frame alignment terms with the two cross-frame relational terms:
 \begin{equation}
-\mathcal{L}_{\text{total}} = \lambda_{\text{KL}} \mathcal{L}_{\text{KL}} + \lambda_{\text{cos}} \mathcal{L}_{\text{cos}},
+\mathcal{L}_{\text{total}} = \lambda_{\text{KL}} \mathcal{L}_{\text{KL}} + \lambda_{\text{cos}} \mathcal{L}_{\text{cos}} + \lambda_{\text{angle}} \mathcal{L}_{\text{CF-angle}} + \lambda_{\text{dist}} \mathcal{L}_{\text{CF-dist}},
 \label{eq:total_loss}
 \end{equation}
-where $\lambda_{\text{KL}} = 1$ and $\lambda_{\text{cos}} = 2$ in our experiments. The KL divergence term operates on softmax-normalized features to align the channel-wise activation distributions, while the cosine term operates on L2-normalized features to align the directional structure of the representations. The higher weight on the cosine term reflects the importance of directional alignment for downstream tasks such as camera pose estimation, where the orientation of feature vectors in the learned space directly influences the quality of geometric predictions.
+where $\lambda_{\text{KL}} = 1$, $\lambda_{\text{cos}} = 2$, $\lambda_{\text{angle}} = 2$, and $\lambda_{\text{dist}} = 1$ in our experiments. The first two terms align the student's per-token features to the teacher at corresponding view positions. The cross-frame angle and distance terms complement these by transferring relational knowledge from the teacher's extra frames, encouraging the student to preserve both the directional geometry and the metric structure that the teacher encodes from viewpoints the student does not observe.
 
 \subsection{Training Procedure}
 
-The complete training procedure is summarized in \cref{alg:training}. We sample $N=8$ views for the teacher and select $M=4$ views for the student by taking every second frame (indices 0, 2, 4, 6), ensuring that the student views form a proper subset of the teacher views. To generate sufficient training samples from a limited number of scenes, we use multiple random seeds to sample different view sequences from each scene, resulting in approximately 60 training samples across the dataset. This sampling strategy maintains temporal diversity while creating a consistent correspondence between teacher and student observations.
-
-\begin{algorithm}[t]
-\caption{Self-Supervised Test-Time Adaptation}
-\label{alg:training}
-\begin{algorithmic}[1]
-\REQUIRE Pre-trained model $\mathcal{M}$, dataset $\mathcal{D}$ with scenes, seeds $\mathcal{K} = \{k_1, \ldots, k_K\}$, teacher views $N=8$, student views $M=4$
-\ENSURE Adapted LoRA weights $\theta_{\text{LoRA}}$
-\STATE Initialize teacher $\mathcal{T} \leftarrow \mathcal{M}$ (frozen)
-\STATE Initialize student $\mathcal{S} \leftarrow \mathcal{M}$ with LoRA modules (rank $r=16$, $\alpha=16$)
-\STATE Initialize LoRA weights: $A \sim \mathcal{N}(0, \frac{1}{r})$, $B \leftarrow 0$ \COMMENT{PEFT default}
-\FOR{epoch $= 1$ to $E$}
-    \FOR{each scene $s$ in $\mathcal{D}$}
-        \FOR{each seed $k$ in $\mathcal{K}$}
-            \STATE Sample $N$ views using seed $k$: $\mathcal{V}_T = \{I_{i_1}, \ldots, I_{i_N}\}$
-            \STATE Select student views: $\mathcal{V}_S = \{I_{i_1}, I_{i_3}, I_{i_5}, I_{i_7}\}$ \COMMENT{Every 2nd frame}
-            \STATE \textcolor{gray}{// Teacher forward pass (no gradient)}
-            \STATE $\mathbf{F}^{\mathcal{T}} \leftarrow \mathcal{T}(\mathcal{V}_T)$ \COMMENT{Layer 39 features, shape $[1, N, P+1, C]$}
-            \STATE \textcolor{gray}{// Student forward pass}
-            \STATE $\mathbf{F}^{\mathcal{S}} \leftarrow \mathcal{S}(\mathcal{V}_S; \theta_{\text{LoRA}})$ \COMMENT{Shape $[1, M, P+1, C]$}
-            \STATE \textcolor{gray}{// Select teacher features at student view indices}
-            \STATE $\mathbf{F}^{\mathcal{T}}_{\text{sel}} \leftarrow \mathbf{F}^{\mathcal{T}}[:, [0,2,4,6], :, :]$ \COMMENT{Shape $[1, M, P+1, C]$}
-            \STATE \textcolor{gray}{// Compute KL loss with channel-wise softmax}
-            \STATE $\hat{\mathbf{F}}^{\mathcal{T}} \leftarrow \text{softmax}(\mathbf{F}^{\mathcal{T}}_{\text{sel}}, \text{dim}=-1)$
-            \STATE $\hat{\mathbf{F}}^{\mathcal{S}} \leftarrow \text{softmax}(\mathbf{F}^{\mathcal{S}}, \text{dim}=-1)$
-            \STATE $\mathcal{L}_{\text{KL}} \leftarrow \text{mean}\left(\sum_c \hat{F}^{\mathcal{T}}_c \cdot (\log \hat{F}^{\mathcal{T}}_c - \log \hat{F}^{\mathcal{S}}_c)\right)$
-            \STATE \textcolor{gray}{// Compute cosine loss with L2 normalization}
-            \STATE $\mathcal{L}_{\text{cos}} \leftarrow 1 - \text{mean}\left(\text{cosine\_sim}(\mathbf{F}^{\mathcal{T}}_{\text{sel}}, \mathbf{F}^{\mathcal{S}})\right)$
-            \STATE $\mathcal{L} \leftarrow \lambda_{\text{KL}} \mathcal{L}_{\text{KL}} + \lambda_{\text{cos}} \mathcal{L}_{\text{cos}}$
-            \STATE \textcolor{gray}{// Update LoRA parameters only}
-            \STATE $\theta_{\text{LoRA}} \leftarrow \text{AdamW}(\theta_{\text{LoRA}}, \nabla_{\theta_{\text{LoRA}}} \mathcal{L})$
-        \ENDFOR
-    \ENDFOR
-\ENDFOR
-\RETURN $\theta_{\text{LoRA}}$
-\end{algorithmic}
-\end{algorithm}
+We sample $N=8$ views for the teacher and select $M=4$ views for the student by taking every second frame (indices 0, 2, 4, 6), ensuring that the student views form a proper subset of the teacher views. To generate sufficient training samples from a limited number of scenes, we use multiple random seeds to sample different view sequences from each scene, resulting in approximately 60 training samples across the dataset. This sampling strategy maintains temporal diversity while creating a consistent correspondence between teacher and student observations.
 
 \textbf{LoRA Configuration.} We use the PEFT library to apply Low-Rank Adaptation to the transformer backbone. LoRA modules are inserted into the attention projection matrices (qkv and output projections) and MLP layers (w12 and w3 for SwiGLU activation) in layers 13 through 39. Following the PEFT default initialization, the down-projection matrix $A$ is initialized from a normal distribution with variance $1/r$ where $r$ is the rank, while the up-projection matrix $B$ is initialized to zero, ensuring that the LoRA contribution starts at zero and gradually learns the adaptation. With rank $r=16$ and scaling factor $\alpha=16$, the effective scaling is $\alpha/r = 1$, meaning the LoRA updates are applied without additional scaling.
 

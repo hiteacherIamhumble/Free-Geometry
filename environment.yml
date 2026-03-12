@@ -87,7 +87,6 @@ dependencies:
     - dash==3.3.0
     - debugpy==1.8.19
     - decorator==4.4.2
-    - depth-anything-3==0.0.0
     - distlib==0.4.0
     - e3nn==0.5.9
     - einops==0.8.1
@@ -216,4 +215,3 @@ dependencies:
     - xformers==0.0.33.post2
     - zipp==3.23.0
     - zstandard==0.25.0
-prefix: /home/22097845d/.conda/envs/depth-anything-3

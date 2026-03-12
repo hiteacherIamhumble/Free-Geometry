@@ -104,9 +104,14 @@ class VGGTTeacherModel(nn.Module):
         """
         B, S, C, H, W = images.shape
 
-        # Get aggregator output_list
-        # output_list contains 24 tensors, each [B, S, P, 2048]
-        output_list, patch_start_idx = self.vggt.aggregator(images)
+        # Get only required layers from aggregator to reduce activation memory.
+        requested_layers = sorted(set(self.output_layers))
+        output_list, patch_start_idx = self.vggt.aggregator(images, output_layers=requested_layers)
+        if len(output_list) != len(requested_layers):
+            raise RuntimeError(
+                f"Aggregator returned {len(output_list)} layers, expected {len(requested_layers)}"
+            )
+        layer_to_features = {layer: feat for layer, feat in zip(requested_layers, output_list)}
 
         # Process outputs at specified layers
         layer_features = {}
@@ -115,10 +120,9 @@ class VGGTTeacherModel(nn.Module):
         camera_tokens = {}
 
         for layer_idx in self.output_layers:
-            if layer_idx >= len(output_list):
-                raise ValueError(f"Layer {layer_idx} out of range (max {len(output_list)-1})")
-
-            features = output_list[layer_idx]  # [B, S, P, 2048]
+            if layer_idx not in layer_to_features:
+                raise ValueError(f"Requested layer {layer_idx} was not returned by aggregator")
+            features = layer_to_features[layer_idx]  # [B, S, P, 2048]
 
             # Extract camera token from position 0
             cam_token = features[:, :, 0, :]  # [B, S, 2048]
@@ -138,6 +142,60 @@ class VGGTTeacherModel(nn.Module):
             global_features=global_features,
             camera_tokens=camera_tokens,
         )
+
+    def _extract_distill_output(
+        self,
+        all_output_list: List[torch.Tensor],
+    ) -> VGGTDistillationOutput:
+        """Extract distillation features from a full (all-layer) output list."""
+        layer_features = {}
+        frame_features = {}
+        global_features = {}
+        camera_tokens = {}
+
+        for layer_idx in self.output_layers:
+            features = all_output_list[layer_idx]
+            cam_token = features[:, :, 0, :]
+            frame_feat = features[..., :self.embed_dim]
+            global_feat = features[..., self.embed_dim:]
+
+            layer_features[layer_idx] = features
+            frame_features[layer_idx] = frame_feat
+            global_features[layer_idx] = global_feat
+            camera_tokens[layer_idx] = cam_token
+
+        return VGGTDistillationOutput(
+            layer_features=layer_features,
+            frame_features=frame_features,
+            global_features=global_features,
+            camera_tokens=camera_tokens,
+        )
+
+    @torch.no_grad()
+    def forward_with_preds(
+        self,
+        images: torch.Tensor,
+    ) -> Tuple[VGGTDistillationOutput, Dict[str, torch.Tensor]]:
+        """Forward that returns both distillation features and head predictions (depth, camera)."""
+        # Run full aggregator (all 24 layers) so heads can index freely
+        all_output_list, patch_start_idx = self.vggt.aggregator(images)
+
+        distill_out = self._extract_distill_output(all_output_list)
+
+        # Run heads
+        predictions: Dict[str, torch.Tensor] = {}
+        with torch.cuda.amp.autocast(enabled=False):
+            if self.vggt.camera_head is not None:
+                pose_enc_list = self.vggt.camera_head(all_output_list)
+                predictions["pose_enc"] = pose_enc_list[-1]
+            if self.vggt.depth_head is not None:
+                depth, depth_conf = self.vggt.depth_head(
+                    all_output_list, images=images, patch_start_idx=patch_start_idx
+                )
+                predictions["depth"] = depth
+                predictions["depth_conf"] = depth_conf
+
+        return distill_out, predictions
 
 
 class VGGTStudentModel(nn.Module):
@@ -263,14 +321,16 @@ class VGGTStudentModel(nn.Module):
         """
         B, S, C, H, W = images.shape
 
-        # Access aggregator through PEFT wrapper
-        if hasattr(self.vggt, 'base_model'):
-            aggregator = self.vggt.base_model.model.aggregator
-        else:
-            aggregator = self.vggt.aggregator
+        aggregator = self._get_aggregator()
 
-        # Get aggregator output_list
-        output_list, patch_start_idx = aggregator(images)
+        # Get only required layers from aggregator to reduce activation memory.
+        requested_layers = sorted(set(self.output_layers))
+        output_list, patch_start_idx = aggregator(images, output_layers=requested_layers)
+        if len(output_list) != len(requested_layers):
+            raise RuntimeError(
+                f"Aggregator returned {len(output_list)} layers, expected {len(requested_layers)}"
+            )
+        layer_to_features = {layer: feat for layer, feat in zip(requested_layers, output_list)}
 
         # Process outputs at specified layers
         layer_features = {}
@@ -279,10 +339,9 @@ class VGGTStudentModel(nn.Module):
         camera_tokens = {}
 
         for layer_idx in self.output_layers:
-            if layer_idx >= len(output_list):
-                raise ValueError(f"Layer {layer_idx} out of range (max {len(output_list)-1})")
-
-            features = output_list[layer_idx]  # [B, S, P, 2048]
+            if layer_idx not in layer_to_features:
+                raise ValueError(f"Requested layer {layer_idx} was not returned by aggregator")
+            features = layer_to_features[layer_idx]  # [B, S, P, 2048]
 
             # Extract camera token from position 0
             cam_token = features[:, :, 0, :]  # [B, S, 2048]
@@ -303,6 +362,87 @@ class VGGTStudentModel(nn.Module):
             camera_tokens=camera_tokens,
         )
 
+    def _get_aggregator(self):
+        """Access aggregator through PEFT wrapper."""
+        if hasattr(self.vggt, 'base_model'):
+            return self.vggt.base_model.model.aggregator
+        return self.vggt.aggregator
+
+    def _get_vggt_model(self):
+        """Access underlying VGGT model through PEFT wrapper."""
+        if hasattr(self.vggt, 'base_model'):
+            return self.vggt.base_model.model
+        return self.vggt
+
+    def _extract_distill_output(
+        self,
+        all_output_list: List[torch.Tensor],
+    ) -> VGGTDistillationOutput:
+        """Extract distillation features from a full (all-layer) output list."""
+        layer_features = {}
+        frame_features = {}
+        global_features = {}
+        camera_tokens = {}
+
+        for layer_idx in self.output_layers:
+            features = all_output_list[layer_idx]
+            cam_token = features[:, :, 0, :]
+            frame_feat = features[..., :self.embed_dim]
+            global_feat = features[..., self.embed_dim:]
+
+            layer_features[layer_idx] = features
+            frame_features[layer_idx] = frame_feat
+            global_features[layer_idx] = global_feat
+            camera_tokens[layer_idx] = cam_token
+
+        return VGGTDistillationOutput(
+            layer_features=layer_features,
+            frame_features=frame_features,
+            global_features=global_features,
+            camera_tokens=camera_tokens,
+        )
+
+    def forward_with_preds(
+        self,
+        images: torch.Tensor,
+    ) -> Tuple[VGGTDistillationOutput, Dict[str, torch.Tensor]]:
+        """Forward that returns both distillation features and head predictions (depth, camera, points)."""
+        aggregator = self._get_aggregator()
+        vggt_model = self._get_vggt_model()
+
+        # Run full aggregator (all 24 layers) so heads can index freely
+        all_output_list, patch_start_idx = aggregator(images)
+
+        distill_out = self._extract_distill_output(all_output_list)
+
+        # Run heads
+        predictions: Dict[str, torch.Tensor] = {}
+        with torch.cuda.amp.autocast(enabled=False):
+            if vggt_model.camera_head is not None:
+                pose_enc_list = vggt_model.camera_head(all_output_list)
+                predictions["pose_enc"] = pose_enc_list[-1]
+            if vggt_model.depth_head is not None:
+                depth, depth_conf = vggt_model.depth_head(
+                    all_output_list, images=images, patch_start_idx=patch_start_idx
+                )
+                predictions["depth"] = depth
+                predictions["depth_conf"] = depth_conf
+            if vggt_model.point_head is not None:
+                pts3d, pts3d_conf = vggt_model.point_head(
+                    all_output_list, images=images, patch_start_idx=patch_start_idx
+                )
+                predictions["world_points"] = pts3d
+                predictions["world_points_conf"] = pts3d_conf
+
+        return distill_out, predictions
+
+    def forward_features_only(
+        self,
+        images: torch.Tensor,
+    ) -> VGGTDistillationOutput:
+        """Forward through aggregator only, skipping heads. Same as forward()."""
+        return self.forward(images)
+
     def get_trainable_params(self) -> List[nn.Parameter]:
         """Get list of trainable parameters (LoRA + camera tokens)."""
         return [p for p in self.vggt.parameters() if p.requires_grad]
@@ -321,10 +461,7 @@ class VGGTStudentModel(nn.Module):
 
         # Also save camera token if trainable
         state_dict = {}
-        if hasattr(self.vggt, 'base_model'):
-            aggregator = self.vggt.base_model.model.aggregator
-        else:
-            aggregator = self.vggt.aggregator
+        aggregator = self._get_aggregator()
 
         if hasattr(aggregator, 'camera_token') and aggregator.camera_token.requires_grad:
             state_dict['camera_token'] = aggregator.camera_token.data.clone()
@@ -354,10 +491,7 @@ class VGGTStudentModel(nn.Module):
         if os.path.exists(path):
             state_dict = torch.load(path, map_location='cpu')
             if 'camera_token' in state_dict:
-                if hasattr(self.vggt, 'base_model'):
-                    aggregator = self.vggt.base_model.model.aggregator
-                else:
-                    aggregator = self.vggt.aggregator
+                aggregator = self._get_aggregator()
 
                 if hasattr(aggregator, 'camera_token'):
                     aggregator.camera_token.data.copy_(state_dict['camera_token'])

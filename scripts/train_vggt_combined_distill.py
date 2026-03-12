@@ -531,6 +531,8 @@ def main():
     parser.add_argument("--rkd_angle2_weight", type=float, default=1.0)
     parser.add_argument("--rkd_angle3_weight", type=float, default=1.0)
     parser.add_argument("--rkd_shared_chunk_size", type=int, default=64)
+    parser.add_argument("--rkd_num_triplets", type=int, default=4096,
+                        help="Number of random triplets for RKD loss")
 
     # Output distillation loss
     parser.add_argument("--output_weight", type=float, default=1.0)
@@ -648,6 +650,7 @@ def main():
         student_frame_indices=student_indices,
         num_teacher_views=args.num_views,
         target_layer=target_layer,
+        num_triplets=args.rkd_num_triplets,
         topk=args.rkd_topk,
         num_ref_samples=args.rkd_num_ref_samples,
         num_shared_samples=args.rkd_num_shared_samples,

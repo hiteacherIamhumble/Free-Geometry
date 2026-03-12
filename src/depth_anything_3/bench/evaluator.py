@@ -25,6 +25,7 @@ Supports multiple datasets and evaluation modes:
 import json
 import os
 import random
+import time
 from typing import Dict as TDict, Iterable, List
 
 import numpy as np
@@ -68,6 +69,7 @@ class Evaluator:
         max_frames: int = 100,
         gpu_id: int = 0,
         total_gpus: int = 1,
+        seed: int = 42,
     ):
         """
         Initialize the evaluator.
@@ -86,6 +88,7 @@ class Evaluator:
                         Set to -1 to disable sampling.
             gpu_id: GPU index for multi-GPU (0-indexed)
             total_gpus: Total number of GPUs for task distribution
+            seed: Random seed for frame sampling (default: 42)
         """
         self.work_dir = work_dir
         self.datas = list(datas)
@@ -97,6 +100,7 @@ class Evaluator:
         self.max_frames = max_frames
         self.gpu_id = gpu_id
         self.total_gpus = total_gpus
+        self.seed = seed
 
         # Validate modes
         unknown = self.modes - self.VALID_MODES
@@ -174,10 +178,17 @@ class Evaluator:
             tasks = all_tasks
             print(f"[INFO] Total inference tasks: {len(tasks)}")
 
+        # Timing and memory tracking
+        scene_times = {}
+        total_start = time.time()
+        peak_memory_mb = 0.0
+
         for data, scene in tqdm(tasks, desc=f"Inference (GPU {self.gpu_id})"):
             dataset = self.datasets[data]
             scene_data = dataset.get_data(scene)
             scene_data = self._sample_frames(scene_data, scene)
+
+            scene_start = time.time()
 
             if need_unposed:
                 export_dir = self._export_dir(data, scene, posed=False)
@@ -200,6 +211,33 @@ class Evaluator:
                     ref_view_strategy=self.ref_view_strategy,
                 )
                 self._save_gt_meta(export_dir, scene_data)
+
+            scene_time = time.time() - scene_start
+            scene_times[f"{data}/{scene}"] = scene_time
+
+            # Track peak GPU memory
+            if torch.cuda.is_available():
+                current_memory_mb = torch.cuda.max_memory_allocated() / 1024 / 1024
+                peak_memory_mb = max(peak_memory_mb, current_memory_mb)
+
+        total_time = time.time() - total_start
+
+        # Save timing and memory stats
+        timing_file = os.path.join(self.work_dir, "timing_stats.json")
+        timing_stats = {
+            "total_time_seconds": total_time,
+            "peak_memory_mb": peak_memory_mb,
+            "scene_times": scene_times,
+            "num_scenes": len(scene_times),
+            "avg_time_per_scene": total_time / len(scene_times) if scene_times else 0,
+        }
+        os.makedirs(os.path.dirname(timing_file), exist_ok=True)
+        with open(timing_file, 'w') as f:
+            json.dump(timing_stats, f, indent=2)
+
+        print(f"\n[TIMING] Total: {total_time:.2f}s, Avg per scene: {timing_stats['avg_time_per_scene']:.2f}s")
+        print(f"[MEMORY] Peak GPU memory: {peak_memory_mb:.2f} MB")
+        print(f"[TIMING] Stats saved to: {timing_file}")
 
     def eval(self) -> TDict[str, dict]:
         """
@@ -444,7 +482,7 @@ class Evaluator:
             return scene_data
 
         # Sample with fixed seed for reproducibility
-        random.seed(42)
+        random.seed(self.seed)
         indices = list(range(num_frames))
         random.shuffle(indices)
         sampled_indices = sorted(indices[:self.max_frames])

@@ -187,6 +187,9 @@ class HiRoomDataset(Dataset):
         Returns:
             Dict with metrics: acc, comp, overall, precision, recall, fscore
         """
+        # Avoid occasional race where Open3D reads a partially-written PLY.
+        _wait_for_file_ready(fuse_path, timeout=30.0, interval=0.2)
+
         gt_data = self.get_data(scene)
         gt_pcd_path = gt_data.aux.gt_pcd_path
 
@@ -437,4 +440,3 @@ class HiRoomDataset(Dataset):
             depth[invalid_mask] = 0.0
 
         return depth
-

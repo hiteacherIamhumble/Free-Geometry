@@ -24,11 +24,41 @@ from typing import Dict, List, Optional, Tuple
 import torch
 import torch.nn as nn
 
+import torch.nn.functional as F
+
 from depth_anything_3.api import DepthAnything3
 
 # HuggingFace PEFT imports
 from peft import LoraConfig, get_peft_model, PeftModel
 from peft.tuners.lora import LoraLayer
+
+
+def _swiglu_unfused_forward(self, x: torch.Tensor) -> torch.Tensor:
+    """Unfused SwiGLU forward that calls self.w12(x) / self.w3(x) so LoRA hooks fire."""
+    x12 = self.w12(x)
+    x1, x2 = x12.chunk(2, dim=-1)
+    hidden = F.silu(x1) * x2
+    return self.w3(hidden)
+
+
+def patch_swiglu_for_lora(model: nn.Module, lora_layers: List[int]) -> None:
+    """Replace SwiGLUFFNFused.forward with unfused version on LoRA layers so MLP LoRA gets gradients."""
+    from depth_anything_3.model.dinov2.layers.swiglu_ffn import SwiGLUFFNFused
+    # Access blocks through PEFT wrapper (PEFT: model.base_model.model -> original backbone).
+    if hasattr(model, "base_model"):
+        base = model.base_model
+        base = base.model if hasattr(base, "model") else base
+        blocks = base.blocks
+    else:
+        blocks = model.blocks
+    patched = 0
+    for idx in lora_layers:
+        mlp = blocks[idx].mlp
+        if isinstance(mlp, SwiGLUFFNFused):
+            import types
+            mlp.forward = types.MethodType(_swiglu_unfused_forward, mlp)
+            patched += 1
+    print(f"Patched {patched} SwiGLUFFNFused layers to unfused forward for LoRA training")
 
 
 def count_parameters(model: nn.Module) -> Tuple[int, int]:
@@ -132,7 +162,48 @@ class TeacherModel(nn.Module):
             ref_view_strategy=self.ref_view_strategy,
         )
 
-        # Process outputs
+        # Process outputs — map feats by backbone.out_layers, not self.output_layers
+        backbone_out_layers = backbone.out_layers
+        feats_by_layer = {layer_idx: ft for ft, layer_idx in zip(feats, backbone_out_layers)}
+
+        layer_features = {}
+        camera_tokens = {}
+        camera_tokens_full = {}
+        global_features = {}
+        local_features = {}
+
+        for layer_idx in self.output_layers:
+            feat_tuple = feats_by_layer[layer_idx]
+            features = feat_tuple[0]  # [B, S, P, 3072]
+            cam_token_raw = feat_tuple[1]  # [B, S, 3072]
+            cam_token = cam_token_raw[..., self.embed_dim:]  # [B, S, 1536]
+
+            layer_features[layer_idx] = features
+            camera_tokens[layer_idx] = cam_token
+            camera_tokens_full[layer_idx] = cam_token_raw
+            global_features[layer_idx] = features[..., self.embed_dim:]
+            local_features[layer_idx] = features[..., :self.embed_dim]
+
+        return DistillationOutput(
+            layer_features=layer_features,
+            camera_tokens=camera_tokens,
+            camera_tokens_full=camera_tokens_full,
+            global_features=global_features,
+            local_features=local_features,
+        )
+
+    @torch.no_grad()
+    def forward_with_preds(self, images: torch.Tensor) -> tuple[DistillationOutput, Dict[str, torch.Tensor]]:
+        """Forward that also returns DA3 head predictions (depth/camera/etc.)."""
+        # Backbone-only pass to get features for distillation and to feed head-only.
+        feats, _, H, W = self.da3.model.forward_backbone_only(
+            images,
+            extrinsics=None,
+            intrinsics=None,
+            ref_view_strategy=self.ref_view_strategy,
+        )
+
+        # Extract distillation features from the backbone outputs.
         layer_features = {}
         camera_tokens = {}
         camera_tokens_full = {}
@@ -140,25 +211,58 @@ class TeacherModel(nn.Module):
         local_features = {}
 
         for feat_tuple, layer_idx in zip(feats, self.output_layers):
-            # feat_tuple = (features, camera_token)
-            # features: [B, S, P, 2*embed_dim] when cat_token=True
-            # camera_token_raw: [B, S, 2*embed_dim] (local_cls + global_cam concatenated)
-            # We only want the global part which contains the actual camera token
-
             features = feat_tuple[0]  # [B, S, P, 3072]
             cam_token_raw = feat_tuple[1]  # [B, S, 3072] (local_cls + camera_token)
-            # Extract only the global (second) half which contains the actual camera token
-            # The first half is just the local cls token, NOT camera information
-            cam_token = cam_token_raw[..., self.embed_dim:]  # [B, S, 1536] - actual camera token
+            cam_token = cam_token_raw[..., self.embed_dim:]
 
-            # Extract local features (first half of concatenated output)
-            local_feat = features[..., :self.embed_dim]  # [B, S, P, 1536]
-            # Extract global features (second half of concatenated output)
-            global_feat = features[..., self.embed_dim:]  # [B, S, P, 1536]
+            local_feat = features[..., : self.embed_dim]
+            global_feat = features[..., self.embed_dim :]
 
             layer_features[layer_idx] = features
             camera_tokens[layer_idx] = cam_token
-            camera_tokens_full[layer_idx] = cam_token_raw  # Full 3072-dim for camera decoder
+            camera_tokens_full[layer_idx] = cam_token_raw
+            global_features[layer_idx] = global_feat
+            local_features[layer_idx] = local_feat
+
+        distill_out = DistillationOutput(
+            layer_features=layer_features,
+            camera_tokens=camera_tokens,
+            camera_tokens_full=camera_tokens_full,
+            global_features=global_features,
+            local_features=local_features,
+        )
+
+        # Head-only predictions (depth/depth_conf/extrinsics/intrinsics/sky/...).
+        preds = self.da3.model.forward_head_only(feats, H=H, W=W, process_camera=True, process_sky=True)
+        return distill_out, preds
+
+    @torch.no_grad()
+    def forward_features_only(self, images: torch.Tensor) -> DistillationOutput:
+        """Forward through backbone only, skipping decoder heads."""
+        feats, _, H, W = self.da3.model.forward_backbone_only(
+            images,
+            extrinsics=None,
+            intrinsics=None,
+            ref_view_strategy=self.ref_view_strategy,
+        )
+
+        layer_features = {}
+        camera_tokens = {}
+        camera_tokens_full = {}
+        global_features = {}
+        local_features = {}
+
+        for feat_tuple, layer_idx in zip(feats, self.output_layers):
+            features = feat_tuple[0]
+            cam_token_raw = feat_tuple[1]
+            cam_token = cam_token_raw[..., self.embed_dim:]
+
+            local_feat = features[..., : self.embed_dim]
+            global_feat = features[..., self.embed_dim :]
+
+            layer_features[layer_idx] = features
+            camera_tokens[layer_idx] = cam_token
+            camera_tokens_full[layer_idx] = cam_token_raw
             global_features[layer_idx] = global_feat
             local_features[layer_idx] = local_feat
 
@@ -203,6 +307,7 @@ class StudentModel(nn.Module):
         train_camera_token: bool = True,
         lora_layers: Optional[List[int]] = None,
         ref_view_strategy: str = "first",
+        patch_swiglu_mlp_for_lora: bool = True,
     ):
         super().__init__()
         self.output_layers = output_layers or self.DEFAULT_OUTPUT_LAYERS
@@ -210,6 +315,7 @@ class StudentModel(nn.Module):
         self.lora_rank = lora_rank
         self.train_camera_token = train_camera_token
         self.ref_view_strategy = ref_view_strategy
+        self.patch_swiglu_mlp_for_lora = patch_swiglu_mlp_for_lora
 
         # Default: apply LoRA to layers 13-39 (after alt_start where cross-view attention happens)
         self.lora_layers = lora_layers or list(range(13, 40))
@@ -274,6 +380,11 @@ class StudentModel(nn.Module):
         # Apply PEFT to backbone
         self.da3.model.backbone.pretrained = get_peft_model(backbone, lora_config)
 
+        # Patch SwiGLUFFNFused to use unfused forward so MLP LoRA actually gets gradients
+        # Keep this optional so inference can stay fully fused after merging LoRA.
+        if self.patch_swiglu_mlp_for_lora:
+            patch_swiglu_for_lora(self.da3.model.backbone.pretrained, self.lora_layers)
+
         # Count LoRA parameters
         lora_params = sum(
             p.numel() for n, p in self.da3.model.backbone.pretrained.named_parameters()
@@ -309,29 +420,34 @@ class StudentModel(nn.Module):
         )
 
         # Process outputs
+        # backbone.out_layers (e.g. [19,27,33,39]) determines which layers
+        # produce entries in feats. Map them correctly to self.output_layers.
+        backbone_out_layers = backbone.out_layers
+        distill_out = self._extract_distill_output(feats, backbone_out_layers)
+
+        return distill_out
+
+    def _extract_distill_output(self, feats, backbone_out_layers):
+        """Map backbone feats (indexed by backbone.out_layers) to self.output_layers."""
+        feats_by_layer = {layer_idx: ft for ft, layer_idx in zip(feats, backbone_out_layers)}
+
         layer_features = {}
         camera_tokens = {}
         camera_tokens_full = {}
         global_features = {}
         local_features = {}
 
-        for feat_tuple, layer_idx in zip(feats, self.output_layers):
+        for layer_idx in self.output_layers:
+            feat_tuple = feats_by_layer[layer_idx]
             features = feat_tuple[0]  # [B, S, P, 3072]
-            cam_token_raw = feat_tuple[1]  # [B, S, 3072] (local_cls + camera_token)
-            # Extract only the global (second) half which contains the actual camera token
-            # The first half is just the local cls token, NOT camera information
-            cam_token = cam_token_raw[..., self.embed_dim:]  # [B, S, 1536] - actual camera token
-
-            # Extract local features (first half)
-            local_feat = features[..., :self.embed_dim]  # [B, S, P, 1536]
-            # Extract global features (second half)
-            global_feat = features[..., self.embed_dim:]  # [B, S, P, 1536]
+            cam_token_raw = feat_tuple[1]  # [B, S, 3072]
+            cam_token = cam_token_raw[..., self.embed_dim:]  # [B, S, 1536]
 
             layer_features[layer_idx] = features
             camera_tokens[layer_idx] = cam_token
-            camera_tokens_full[layer_idx] = cam_token_raw  # Full 3072-dim for camera decoder
-            global_features[layer_idx] = global_feat
-            local_features[layer_idx] = local_feat
+            camera_tokens_full[layer_idx] = cam_token_raw
+            global_features[layer_idx] = features[..., self.embed_dim:]
+            local_features[layer_idx] = features[..., :self.embed_dim]
 
         return DistillationOutput(
             layer_features=layer_features,
@@ -340,6 +456,34 @@ class StudentModel(nn.Module):
             global_features=global_features,
             local_features=local_features,
         )
+
+    def forward_with_preds(self, images: torch.Tensor) -> tuple[DistillationOutput, Dict[str, torch.Tensor]]:
+        """Forward that also returns DA3 head predictions (depth/camera/etc.)."""
+        feats, _, H, W = self.da3.model.forward_backbone_only(
+            images,
+            extrinsics=None,
+            intrinsics=None,
+            ref_view_strategy=self.ref_view_strategy,
+        )
+
+        backbone_out_layers = self.da3.model.backbone.out_layers
+        distill_out = self._extract_distill_output(feats, backbone_out_layers)
+
+        preds = self.da3.model.forward_head_only(feats, H=H, W=W, process_camera=True, process_sky=True)
+        return distill_out, preds
+
+    def forward_features_only(self, images: torch.Tensor) -> DistillationOutput:
+        """Forward through backbone only, skipping decoder heads.
+        Uses same code path as forward_with_preds() to preserve gradient flow."""
+        feats, _, H, W = self.da3.model.forward_backbone_only(
+            images,
+            extrinsics=None,
+            intrinsics=None,
+            ref_view_strategy=self.ref_view_strategy,
+        )
+
+        backbone_out_layers = self.da3.model.backbone.out_layers
+        return self._extract_distill_output(feats, backbone_out_layers)
 
     def get_trainable_params(self) -> List[nn.Parameter]:
         """Get list of trainable parameters (LoRA + camera tokens)."""
@@ -399,6 +543,160 @@ class StudentModel(nn.Module):
                     if hasattr(base, 'camera_token'):
                         base.camera_token.data.copy_(state_dict['camera_token'])
                 print("Loaded camera token")
+
+
+class DA3StudentFinetune(nn.Module):
+    """
+    Student model that directly unfreezes layers 13-39 (no LoRA).
+
+    Same interface as StudentModel but with full fine-tuning of the
+    specified transformer blocks instead of low-rank adapters.
+    More parameters to train, so use a smaller learning rate.
+    """
+
+    DEFAULT_OUTPUT_LAYERS = [33, 39]
+
+    def __init__(
+        self,
+        model_name: str = "depth-anything/DA3-GIANT-1.1",
+        output_layers: Optional[List[int]] = None,
+        embed_dim: int = 1536,
+        train_camera_token: bool = True,
+        finetune_layers: Optional[List[int]] = None,
+        ref_view_strategy: str = "first",
+    ):
+        super().__init__()
+        self.output_layers = output_layers or self.DEFAULT_OUTPUT_LAYERS
+        self.embed_dim = embed_dim
+        self.train_camera_token = train_camera_token
+        self.ref_view_strategy = ref_view_strategy
+        self.finetune_layers = finetune_layers or list(range(13, 40))
+
+        # Load pretrained model
+        print(f"Loading student model (finetune): {model_name}")
+        self.da3 = DepthAnything3.from_pretrained(model_name)
+
+        # Freeze ALL parameters first
+        for param in self.da3.parameters():
+            param.requires_grad = False
+
+        # Unfreeze specified layers
+        backbone = self.da3.model.backbone.pretrained
+        unfrozen = 0
+        for layer_idx in self.finetune_layers:
+            block = backbone.blocks[layer_idx]
+            for param in block.parameters():
+                param.requires_grad = True
+                unfrozen += param.numel()
+        print(f"Unfroze layers {self.finetune_layers[0]}-{self.finetune_layers[-1]}: {unfrozen:,} parameters")
+
+        # Make camera token trainable if requested
+        if train_camera_token:
+            if hasattr(backbone, 'camera_token'):
+                backbone.camera_token.requires_grad = True
+                print("Camera token is trainable")
+
+        # Print parameter count
+        total, trainable = count_parameters(self.da3)
+        print(f"Student parameters: {total:,} total, {trainable:,} trainable")
+
+    def forward(self, images: torch.Tensor) -> DistillationOutput:
+        B, S, C, H, W = images.shape
+        backbone = self.da3.model.backbone
+        feats, aux_feats = backbone(
+            images,
+            cam_token=None,
+            export_feat_layers=self.output_layers,
+            ref_view_strategy=self.ref_view_strategy,
+        )
+        backbone_out_layers = backbone.out_layers
+        return self._extract_distill_output(feats, backbone_out_layers)
+
+    def _extract_distill_output(self, feats, backbone_out_layers):
+        feats_by_layer = {layer_idx: ft for ft, layer_idx in zip(feats, backbone_out_layers)}
+        layer_features = {}
+        camera_tokens = {}
+        camera_tokens_full = {}
+        global_features = {}
+        local_features = {}
+
+        for layer_idx in self.output_layers:
+            feat_tuple = feats_by_layer[layer_idx]
+            features = feat_tuple[0]
+            cam_token_raw = feat_tuple[1]
+            cam_token = cam_token_raw[..., self.embed_dim:]
+
+            layer_features[layer_idx] = features
+            camera_tokens[layer_idx] = cam_token
+            camera_tokens_full[layer_idx] = cam_token_raw
+            global_features[layer_idx] = features[..., self.embed_dim:]
+            local_features[layer_idx] = features[..., :self.embed_dim]
+
+        return DistillationOutput(
+            layer_features=layer_features,
+            camera_tokens=camera_tokens,
+            camera_tokens_full=camera_tokens_full,
+            global_features=global_features,
+            local_features=local_features,
+        )
+
+    def forward_with_preds(self, images: torch.Tensor) -> tuple[DistillationOutput, Dict[str, torch.Tensor]]:
+        feats, _, H, W = self.da3.model.forward_backbone_only(
+            images, extrinsics=None, intrinsics=None,
+            ref_view_strategy=self.ref_view_strategy,
+        )
+        backbone_out_layers = self.da3.model.backbone.out_layers
+        distill_out = self._extract_distill_output(feats, backbone_out_layers)
+        preds = self.da3.model.forward_head_only(feats, H=H, W=W, process_camera=True, process_sky=True)
+        return distill_out, preds
+
+    def forward_features_only(self, images: torch.Tensor) -> DistillationOutput:
+        feats, _, H, W = self.da3.model.forward_backbone_only(
+            images, extrinsics=None, intrinsics=None,
+            ref_view_strategy=self.ref_view_strategy,
+        )
+        backbone_out_layers = self.da3.model.backbone.out_layers
+        return self._extract_distill_output(feats, backbone_out_layers)
+
+    def get_trainable_params(self) -> List[nn.Parameter]:
+        return [p for p in self.da3.parameters() if p.requires_grad]
+
+    def get_num_trainable_params(self) -> int:
+        return sum(p.numel() for p in self.da3.parameters() if p.requires_grad)
+
+    def save_finetune_weights(self, path: str) -> None:
+        """Save only the finetuned layer weights and camera token."""
+        backbone = self.da3.model.backbone.pretrained
+        state_dict = {}
+        for layer_idx in self.finetune_layers:
+            block = backbone.blocks[layer_idx]
+            for name, param in block.named_parameters():
+                state_dict[f"blocks.{layer_idx}.{name}"] = param.data.clone()
+        if hasattr(backbone, 'camera_token') and backbone.camera_token.requires_grad:
+            state_dict['camera_token'] = backbone.camera_token.data.clone()
+        torch.save(state_dict, path)
+        print(f"Saved finetune weights ({len(state_dict)} tensors) to {path}")
+
+    def load_finetune_weights(self, path: str) -> None:
+        """Load finetuned layer weights and camera token."""
+        state_dict = torch.load(path, map_location='cpu')
+        backbone = self.da3.model.backbone.pretrained
+        loaded = 0
+        for key, value in state_dict.items():
+            if key == 'camera_token':
+                if hasattr(backbone, 'camera_token'):
+                    backbone.camera_token.data.copy_(value)
+                    loaded += 1
+            else:
+                # key format: blocks.{idx}.{rest}
+                parts = key.split('.', 2)
+                layer_idx = int(parts[1])
+                param_name = parts[2]
+                block = backbone.blocks[layer_idx]
+                param = dict(block.named_parameters())[param_name]
+                param.data.copy_(value)
+                loaded += 1
+        print(f"Loaded {loaded} finetune tensors from {path}")
 
 
 def create_teacher_student_pair(

@@ -1,129 +1,0 @@
-
-============================================================
-BASELINE BENCHMARK: 4v, 8v, maxframe
-  Datasets: scannetpp
-  Seeds: 43 44
-  Image size: 504 (DA3-style)
-
-  Settings explanation:
-    4v: 8 frames → 4 even-indexed (8v→4v student)
-    8v: 8 frames → all 8 (8v→4v teacher)
-    maxframe: up to 100 frames random
-============================================================
-
-=== Baseline benchmark on scannetpp ===
-
---- Baseline 4v benchmark ---
-  [Base 4v] scannetpp, seed=43 (max=8, eval=4)
-Loading base VGGT model: facebook/vggt-1b
-[INFO] Total inference tasks: 20
-Inference:   0%|          | 0/20 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   5%|▌         | 1/20 [00:03<00:57,  3.03s/it]Inference:  10%|█         | 2/20 [00:04<00:37,  2.06s/it]Inference:  15%|█▌        | 3/20 [00:06<00:33,  1.99s/it]Inference:  20%|██        | 4/20 [00:08<00:30,  1.90s/it]Inference:  25%|██▌       | 5/20 [00:10<00:31,  2.08s/it]Inference:  30%|███       | 6/20 [00:13<00:33,  2.38s/it]Inference:  35%|███▌      | 7/20 [00:15<00:30,  2.32s/it]Inference:  40%|████      | 8/20 [00:17<00:27,  2.32s/it]Inference:  45%|████▌     | 9/20 [00:20<00:24,  2.24s/it]Inference:  50%|█████     | 10/20 [00:21<00:20,  2.04s/it]Inference:  55%|█████▌    | 11/20 [00:24<00:19,  2.21s/it]Inference:  60%|██████    | 12/20 [00:25<00:16,  2.02s/it]Inference:  65%|██████▌   | 13/20 [00:27<00:14,  2.05s/it]Inference:  70%|███████   | 14/20 [00:30<00:12,  2.07s/it]Inference:  75%|███████▌  | 15/20 [00:32<00:10,  2.09s/it]Inference:  80%|████████  | 16/20 [00:34<00:08,  2.15s/it]Inference:  85%|████████▌ | 17/20 [00:36<00:06,  2.25s/it]Inference:  90%|█████████ | 18/20 [00:38<00:04,  2.14s/it]Inference:  95%|█████████▌| 19/20 [00:40<00:02,  2.01s/it]Inference: 100%|██████████| 20/20 [00:43<00:00,  2.17s/it]Inference: 100%|██████████| 20/20 [00:43<00:00,  2.15s/it]
-Detected model format: '.bin'
-[ScanNet++] 09c1414f1b: 397 images
-  [Subset Sampling] 09c1414f1b: 397 -> subset 79 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] 1ada7a0617: 100 images
-  [Subset Sampling] 1ada7a0617: 100 -> subset 20 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] 40aec5fffa: 235 images
-  [Subset Sampling] 40aec5fffa: 235 -> subset 47 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] 3e8bba0176: 230 images
-  [Subset Sampling] 3e8bba0176: 230 -> subset 46 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] acd95847c5: 388 images
-  [Subset Sampling] acd95847c5: 388 -> subset 77 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] 578511c8a9: 534 images
-  [Subset Sampling] 578511c8a9: 534 -> subset 106 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] 5f99900f09: 298 images
-  [Subset Sampling] 5f99900f09: 298 -> subset 59 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] c4c04e6d6c: 396 images
-  [Subset Sampling] c4c04e6d6c: 396 -> subset 79 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] f3d64c30f8: 363 images
-  [Subset Sampling] f3d64c30f8: 363 -> subset 72 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] 7bc286c1b6: 135 images
-  [Subset Sampling] 7bc286c1b6: 135 -> subset 27 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] c5439f4607: 353 images
-  [Subset Sampling] c5439f4607: 353 -> subset 70 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] 286b55a2bf: 159 images
-  [Subset Sampling] 286b55a2bf: 159 -> subset 31 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] fb5a96b1a2: 289 images
-  [Subset Sampling] fb5a96b1a2: 289 -> subset 57 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] 7831862f02: 288 images
-  [Subset Sampling] 7831862f02: 288 -> subset 57 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] 38d58a7a31: 435 images
-  [Subset Sampling] 38d58a7a31: 435 -> subset 87 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] bde1e479ad: 373 images
-  [Subset Sampling] bde1e479ad: 373 -> subset 74 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] 9071e139d9: 235 images
-  [Subset Sampling] 9071e139d9: 235 -> subset 47 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] 21d970d8de: 315 images
-  [Subset Sampling] 21d970d8de: 315 -> subset 63 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] bcd2436daf: 150 images
-  [Subset Sampling] bcd2436daf: 150 -> subset 30 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-Detected model format: '.bin'
-[ScanNet++] cc5237fd77: 301 images
-  [Subset Sampling] cc5237fd77: 301 -> subset 60 -> window 8 frames (seed=43)
-    -> 4 frames (even-indexed)
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-scannetpp scenes:   0%|          | 0/20 [00:00<?, ?it/s][A
-                                                        [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 25.13it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-scannetpp fusion:   0%|          | 0/20 [00:00<?, ?it/s][A
-scannetpp fusion:   5%|▌         | 1/20 [00:04<01:21,  4.27s/it][A
-scannetpp fusion:  20%|██        | 4/20 [00:04<00:13,  1.17it/s][A
-scannetpp fusion:  30%|███       | 6/20 [00:08<00:18,  1.30s/it][A
-scannetpp fusion:  40%|████      | 8/20 [00:09<00:13,  1.14s/it][A
-scannetpp fusion:  45%|████▌     | 9/20 [00:11<00:12,  1.13s/it][A
-scannetpp fusion:  55%|█████▌    | 11/20 [00:12<00:07,  1.13it/s][A
-scannetpp fusion:  60%|██████    | 12/20 [00:12<00:06,  1.25it/s][A
-scannetpp fusion:  65%|██████▌   | 13/20 [00:15<00:09,  1.35s/it][A
-scannetpp fusion:  75%|███████▌  | 15/20 [00:16<00:05,  1.01s/it][A
-scannetpp fusion:  80%|████████  | 16/20 [00:17<00:04,  1.06s/it][A
-scannetpp fusion:  85%|████████▌ | 17/20 [00:19<00:03,  1.25s/it][A
-scannetpp fusion:  90%|█████████ | 18/20 [00:20<00:02,  1.20s/it][A
-scannetpp fusion:  95%|█████████▌| 19/20 [00:21<00:00,  1.01it/s][A
-scannetpp fusion: 100%|██████████| 20/20 [00:22<00:00,  1.03s/it][Ascannetpp fusion: 100%|██████████| 20/20 [00:22<00:00,  1.12s/it]

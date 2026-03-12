@@ -8,6 +8,7 @@ Reuses generic utilities from DA3 for pose and reconstruction evaluation.
 import json
 import os
 import random
+import time
 from typing import Dict as TDict, Iterable, List, Optional
 
 import numpy as np
@@ -137,10 +138,17 @@ class VGGTEvaluator:
 
         print(f"[INFO] Total inference tasks: {len(all_tasks)}")
 
+        # Timing and memory tracking
+        scene_times = {}
+        total_start = time.time()
+        peak_memory_mb = 0.0
+
         for data, scene in tqdm(all_tasks, desc="Inference"):
             dataset = self.datasets[data]
             scene_data = dataset.get_data(scene)
             scene_data = self._sample_frames(scene_data, scene)
+
+            scene_start = time.time()
 
             if need_unposed:
                 export_dir = self._export_dir(data, scene, posed=False)
@@ -151,6 +159,33 @@ class VGGTEvaluator:
                 export_dir = self._export_dir(data, scene, posed=True)
                 self._run_inference(api, scene_data, export_dir, use_gt_poses=True)
                 self._save_gt_meta(export_dir, scene_data)
+
+            scene_time = time.time() - scene_start
+            scene_times[f"{data}/{scene}"] = scene_time
+
+            # Track peak GPU memory
+            if torch.cuda.is_available():
+                current_memory_mb = torch.cuda.max_memory_allocated() / 1024 / 1024
+                peak_memory_mb = max(peak_memory_mb, current_memory_mb)
+
+        total_time = time.time() - total_start
+
+        # Save timing and memory stats
+        timing_file = os.path.join(self.work_dir, "timing_stats.json")
+        timing_stats = {
+            "total_time_seconds": total_time,
+            "peak_memory_mb": peak_memory_mb,
+            "scene_times": scene_times,
+            "num_scenes": len(scene_times),
+            "avg_time_per_scene": total_time / len(scene_times) if scene_times else 0,
+        }
+        os.makedirs(os.path.dirname(timing_file), exist_ok=True)
+        with open(timing_file, 'w') as f:
+            json.dump(timing_stats, f, indent=2)
+
+        print(f"\n[TIMING] Total: {total_time:.2f}s, Avg per scene: {timing_stats['avg_time_per_scene']:.2f}s")
+        print(f"[MEMORY] Peak GPU memory: {peak_memory_mb:.2f} MB")
+        print(f"[TIMING] Stats saved to: {timing_file}")
 
     def _run_inference(
         self,

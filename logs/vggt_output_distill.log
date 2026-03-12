@@ -1,1113 +1,0 @@
-nohup: ignoring input
-
-============================================================
-Training output distillation on eth3d
-  5 samples/scene, seeds 30-34, 1 epoch
-  LoRA layers: 0-23, rank=16
-============================================================
-/home/22097845d/Depth-Anything-3/./scripts/train_vggt_output_distill.py:535: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
-  scaler = GradScaler(enabled=args.use_amp)
-Device: cuda
-Teacher views: 8, Student views: 4 (indices: [0, 2, 4, 6])
-
-Creating dataset...
-Loaded 11 scenes for eth3d (all scenes for training)
-Generating 5 samples per scene = 55 total samples
-Train samples: 55
-
-Creating models...
-Loading teacher model: facebook/vggt-1b
-Teacher parameters: 1,256,537,516 (all frozen)
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable (12,582,912 LoRA)
-
-Creating MultitaskLoss...
-
-Starting training...
-
-============================================================
-Epoch 1/1
-============================================================
-/home/22097845d/Depth-Anything-3/./scripts/train_vggt_output_distill.py:306: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with autocast(enabled=args.use_amp):
-/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/training/loss.py:527: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Epoch 0 | Step 1 | Batch 1/55 | Loss: 1.6920 | LR: 1.00e-04 | Speed: 0.2 samples/s
-  loss_camera: 0.0737 | loss_T: 0.0603 | loss_R: 0.0050 | loss_FL: 0.0167 | loss_conf_depth: 0.1958 | loss_reg_depth: 0.1978 | loss_grad_depth: 0.0322 | loss_conf_point: 0.4082 | loss_reg_point: 0.4100 | loss_grad_point: 0.0794
-Epoch 0 | Step 2 | Batch 2/55 | Loss: 0.9128 | LR: 1.00e-04 | Speed: 0.4 samples/s
-  loss_camera: 0.0136 | loss_T: 0.0075 | loss_R: 0.0034 | loss_FL: 0.0054 | loss_conf_depth: -0.0252 | loss_reg_depth: 0.0137 | loss_grad_depth: 0.0055 | loss_conf_point: 0.0096 | loss_reg_point: 0.0390 | loss_grad_point: 0.0232
-Epoch 0 | Step 3 | Batch 3/55 | Loss: 0.6485 | LR: 1.00e-04 | Speed: 0.5 samples/s
-  loss_camera: 0.0071 | loss_T: 0.0041 | loss_R: 0.0007 | loss_FL: 0.0047 | loss_conf_depth: -0.0348 | loss_reg_depth: 0.0404 | loss_grad_depth: 0.0098 | loss_conf_point: -0.0144 | loss_reg_point: 0.0483 | loss_grad_point: 0.0355
-Epoch 0 | Step 4 | Batch 4/55 | Loss: 0.8262 | LR: 1.00e-04 | Speed: 0.6 samples/s
-  loss_camera: 0.0316 | loss_T: 0.0263 | loss_R: 0.0011 | loss_FL: 0.0084 | loss_conf_depth: 0.2656 | loss_reg_depth: 0.2599 | loss_grad_depth: 0.0230 | loss_conf_point: 0.3067 | loss_reg_point: 0.2990 | loss_grad_point: 0.0470
-Epoch 0 | Step 5 | Batch 5/55 | Loss: 0.6383 | LR: 1.00e-04 | Speed: 0.6 samples/s
-  loss_camera: 0.0121 | loss_T: 0.0062 | loss_R: 0.0023 | loss_FL: 0.0072 | loss_conf_depth: -0.1495 | loss_reg_depth: 0.0284 | loss_grad_depth: 0.0023 | loss_conf_point: -0.1033 | loss_reg_point: 0.0399 | loss_grad_point: 0.0088
-Epoch 0 | Step 6 | Batch 6/55 | Loss: 0.7816 | LR: 1.00e-04 | Speed: 0.7 samples/s
-  loss_camera: 0.0654 | loss_T: 0.0274 | loss_R: 0.0309 | loss_FL: 0.0142 | loss_conf_depth: 0.2050 | loss_reg_depth: 0.2085 | loss_grad_depth: 0.0205 | loss_conf_point: 0.3191 | loss_reg_point: 0.3192 | loss_grad_point: 0.0985
-Epoch 0 | Step 7 | Batch 7/55 | Loss: 0.6970 | LR: 1.00e-04 | Speed: 0.7 samples/s
-  loss_camera: 0.0146 | loss_T: 0.0077 | loss_R: 0.0033 | loss_FL: 0.0071 | loss_conf_depth: -0.0212 | loss_reg_depth: 0.0512 | loss_grad_depth: 0.0021 | loss_conf_point: 0.0148 | loss_reg_point: 0.0555 | loss_grad_point: 0.0142
-Epoch 0 | Step 8 | Batch 8/55 | Loss: 0.7303 | LR: 1.00e-04 | Speed: 0.7 samples/s
-  loss_camera: 0.0627 | loss_T: 0.0420 | loss_R: 0.0074 | loss_FL: 0.0266 | loss_conf_depth: 0.1044 | loss_reg_depth: 0.1164 | loss_grad_depth: 0.0064 | loss_conf_point: 0.2005 | loss_reg_point: 0.2019 | loss_grad_point: 0.0205
-Epoch 0 | Step 9 | Batch 9/55 | Loss: 0.6753 | LR: 1.00e-04 | Speed: 0.8 samples/s
-  loss_camera: 0.0190 | loss_T: 0.0104 | loss_R: 0.0017 | loss_FL: 0.0140 | loss_conf_depth: 0.0275 | loss_reg_depth: 0.0585 | loss_grad_depth: 0.0064 | loss_conf_point: 0.0071 | loss_reg_point: 0.0325 | loss_grad_point: 0.0082
-Epoch 0 | Step 10 | Batch 10/55 | Loss: 0.8588 | LR: 1.00e-04 | Speed: 0.8 samples/s
-  loss_camera: 0.1187 | loss_T: 0.1031 | loss_R: 0.0072 | loss_FL: 0.0168 | loss_conf_depth: 0.3142 | loss_reg_depth: 0.3120 | loss_grad_depth: 0.0460 | loss_conf_point: 0.5666 | loss_reg_point: 0.5633 | loss_grad_point: 0.1145
-Epoch 0 | Step 11 | Batch 11/55 | Loss: 0.7994 | LR: 1.00e-04 | Speed: 0.8 samples/s
-  loss_camera: 0.0202 | loss_T: 0.0129 | loss_R: 0.0037 | loss_FL: 0.0072 | loss_conf_depth: -0.0244 | loss_reg_depth: 0.0293 | loss_grad_depth: 0.0035 | loss_conf_point: 0.0195 | loss_reg_point: 0.0642 | loss_grad_point: 0.0125
-Epoch 0 | Step 12 | Batch 12/55 | Loss: 0.7672 | LR: 1.00e-04 | Speed: 0.8 samples/s
-  loss_camera: 0.0176 | loss_T: 0.0110 | loss_R: 0.0015 | loss_FL: 0.0101 | loss_conf_depth: 0.0323 | loss_reg_depth: 0.0723 | loss_grad_depth: 0.0063 | loss_conf_point: 0.0846 | loss_reg_point: 0.1095 | loss_grad_point: 0.0192
-Epoch 0 | Step 13 | Batch 13/55 | Loss: 0.7608 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.0664 | loss_T: 0.0226 | loss_R: 0.0398 | loss_FL: 0.0079 | loss_conf_depth: 0.0557 | loss_reg_depth: 0.0592 | loss_grad_depth: 0.0047 | loss_conf_point: 0.1044 | loss_reg_point: 0.1094 | loss_grad_point: 0.0196
-Epoch 0 | Step 14 | Batch 14/55 | Loss: 0.8523 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.1063 | loss_T: 0.0589 | loss_R: 0.0446 | loss_FL: 0.0054 | loss_conf_depth: 0.1951 | loss_reg_depth: 0.2027 | loss_grad_depth: 0.0160 | loss_conf_point: 0.4697 | loss_reg_point: 0.4701 | loss_grad_point: 0.1559
-Epoch 0 | Step 15 | Batch 15/55 | Loss: 0.8771 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.0777 | loss_T: 0.0651 | loss_R: 0.0067 | loss_FL: 0.0118 | loss_conf_depth: 0.0076 | loss_reg_depth: 0.0419 | loss_grad_depth: 0.0252 | loss_conf_point: 0.3286 | loss_reg_point: 0.3642 | loss_grad_point: 0.0681
-Epoch 0 | Step 16 | Batch 16/55 | Loss: 0.8308 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.0141 | loss_T: 0.0093 | loss_R: 0.0018 | loss_FL: 0.0060 | loss_conf_depth: -0.0674 | loss_reg_depth: 0.0571 | loss_grad_depth: 0.0076 | loss_conf_point: 0.0015 | loss_reg_point: 0.0555 | loss_grad_point: 0.0119
-Epoch 0 | Step 17 | Batch 17/55 | Loss: 0.9171 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.1718 | loss_T: 0.0757 | loss_R: 0.0913 | loss_FL: 0.0095 | loss_conf_depth: 0.1107 | loss_reg_depth: 0.1419 | loss_grad_depth: 0.0261 | loss_conf_point: 0.5370 | loss_reg_point: 0.5417 | loss_grad_point: 0.0823
-Epoch 0 | Step 18 | Batch 18/55 | Loss: 0.8719 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.0144 | loss_T: 0.0062 | loss_R: 0.0028 | loss_FL: 0.0108 | loss_conf_depth: -0.0856 | loss_reg_depth: 0.0328 | loss_grad_depth: 0.0185 | loss_conf_point: -0.0404 | loss_reg_point: 0.0617 | loss_grad_point: 0.0433
-Epoch 0 | Step 19 | Batch 19/55 | Loss: 0.9206 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.0847 | loss_T: 0.0721 | loss_R: 0.0094 | loss_FL: 0.0065 | loss_conf_depth: 0.2352 | loss_reg_depth: 0.2411 | loss_grad_depth: 0.0363 | loss_conf_point: 0.3916 | loss_reg_point: 0.3943 | loss_grad_point: 0.0760
-Epoch 0 | Step 20 | Batch 20/55 | Loss: 0.9286 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.0781 | loss_T: 0.0748 | loss_R: 0.0022 | loss_FL: 0.0020 | loss_conf_depth: 0.0035 | loss_reg_depth: 0.0333 | loss_grad_depth: 0.0075 | loss_conf_point: 0.2857 | loss_reg_point: 0.3353 | loss_grad_point: 0.0247
-Epoch 0 | Step 21 | Batch 21/55 | Loss: 0.9372 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.0794 | loss_T: 0.0702 | loss_R: 0.0035 | loss_FL: 0.0114 | loss_conf_depth: 0.0032 | loss_reg_depth: 0.0288 | loss_grad_depth: 0.0085 | loss_conf_point: 0.3064 | loss_reg_point: 0.3064 | loss_grad_point: 0.0583
-Epoch 0 | Step 22 | Batch 22/55 | Loss: 0.8832 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.0083 | loss_T: 0.0038 | loss_R: 0.0008 | loss_FL: 0.0075 | loss_conf_depth: -0.1935 | loss_reg_depth: 0.0241 | loss_grad_depth: 0.0041 | loss_conf_point: -0.1622 | loss_reg_point: 0.0210 | loss_grad_point: 0.0151
-Epoch 0 | Step 23 | Batch 23/55 | Loss: 0.9029 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.1629 | loss_T: 0.0703 | loss_R: 0.0910 | loss_FL: 0.0033 | loss_conf_depth: 0.0170 | loss_reg_depth: 0.0342 | loss_grad_depth: 0.0068 | loss_conf_point: 0.2049 | loss_reg_point: 0.2049 | loss_grad_point: 0.0550
-Epoch 0 | Step 24 | Batch 24/55 | Loss: 0.8730 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.0216 | loss_T: 0.0124 | loss_R: 0.0014 | loss_FL: 0.0155 | loss_conf_depth: -0.0645 | loss_reg_depth: 0.0297 | loss_grad_depth: 0.0086 | loss_conf_point: 0.0121 | loss_reg_point: 0.0719 | loss_grad_point: 0.0182
-Epoch 0 | Step 25 | Batch 25/55 | Loss: 0.9217 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.1114 | loss_T: 0.1037 | loss_R: 0.0042 | loss_FL: 0.0068 | loss_conf_depth: 0.3377 | loss_reg_depth: 0.2803 | loss_grad_depth: 0.0103 | loss_conf_point: 0.4496 | loss_reg_point: 0.4300 | loss_grad_point: 0.0260
-Epoch 0 | Step 26 | Batch 26/55 | Loss: 1.0157 | LR: 1.00e-04 | Speed: 0.9 samples/s
-  loss_camera: 0.2752 | loss_T: 0.1062 | loss_R: 0.1662 | loss_FL: 0.0056 | loss_conf_depth: 0.2655 | loss_reg_depth: 0.2471 | loss_grad_depth: 0.0082 | loss_conf_point: 0.5716 | loss_reg_point: 0.5629 | loss_grad_point: 0.3342
-Epoch 0 | Step 27 | Batch 27/55 | Loss: 0.9818 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0039 | loss_T: 0.0009 | loss_R: 0.0008 | loss_FL: 0.0044 | loss_conf_depth: -0.0850 | loss_reg_depth: 0.0429 | loss_grad_depth: 0.0379 | loss_conf_point: -0.0185 | loss_reg_point: 0.0473 | loss_grad_point: 0.0577
-Epoch 0 | Step 28 | Batch 28/55 | Loss: 0.9688 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0177 | loss_T: 0.0090 | loss_R: 0.0007 | loss_FL: 0.0160 | loss_conf_depth: 0.0849 | loss_reg_depth: 0.1228 | loss_grad_depth: 0.0149 | loss_conf_point: 0.1604 | loss_reg_point: 0.1318 | loss_grad_point: 0.0146
-Epoch 0 | Step 29 | Batch 29/55 | Loss: 0.9541 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0144 | loss_T: 0.0085 | loss_R: 0.0006 | loss_FL: 0.0107 | loss_conf_depth: 0.0744 | loss_reg_depth: 0.1208 | loss_grad_depth: 0.0121 | loss_conf_point: 0.1228 | loss_reg_point: 0.1251 | loss_grad_point: 0.0148
-Epoch 0 | Step 30 | Batch 30/55 | Loss: 0.9261 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0136 | loss_T: 0.0044 | loss_R: 0.0011 | loss_FL: 0.0162 | loss_conf_depth: -0.0412 | loss_reg_depth: 0.0439 | loss_grad_depth: 0.0052 | loss_conf_point: -0.0269 | loss_reg_point: 0.0455 | loss_grad_point: 0.0177
-Epoch 0 | Step 31 | Batch 31/55 | Loss: 0.8981 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0203 | loss_T: 0.0113 | loss_R: 0.0049 | loss_FL: 0.0080 | loss_conf_depth: -0.1046 | loss_reg_depth: 0.0069 | loss_grad_depth: 0.0026 | loss_conf_point: -0.0067 | loss_reg_point: 0.0358 | loss_grad_point: 0.0227
-Epoch 0 | Step 32 | Batch 32/55 | Loss: 0.8649 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0136 | loss_T: 0.0049 | loss_R: 0.0023 | loss_FL: 0.0126 | loss_conf_depth: -0.2105 | loss_reg_depth: 0.0187 | loss_grad_depth: 0.0029 | loss_conf_point: -0.0990 | loss_reg_point: 0.0419 | loss_grad_point: 0.0155
-Epoch 0 | Step 33 | Batch 33/55 | Loss: 0.8526 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0122 | loss_T: 0.0084 | loss_R: 0.0005 | loss_FL: 0.0066 | loss_conf_depth: 0.1105 | loss_reg_depth: 0.0751 | loss_grad_depth: 0.0040 | loss_conf_point: 0.1219 | loss_reg_point: 0.0753 | loss_grad_point: 0.0114
-Epoch 0 | Step 34 | Batch 34/55 | Loss: 0.8426 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0127 | loss_T: 0.0092 | loss_R: 0.0006 | loss_FL: 0.0059 | loss_conf_depth: 0.0951 | loss_reg_depth: 0.1010 | loss_grad_depth: 0.0055 | loss_conf_point: 0.1302 | loss_reg_point: 0.0992 | loss_grad_point: 0.0156
-Epoch 0 | Step 35 | Batch 35/55 | Loss: 0.8472 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0492 | loss_T: 0.0318 | loss_R: 0.0116 | loss_FL: 0.0115 | loss_conf_depth: 0.1373 | loss_reg_depth: 0.1543 | loss_grad_depth: 0.0060 | loss_conf_point: 0.2306 | loss_reg_point: 0.2037 | loss_grad_point: 0.0290
-Epoch 0 | Step 36 | Batch 36/55 | Loss: 0.8444 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0401 | loss_T: 0.0358 | loss_R: 0.0026 | loss_FL: 0.0033 | loss_conf_depth: 0.0421 | loss_reg_depth: 0.0779 | loss_grad_depth: 0.0076 | loss_conf_point: 0.1834 | loss_reg_point: 0.1842 | loss_grad_point: 0.0490
-Epoch 0 | Step 37 | Batch 37/55 | Loss: 0.8426 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0951 | loss_T: 0.0185 | loss_R: 0.0677 | loss_FL: 0.0179 | loss_conf_depth: 0.0062 | loss_reg_depth: 0.0429 | loss_grad_depth: 0.0076 | loss_conf_point: 0.0978 | loss_reg_point: 0.1130 | loss_grad_point: 0.0345
-Epoch 0 | Step 38 | Batch 38/55 | Loss: 0.9144 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.1534 | loss_T: 0.1057 | loss_R: 0.0419 | loss_FL: 0.0117 | loss_conf_depth: 0.4106 | loss_reg_depth: 0.3898 | loss_grad_depth: 0.0106 | loss_conf_point: 0.8261 | loss_reg_point: 0.7954 | loss_grad_point: 0.3706
-Epoch 0 | Step 39 | Batch 39/55 | Loss: 0.8935 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0134 | loss_T: 0.0105 | loss_R: 0.0014 | loss_FL: 0.0029 | loss_conf_depth: -0.0872 | loss_reg_depth: 0.0338 | loss_grad_depth: 0.0030 | loss_conf_point: 0.0033 | loss_reg_point: 0.0689 | loss_grad_point: 0.0118
-Epoch 0 | Step 40 | Batch 40/55 | Loss: 1.0054 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.3012 | loss_T: 0.2312 | loss_R: 0.0638 | loss_FL: 0.0124 | loss_conf_depth: 0.0642 | loss_reg_depth: 0.1048 | loss_grad_depth: 0.0050 | loss_conf_point: 1.5932 | loss_reg_point: 1.6109 | loss_grad_point: 0.4864
-Epoch 0 | Step 41 | Batch 41/55 | Loss: 1.0488 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.1623 | loss_T: 0.0682 | loss_R: 0.0907 | loss_FL: 0.0067 | loss_conf_depth: 0.1784 | loss_reg_depth: 0.1797 | loss_grad_depth: 0.0085 | loss_conf_point: 0.6282 | loss_reg_point: 0.6270 | loss_grad_point: 0.3524
-Epoch 0 | Step 42 | Batch 42/55 | Loss: 1.0352 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0254 | loss_T: 0.0161 | loss_R: 0.0051 | loss_FL: 0.0084 | loss_conf_depth: 0.0213 | loss_reg_depth: 0.0766 | loss_grad_depth: 0.0050 | loss_conf_point: 0.1137 | loss_reg_point: 0.1112 | loss_grad_point: 0.0220
-Epoch 0 | Step 43 | Batch 43/55 | Loss: 1.0338 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.1115 | loss_T: 0.0305 | loss_R: 0.0761 | loss_FL: 0.0098 | loss_conf_depth: 0.0276 | loss_reg_depth: 0.0884 | loss_grad_depth: 0.0047 | loss_conf_point: 0.1327 | loss_reg_point: 0.1472 | loss_grad_point: 0.0167
-Epoch 0 | Step 44 | Batch 44/55 | Loss: 1.0581 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.1676 | loss_T: 0.0766 | loss_R: 0.0851 | loss_FL: 0.0117 | loss_conf_depth: -0.0252 | loss_reg_depth: 0.0413 | loss_grad_depth: 0.0273 | loss_conf_point: 0.5161 | loss_reg_point: 0.5424 | loss_grad_point: 0.1627
-Epoch 0 | Step 45 | Batch 45/55 | Loss: 1.0530 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0248 | loss_T: 0.0211 | loss_R: 0.0016 | loss_FL: 0.0043 | loss_conf_depth: 0.1346 | loss_reg_depth: 0.1348 | loss_grad_depth: 0.0085 | loss_conf_point: 0.2286 | loss_reg_point: 0.1740 | loss_grad_point: 0.0242
-Epoch 0 | Step 46 | Batch 46/55 | Loss: 1.0240 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0130 | loss_T: 0.0061 | loss_R: 0.0008 | loss_FL: 0.0123 | loss_conf_depth: -0.2517 | loss_reg_depth: 0.0086 | loss_grad_depth: 0.0060 | loss_conf_point: -0.1503 | loss_reg_point: 0.0281 | loss_grad_point: 0.0128
-Epoch 0 | Step 47 | Batch 47/55 | Loss: 1.0069 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0201 | loss_T: 0.0130 | loss_R: 0.0026 | loss_FL: 0.0089 | loss_conf_depth: -0.0519 | loss_reg_depth: 0.0403 | loss_grad_depth: 0.0067 | loss_conf_point: 0.0184 | loss_reg_point: 0.0849 | loss_grad_point: 0.0229
-Epoch 0 | Step 48 | Batch 48/55 | Loss: 1.0121 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0832 | loss_T: 0.0489 | loss_R: 0.0294 | loss_FL: 0.0099 | loss_conf_depth: 0.0796 | loss_reg_depth: 0.0854 | loss_grad_depth: 0.0052 | loss_conf_point: 0.2605 | loss_reg_point: 0.2650 | loss_grad_point: 0.1416
-Epoch 0 | Step 49 | Batch 49/55 | Loss: 0.9911 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0160 | loss_T: 0.0091 | loss_R: 0.0020 | loss_FL: 0.0097 | loss_conf_depth: -0.0961 | loss_reg_depth: 0.0247 | loss_grad_depth: 0.0037 | loss_conf_point: -0.0876 | loss_reg_point: 0.0487 | loss_grad_point: 0.0115
-Epoch 0 | Step 50 | Batch 50/55 | Loss: 0.9749 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0095 | loss_T: 0.0061 | loss_R: 0.0016 | loss_FL: 0.0036 | loss_conf_depth: -0.0348 | loss_reg_depth: 0.0566 | loss_grad_depth: 0.0048 | loss_conf_point: 0.0254 | loss_reg_point: 0.0681 | loss_grad_point: 0.0142
-Epoch 0 | Step 51 | Batch 51/55 | Loss: 0.9601 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0168 | loss_T: 0.0094 | loss_R: 0.0014 | loss_FL: 0.0120 | loss_conf_depth: -0.0111 | loss_reg_depth: 0.0572 | loss_grad_depth: 0.0059 | loss_conf_point: 0.0037 | loss_reg_point: 0.0625 | loss_grad_point: 0.0180
-Epoch 0 | Step 52 | Batch 52/55 | Loss: 1.0022 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.3499 | loss_T: 0.1015 | loss_R: 0.2432 | loss_FL: 0.0103 | loss_conf_depth: 0.1190 | loss_reg_depth: 0.1257 | loss_grad_depth: 0.0076 | loss_conf_point: 0.4677 | loss_reg_point: 0.4677 | loss_grad_point: 0.2122
-[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
-[ETH3D] electro: 39/45 images (filtered 6, missing 0)
-[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
-[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
-[ETH3D] playground: 32/38 images (filtered 6, missing 0)
-[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
-[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
-[ETH3D] relief: 19/31 images (filtered 12, missing 0)
-[ETH3D] facade: 76/76 images (filtered 0, missing 0)
-[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
-[ETH3D] electro: 39/45 images (filtered 6, missing 0)
-[ETH3D] facade: 76/76 images (filtered 0, missing 0)
-[ETH3D] office: 26/26 images (filtered 0, missing 0)
-[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
-[ETH3D] relief: 19/31 images (filtered 12, missing 0)
-[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
-[ETH3D] playground: 32/38 images (filtered 6, missing 0)
-[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
-[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
-[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
-[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
-Epoch 0 | Step 53 | Batch 53/55 | Loss: 1.0458 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.1512 | loss_T: 0.0807 | loss_R: 0.0667 | loss_FL: 0.0077 | loss_conf_depth: 0.5092 | loss_reg_depth: 0.5003 | loss_grad_depth: 0.0201 | loss_conf_point: 0.5655 | loss_reg_point: 0.5503 | loss_grad_point: 0.4089
-Epoch 0 | Step 54 | Batch 54/55 | Loss: 1.0318 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0068 | loss_T: 0.0045 | loss_R: 0.0011 | loss_FL: 0.0024 | loss_conf_depth: -0.0007 | loss_reg_depth: 0.0702 | loss_grad_depth: 0.0181 | loss_conf_point: 0.0262 | loss_reg_point: 0.0914 | loss_grad_point: 0.0495
-Epoch 0 | Step 55 | Batch 55/55 | Loss: 1.0260 | LR: 1.00e-04 | Speed: 1.0 samples/s
-  loss_camera: 0.0433 | loss_T: 0.0370 | loss_R: 0.0030 | loss_FL: 0.0068 | loss_conf_depth: 0.0475 | loss_reg_depth: 0.0615 | loss_grad_depth: 0.0040 | loss_conf_point: 0.1868 | loss_reg_point: 0.1874 | loss_grad_point: 0.0135
-Saved LoRA weights to ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora_peft
-Saved checkpoint to ./checkpoints/vggt_output_distill/eth3d/epoch_0.pt
-Saved LoRA weights to ./checkpoints/vggt_output_distill/eth3d/latest_lora_peft
-
-Training complete!
-Training complete! Model saved to: ./checkpoints/vggt_output_distill/eth3d/
-
-============================================================
-Benchmarking LoRA model
-  Settings: 4v, 8v, maxframe
-  Seeds: 42 43 44
-============================================================
-  [LoRA 4v] eth3d, seed=42
-Loading base model: facebook/vggt-1b
-Loading LoRA weights: ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora.pt
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora_peft
-Loaded camera token
-[INFO] Total inference tasks: 11
-Inference:   0%|          | 0/11 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   9%|▉         | 1/11 [00:02<00:22,  2.23s/it]Inference:  18%|█▊        | 2/11 [00:04<00:17,  1.99s/it]Inference:  27%|██▋       | 3/11 [00:06<00:15,  1.99s/it]Inference:  36%|███▋      | 4/11 [00:07<00:13,  1.93s/it]Inference:  45%|████▌     | 5/11 [00:09<00:11,  1.90s/it]Inference:  55%|█████▍    | 6/11 [00:11<00:09,  1.86s/it]Inference:  64%|██████▎   | 7/11 [00:13<00:07,  1.88s/it]Inference:  73%|███████▎  | 8/11 [00:15<00:05,  1.87s/it]Inference:  82%|████████▏ | 9/11 [00:17<00:04,  2.10s/it]Inference:  91%|█████████ | 10/11 [00:19<00:02,  2.01s/it]Inference: 100%|██████████| 11/11 [00:21<00:00,  1.97s/it]Inference: 100%|██████████| 11/11 [00:21<00:00,  1.96s/it]
-[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
-  [Sampling] courtyard: 38 -> 8 -> 4 frames (even-indexed, seed=42)
-    indices: [5, 11, 29, 33]
-[ETH3D] electro: 39/45 images (filtered 6, missing 0)
-  [Sampling] electro: 39 -> 8 -> 4 frames (even-indexed, seed=42)
-    indices: [3, 11, 28, 33]
-[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
-  [Sampling] kicker: 31 -> 8 -> 4 frames (even-indexed, seed=42)
-    indices: [5, 10, 14, 24]
-[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
-  [Sampling] pipes: 14 -> 8 -> 4 frames (even-indexed, seed=42)
-    indices: [2, 6, 8, 12]
-[ETH3D] relief: 19/31 images (filtered 12, missing 0)
-  [Sampling] relief: 19 -> 8 -> 4 frames (even-indexed, seed=42)
-    indices: [4, 6, 13, 15]
-[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
-  [Sampling] delivery_area: 40 -> 8 -> 4 frames (even-indexed, seed=42)
-    indices: [3, 10, 24, 30]
-[ETH3D] facade: 76/76 images (filtered 0, missing 0)
-  [Sampling] facade: 76 -> 8 -> 4 frames (even-indexed, seed=42)
-    indices: [8, 30, 36, 47]
-[ETH3D] office: 26/26 images (filtered 0, missing 0)
-  [Sampling] office: 26 -> 8 -> 4 frames (even-indexed, seed=42)
-    indices: [5, 9, 12, 19]
-[ETH3D] playground: 32/38 images (filtered 6, missing 0)
-  [Sampling] playground: 32 -> 8 -> 4 frames (even-indexed, seed=42)
-    indices: [5, 10, 15, 25]
-[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
-  [Sampling] relief_2: 20 -> 8 -> 4 frames (even-indexed, seed=42)
-    indices: [4, 9, 14, 18]
-[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
-  [Sampling] terrains: 42 -> 8 -> 4 frames (even-indexed, seed=42)
-    indices: [3, 10, 25, 37]
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d scenes:   0%|          | 0/11 [00:00<?, ?it/s][A
-                                                    [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 44.30it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d fusion:   0%|          | 0/11 [00:00<?, ?it/s][A
-eth3d fusion:   9%|▉         | 1/11 [00:14<02:20, 14.07s/it][A
-eth3d fusion:  27%|██▋       | 3/11 [00:15<00:33,  4.18s/it][A
-eth3d fusion:  45%|████▌     | 5/11 [00:25<00:27,  4.61s/it][A
-eth3d fusion:  55%|█████▍    | 6/11 [00:29<00:21,  4.34s/it][A
-eth3d fusion:  64%|██████▎   | 7/11 [00:30<00:13,  3.50s/it][A
-eth3d fusion:  73%|███████▎  | 8/11 [00:33<00:09,  3.25s/it][A
-eth3d fusion:  82%|████████▏ | 9/11 [00:37<00:07,  3.62s/it][A
-eth3d fusion:  91%|█████████ | 10/11 [00:40<00:03,  3.55s/it][A
-eth3d fusion: 100%|██████████| 11/11 [00:42<00:00,  3.08s/it][Aeth3d fusion: 100%|██████████| 11/11 [00:42<00:00,  3.90s/it]
-Datasets (recon_unposed eval): 100%|██████████| 1/1 [01:13<00:00, 73.59s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [01:13<00:00, 73.59s/it]
-  recon_unposed | eth3d | courtyard: {'acc': 0.5799858809318001, 'comp': 3.159299783325182, 'overall': 1.869642832128491, 'precision': 0.2700200358536328, 'recall': 0.06995888486182562, 'fscore': 0.11112630488335687}
-  recon_unposed | eth3d | electro: {'acc': 0.0584558161357571, 'comp': 5.979561204498193, 'overall': 3.019008510316975, 'precision': 0.9983845836579441, 'recall': 0.433090131765207, 'fscore': 0.6041189637931587}
-  recon_unposed | eth3d | kicker: {'acc': 0.07063544891150297, 'comp': 0.5221703319190394, 'overall': 0.2964028904152712, 'precision': 0.9923966762613371, 'recall': 0.5336649313360112, 'fscore': 0.6940837793946117}
-  recon_unposed | eth3d | pipes: {'acc': 0.7269556286510005, 'comp': 2.999085869485808, 'overall': 1.863020749068404, 'precision': 0.0, 'recall': 0.0, 'fscore': 0.0}
-  recon_unposed | eth3d | relief: {'acc': 0.09405539150665904, 'comp': 1.8603301601027442, 'overall': 0.9771927758047017, 'precision': 0.9686266185523243, 'recall': 0.4307284504595788, 'fscore': 0.596296182036977}
-  recon_unposed | eth3d | delivery_area: {'acc': 34.75777469896661, 'comp': 10.370868519213598, 'overall': 22.5643216090901, 'precision': 0.0, 'recall': 0.0, 'fscore': 0.0}
-  recon_unposed | eth3d | facade: {'acc': 1.7064319915678685, 'comp': 16.91548712825821, 'overall': 9.310959559913039, 'precision': 0.0, 'recall': 0.0, 'fscore': 0.0}
-  recon_unposed | eth3d | office: {'acc': 0.09354822488438669, 'comp': 0.7688071389454544, 'overall': 0.43117768191492056, 'precision': 0.9771863117870723, 'recall': 0.1532811400422238, 'fscore': 0.26499521354993644}
-  recon_unposed | eth3d | playground: {'acc': 1.2893531745365034, 'comp': 4.71074157272693, 'overall': 3.000047373631717, 'precision': 0.0, 'recall': 0.0, 'fscore': 0.0}
-  recon_unposed | eth3d | relief_2: {'acc': 0.348796712680581, 'comp': 1.6062999645910323, 'overall': 0.9775483386358066, 'precision': 0.3549948657767346, 'recall': 0.038702928870292884, 'fscore': 0.06979638304448331}
-  recon_unposed | eth3d | terrains: {'acc': 0.1272623186918116, 'comp': 0.646416935559916, 'overall': 0.3868396271258638, 'precision': 0.8760806916426513, 'recall': 0.3480702535874511, 'fscore': 0.4982026598783671}
-
-[1;36m========================================================================================================================[0m
-[1;36m📊 SUMMARY[0m
-[1;36m========================================================================================================================[0m
-
-[1;35m🎯 POSE ESTIMATION[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-Auc3           [1;32m0.1616      [0mN/A         0.1616      N/A         N/A         N/A         
-Auc30          [1;32m0.5995      [0mN/A         0.5995      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32m0.2581      [0mN/A         0.2581      N/A         N/A         N/A         
-Overall        [1;32m4.0633      [0mN/A         4.0633      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_POSED (GT Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-
-[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
-
-====================================================================================================
-[1;32m✅ Evaluation Complete[0m
-====================================================================================================
-
-  [LoRA 4v] eth3d, seed=43
-Loading base model: facebook/vggt-1b
-Loading LoRA weights: ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora.pt
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora_peft
-Loaded camera token
-[INFO] Total inference tasks: 11
-Inference:   0%|          | 0/11 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   9%|▉         | 1/11 [00:02<00:21,  2.17s/it]Inference:  18%|█▊        | 2/11 [00:04<00:19,  2.19s/it]Inference:  27%|██▋       | 3/11 [00:06<00:16,  2.12s/it]Inference:  36%|███▋      | 4/11 [00:08<00:13,  1.99s/it]Inference:  45%|████▌     | 5/11 [00:10<00:11,  1.93s/it]Inference:  55%|█████▍    | 6/11 [00:11<00:09,  1.87s/it]Inference:  64%|██████▎   | 7/11 [00:13<00:07,  1.93s/it]Inference:  73%|███████▎  | 8/11 [00:15<00:05,  1.94s/it]Inference:  82%|████████▏ | 9/11 [00:17<00:03,  1.96s/it]Inference:  91%|█████████ | 10/11 [00:19<00:01,  1.94s/it]Inference: 100%|██████████| 11/11 [00:21<00:00,  1.91s/it]Inference: 100%|██████████| 11/11 [00:21<00:00,  1.96s/it]
-[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
-  [Sampling] courtyard: 38 -> 8 -> 4 frames (even-indexed, seed=43)
-    indices: [4, 14, 24, 31]
-[ETH3D] electro: 39/45 images (filtered 6, missing 0)
-  [Sampling] electro: 39 -> 8 -> 4 frames (even-indexed, seed=43)
-    indices: [10, 15, 25, 34]
-[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
-  [Sampling] kicker: 31 -> 8 -> 4 frames (even-indexed, seed=43)
-    indices: [7, 17, 23, 27]
-[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
-  [Sampling] pipes: 14 -> 8 -> 4 frames (even-indexed, seed=43)
-    indices: [1, 6, 9, 12]
-[ETH3D] relief: 19/31 images (filtered 12, missing 0)
-  [Sampling] relief: 19 -> 8 -> 4 frames (even-indexed, seed=43)
-    indices: [0, 3, 8, 15]
-[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
-  [Sampling] delivery_area: 40 -> 8 -> 4 frames (even-indexed, seed=43)
-    indices: [0, 15, 21, 27]
-[ETH3D] facade: 76/76 images (filtered 0, missing 0)
-  [Sampling] facade: 76 -> 8 -> 4 frames (even-indexed, seed=43)
-    indices: [23, 33, 49, 56]
-[ETH3D] office: 26/26 images (filtered 0, missing 0)
-  [Sampling] office: 26 -> 8 -> 4 frames (even-indexed, seed=43)
-    indices: [7, 16, 19, 23]
-[ETH3D] playground: 32/38 images (filtered 6, missing 0)
-  [Sampling] playground: 32 -> 8 -> 4 frames (even-indexed, seed=43)
-    indices: [1, 7, 12, 27]
-[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
-  [Sampling] relief_2: 20 -> 8 -> 4 frames (even-indexed, seed=43)
-    indices: [0, 3, 6, 13]
-[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
-  [Sampling] terrains: 42 -> 8 -> 4 frames (even-indexed, seed=43)
-    indices: [0, 15, 21, 30]
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d scenes:   0%|          | 0/11 [00:00<?, ?it/s][A
-                                                    [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 45.02it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d fusion:   0%|          | 0/11 [00:00<?, ?it/s][A
-eth3d fusion:   9%|▉         | 1/11 [00:16<02:41, 16.10s/it][A
-eth3d fusion:  45%|████▌     | 5/11 [00:21<00:20,  3.44s/it][A
-eth3d fusion:  55%|█████▍    | 6/11 [00:25<00:18,  3.79s/it][A
-eth3d fusion:  64%|██████▎   | 7/11 [00:33<00:19,  4.83s/it][A
-eth3d fusion:  82%|████████▏ | 9/11 [00:36<00:06,  3.39s/it][A
-eth3d fusion:  91%|█████████ | 10/11 [00:40<00:03,  3.50s/it][A
-eth3d fusion: 100%|██████████| 11/11 [00:42<00:00,  3.12s/it][Aeth3d fusion: 100%|██████████| 11/11 [00:42<00:00,  3.86s/it]
-Datasets (recon_unposed eval): 100%|██████████| 1/1 [01:22<00:00, 82.46s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [01:22<00:00, 82.46s/it]
-  recon_unposed | eth3d | courtyard: {'acc': 1.1325551781690866, 'comp': 2.9985148191226396, 'overall': 2.0655349986458633, 'precision': 0.13781020727258148, 'recall': 0.053089014950094694, 'fscore': 0.0766499524616781}
-  recon_unposed | eth3d | electro: {'acc': 2.016208360518812, 'comp': 9.822231898286764, 'overall': 5.919220129402788, 'precision': 0.039273664657492706, 'recall': 0.006359531010481833, 'fscore': 0.010946508769705678}
-  recon_unposed | eth3d | kicker: {'acc': 0.11846674577839651, 'comp': 0.7045226071494907, 'overall': 0.4114946764639436, 'precision': 0.9304995557985376, 'recall': 0.36740445519891823, 'fscore': 0.5268027211014872}
-  recon_unposed | eth3d | pipes: {'acc': 0.14841875177825362, 'comp': 1.6758362089863108, 'overall': 0.9121274803822822, 'precision': 1.0, 'recall': 0.04088345864661654, 'fscore': 0.07855530474040633}
-  recon_unposed | eth3d | relief: {'acc': 0.2878034532684094, 'comp': 1.8228927091889768, 'overall': 1.055348081228693, 'precision': 0.39388331547677025, 'recall': 0.06244811780416501, 'fscore': 0.10780441535284468}
-  recon_unposed | eth3d | delivery_area: {'acc': 10.153506906905788, 'comp': 12.670477623829411, 'overall': 11.4119922653676, 'precision': 0.0040519770853709655, 'recall': 0.0006313253012048193, 'fscore': 0.001092440949885889}
-  recon_unposed | eth3d | facade: {'acc': 0.4065512148159328, 'comp': 4.420721370762141, 'overall': 2.413636292789037, 'precision': 0.3878834552689, 'recall': 0.02440270536256465, 'fscore': 0.045916679131034185}
-  recon_unposed | eth3d | office: {'acc': 0.3288060250811732, 'comp': 1.1503913083140178, 'overall': 0.7395986666975956, 'precision': 0.41353383458646614, 'recall': 0.008124725516029864, 'fscore': 0.015936348579237328}
-  recon_unposed | eth3d | playground: {'acc': 0.5986532388393467, 'comp': 3.881923121427963, 'overall': 2.2402881801336547, 'precision': 0.17999215937845256, 'recall': 0.06349375354911982, 'fscore': 0.09387301031866153}
-  recon_unposed | eth3d | relief_2: {'acc': 0.44277954594653957, 'comp': 1.5236437814294126, 'overall': 0.9832116636879761, 'precision': 0.45043606436555705, 'recall': 0.08315643485890578, 'fscore': 0.14039424204409473}
-  recon_unposed | eth3d | terrains: {'acc': 0.4569788617480669, 'comp': 4.201557590931668, 'overall': 2.3292682263398676, 'precision': 0.32097366263943833, 'recall': 0.09473194072028387, 'fscore': 0.1462884201520857}
-
-[1;36m========================================================================================================================[0m
-[1;36m📊 SUMMARY[0m
-[1;36m========================================================================================================================[0m
-
-[1;35m🎯 POSE ESTIMATION[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-Auc3           [1;32m0.1768      [0mN/A         0.1768      N/A         N/A         N/A         
-Auc30          [1;32m0.5323      [0mN/A         0.5323      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32m0.1131      [0mN/A         0.1131      N/A         N/A         N/A         
-Overall        [1;32m2.7711      [0mN/A         2.7711      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_POSED (GT Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-
-[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
-
-====================================================================================================
-[1;32m✅ Evaluation Complete[0m
-====================================================================================================
-
-  [LoRA 4v] eth3d, seed=44
-Loading base model: facebook/vggt-1b
-Loading LoRA weights: ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora.pt
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora_peft
-Loaded camera token
-[INFO] Total inference tasks: 11
-Inference:   0%|          | 0/11 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   9%|▉         | 1/11 [00:02<00:21,  2.20s/it]Inference:  18%|█▊        | 2/11 [00:03<00:17,  1.95s/it]Inference:  27%|██▋       | 3/11 [00:05<00:15,  1.96s/it]Inference:  36%|███▋      | 4/11 [00:07<00:13,  1.92s/it]Inference:  45%|████▌     | 5/11 [00:09<00:11,  1.89s/it]Inference:  55%|█████▍    | 6/11 [00:11<00:09,  1.87s/it]Inference:  64%|██████▎   | 7/11 [00:13<00:07,  1.95s/it]Inference:  73%|███████▎  | 8/11 [00:15<00:05,  1.92s/it]Inference:  82%|████████▏ | 9/11 [00:17<00:04,  2.08s/it]Inference:  91%|█████████ | 10/11 [00:19<00:02,  2.02s/it]Inference: 100%|██████████| 11/11 [00:21<00:00,  1.95s/it]Inference: 100%|██████████| 11/11 [00:21<00:00,  1.96s/it]
-[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
-  [Sampling] courtyard: 38 -> 8 -> 4 frames (even-indexed, seed=44)
-    indices: [6, 15, 22, 28]
-[ETH3D] electro: 39/45 images (filtered 6, missing 0)
-  [Sampling] electro: 39 -> 8 -> 4 frames (even-indexed, seed=44)
-    indices: [6, 15, 23, 29]
-[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
-  [Sampling] kicker: 31 -> 8 -> 4 frames (even-indexed, seed=44)
-    indices: [1, 14, 20, 29]
-[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
-  [Sampling] pipes: 14 -> 8 -> 4 frames (even-indexed, seed=44)
-    indices: [0, 4, 7, 10]
-[ETH3D] relief: 19/31 images (filtered 12, missing 0)
-  [Sampling] relief: 19 -> 8 -> 4 frames (even-indexed, seed=44)
-    indices: [2, 8, 10, 14]
-[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
-  [Sampling] delivery_area: 40 -> 8 -> 4 frames (even-indexed, seed=44)
-    indices: [6, 15, 23, 30]
-[ETH3D] facade: 76/76 images (filtered 0, missing 0)
-  [Sampling] facade: 76 -> 8 -> 4 frames (even-indexed, seed=44)
-    indices: [0, 16, 34, 63]
-[ETH3D] office: 26/26 images (filtered 0, missing 0)
-  [Sampling] office: 26 -> 8 -> 4 frames (even-indexed, seed=44)
-    indices: [6, 11, 19, 21]
-[ETH3D] playground: 32/38 images (filtered 6, missing 0)
-  [Sampling] playground: 32 -> 8 -> 4 frames (even-indexed, seed=44)
-    indices: [1, 13, 15, 29]
-[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
-  [Sampling] relief_2: 20 -> 8 -> 4 frames (even-indexed, seed=44)
-    indices: [2, 8, 10, 14]
-[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
-  [Sampling] terrains: 42 -> 8 -> 4 frames (even-indexed, seed=44)
-    indices: [6, 19, 28, 31]
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d scenes:   0%|          | 0/11 [00:00<?, ?it/s][A
-                                                    [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 45.45it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d fusion:   0%|          | 0/11 [00:00<?, ?it/s][A
-eth3d fusion:   9%|▉         | 1/11 [00:14<02:24, 14.41s/it][A
-eth3d fusion:  45%|████▌     | 5/11 [00:20<00:20,  3.49s/it][A
-eth3d fusion:  55%|█████▍    | 6/11 [00:24<00:17,  3.58s/it][A
-eth3d fusion:  64%|██████▎   | 7/11 [00:33<00:19,  4.79s/it][A
-eth3d fusion:  82%|████████▏ | 9/11 [00:37<00:07,  3.65s/it][A
-eth3d fusion:  91%|█████████ | 10/11 [00:39<00:03,  3.45s/it][A
-eth3d fusion: 100%|██████████| 11/11 [00:42<00:00,  3.19s/it][Aeth3d fusion: 100%|██████████| 11/11 [00:42<00:00,  3.85s/it]
-Datasets (recon_unposed eval): 100%|██████████| 1/1 [01:12<00:00, 72.89s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [01:12<00:00, 72.89s/it]
-  recon_unposed | eth3d | courtyard: {'acc': 2.726336776344943, 'comp': 10.229051644900188, 'overall': 6.477694210622566, 'precision': 0.07850707850707851, 'recall': 0.001468250215058122, 'fscore': 0.002882589837225576}
-  recon_unposed | eth3d | electro: {'acc': 0.3440214812788497, 'comp': 7.178889552371012, 'overall': 3.7614555168249306, 'precision': 0.6073136634537561, 'recall': 0.08637867737420411, 'fscore': 0.15124558226433726}
-  recon_unposed | eth3d | kicker: {'acc': 0.08441776200656984, 'comp': 0.6371758331303808, 'overall': 0.3607967975684753, 'precision': 0.9997572422722123, 'recall': 0.46441714318066013, 'fscore': 0.6342200859996954}
-  recon_unposed | eth3d | pipes: {'acc': 0.4988943152527994, 'comp': 2.0079168696852143, 'overall': 1.2534055924690068, 'precision': 0.2962962962962963, 'recall': 0.022738038844149693, 'fscore': 0.04223493180818302}
-  recon_unposed | eth3d | relief: {'acc': 0.2662389110839387, 'comp': 1.0065899182545837, 'overall': 0.6364144146692612, 'precision': 0.5707210776545166, 'recall': 0.31421927339503725, 'fscore': 0.4052963843701886}
-  recon_unposed | eth3d | delivery_area: {'acc': 35.9833870049571, 'comp': 21.1992405792119, 'overall': 28.5913137920845, 'precision': 0.0, 'recall': 0.0, 'fscore': 0.0}
-  recon_unposed | eth3d | facade: {'acc': 1.8640344454522955, 'comp': 6.555279387883878, 'overall': 4.209656916668087, 'precision': 0.0023389661244119734, 'recall': 9.621404697197661e-05, 'fscore': 0.00018482525375700744}
-  recon_unposed | eth3d | office: {'acc': 0.471481267717597, 'comp': 1.215360606097079, 'overall': 0.843420936907338, 'precision': 0.21324324324324323, 'recall': 0.038300498038697166, 'fscore': 0.06493759199080207}
-  recon_unposed | eth3d | playground: {'acc': 0.11096193104340432, 'comp': 4.451773400578182, 'overall': 2.2813676658107935, 'precision': 0.9694915254237289, 'recall': 0.08024669352251257, 'fscore': 0.14822455333949378}
-  recon_unposed | eth3d | relief_2: {'acc': 0.5510626940987702, 'comp': 2.6165435683553273, 'overall': 1.5838031312270489, 'precision': 0.0, 'recall': 0.0, 'fscore': 0.0}
-  recon_unposed | eth3d | terrains: {'acc': 0.7376494378943717, 'comp': 4.417065507912456, 'overall': 2.577357472903414, 'precision': 0.1641487507263219, 'recall': 0.024557893378081837, 'fscore': 0.04272395958938337}
-
-[1;36m========================================================================================================================[0m
-[1;36m📊 SUMMARY[0m
-[1;36m========================================================================================================================[0m
-
-[1;35m🎯 POSE ESTIMATION[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-Auc3           [1;32m0.2172      [0mN/A         0.2172      N/A         N/A         N/A         
-Auc30          [1;32m0.6318      [0mN/A         0.6318      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32m0.1356      [0mN/A         0.1356      N/A         N/A         N/A         
-Overall        [1;32m4.7797      [0mN/A         4.7797      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_POSED (GT Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-
-[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
-
-====================================================================================================
-[1;32m✅ Evaluation Complete[0m
-====================================================================================================
-
-  [LoRA 8v] eth3d, seed=42
-Loading base model: facebook/vggt-1b
-Loading LoRA weights: ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora.pt
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora_peft
-Loaded camera token
-[INFO] Total inference tasks: 11
-Inference:   0%|          | 0/11 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   9%|▉         | 1/11 [00:04<00:41,  4.17s/it]Inference:  18%|█▊        | 2/11 [00:08<00:36,  4.08s/it]Inference:  27%|██▋       | 3/11 [00:12<00:33,  4.13s/it]Inference:  36%|███▋      | 4/11 [00:16<00:28,  4.03s/it]Inference:  45%|████▌     | 5/11 [00:20<00:23,  3.97s/it]Inference:  55%|█████▍    | 6/11 [00:23<00:19,  3.90s/it]Inference:  64%|██████▎   | 7/11 [00:27<00:15,  3.95s/it]Inference:  73%|███████▎  | 8/11 [00:31<00:11,  3.96s/it]Inference:  82%|████████▏ | 9/11 [00:36<00:08,  4.24s/it]Inference:  91%|█████████ | 10/11 [00:40<00:04,  4.14s/it]Inference: 100%|██████████| 11/11 [00:44<00:00,  4.09s/it]Inference: 100%|██████████| 11/11 [00:44<00:00,  4.06s/it]
-[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
-  [Sampling] courtyard: 38 -> 8 frames (seed=42)
-    indices: [5, 10, 11, 12, 29, 32, 33, 34]
-[ETH3D] electro: 39/45 images (filtered 6, missing 0)
-  [Sampling] electro: 39 -> 8 frames (seed=42)
-    indices: [3, 10, 11, 23, 28, 30, 33, 35]
-[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
-  [Sampling] kicker: 31 -> 8 frames (seed=42)
-    indices: [5, 6, 10, 12, 14, 19, 24, 27]
-[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
-  [Sampling] pipes: 14 -> 8 frames (seed=42)
-    indices: [2, 5, 6, 7, 8, 11, 12, 13]
-[ETH3D] relief: 19/31 images (filtered 12, missing 0)
-  [Sampling] relief: 19 -> 8 frames (seed=42)
-    indices: [4, 5, 6, 9, 13, 14, 15, 17]
-[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
-  [Sampling] delivery_area: 40 -> 8 frames (seed=42)
-    indices: [3, 9, 10, 11, 24, 25, 30, 36]
-[ETH3D] facade: 76/76 images (filtered 0, missing 0)
-  [Sampling] facade: 76 -> 8 frames (seed=42)
-    indices: [8, 15, 30, 33, 36, 46, 47, 49]
-[ETH3D] office: 26/26 images (filtered 0, missing 0)
-  [Sampling] office: 26 -> 8 frames (seed=42)
-    indices: [5, 6, 9, 10, 12, 16, 19, 25]
-[ETH3D] playground: 32/38 images (filtered 6, missing 0)
-  [Sampling] playground: 32 -> 8 frames (seed=42)
-    indices: [5, 6, 10, 11, 15, 22, 25, 26]
-[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
-  [Sampling] relief_2: 20 -> 8 frames (seed=42)
-    indices: [4, 5, 9, 13, 14, 15, 18, 19]
-[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
-  [Sampling] terrains: 42 -> 8 frames (seed=42)
-    indices: [3, 9, 10, 18, 25, 26, 37, 39]
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d scenes:   0%|          | 0/11 [00:00<?, ?it/s][A
-                                                    [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 41.39it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d fusion:   0%|          | 0/11 [00:00<?, ?it/s][A
-eth3d fusion:   9%|▉         | 1/11 [00:29<04:58, 29.83s/it][A
-eth3d fusion:  45%|████▌     | 5/11 [00:40<00:40,  6.67s/it][A
-eth3d fusion:  55%|█████▍    | 6/11 [00:55<00:43,  8.72s/it][A
-eth3d fusion:  64%|██████▎   | 7/11 [00:57<00:27,  6.94s/it][A
-eth3d fusion:  82%|████████▏ | 9/11 [01:15<00:15,  7.89s/it][Aeth3d fusion: 100%|██████████| 11/11 [01:15<00:00,  6.89s/it]
-Datasets (recon_unposed eval): 100%|██████████| 1/1 [01:47<00:00, 107.06s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [01:47<00:00, 107.06s/it]
-  recon_unposed | eth3d | courtyard: {'acc': 0.11178448936288139, 'comp': 1.3707181961111283, 'overall': 0.7412513427370049, 'precision': 0.949265664676412, 'recall': 0.5238905005585787, 'fscore': 0.6751643525193661}
-  recon_unposed | eth3d | electro: {'acc': 0.09541625949913239, 'comp': 5.417314381811351, 'overall': 2.7563653206552416, 'precision': 0.9826781306151237, 'recall': 0.43294786894722437, 'fscore': 0.6010745813405387}
-  recon_unposed | eth3d | kicker: {'acc': 0.03931482178644802, 'comp': 0.34442786265411046, 'overall': 0.19187134222027924, 'precision': 0.9994670645917715, 'recall': 0.7623434810990446, 'fscore': 0.8649479402065614}
-  recon_unposed | eth3d | pipes: {'acc': 0.18201897057044608, 'comp': 0.8383958008099618, 'overall': 0.510207385690204, 'precision': 0.8173076923076923, 'recall': 0.42540132200188857, 'fscore': 0.5595578189044839}
-  recon_unposed | eth3d | relief: {'acc': 0.167812834874405, 'comp': 1.5225764349174473, 'overall': 0.8451946348959262, 'precision': 0.8153104092111405, 'recall': 0.5407904737775525, 'fscore': 0.6502644574662358}
-  recon_unposed | eth3d | delivery_area: {'acc': 4.8151089884156075, 'comp': 6.622880149469814, 'overall': 5.71899456894271, 'precision': 0.011228070175438596, 'recall': 7.634534818250356e-05, 'fscore': 0.0001516594865378509}
-  recon_unposed | eth3d | facade: {'acc': 3.9554789016962832, 'comp': 13.308864309293911, 'overall': 8.632171605495097, 'precision': 0.026310160427807486, 'recall': 0.0003297079430275851, 'fscore': 0.0006512546349421961}
-  recon_unposed | eth3d | office: {'acc': 0.0884878828178227, 'comp': 0.3025523598825005, 'overall': 0.1955201213501616, 'precision': 0.9997368421052631, 'recall': 0.5901704320253667, 'fscore': 0.7422006724757737}
-  recon_unposed | eth3d | playground: {'acc': 0.2977138421936298, 'comp': 2.102553440466789, 'overall': 1.2001336413302095, 'precision': 0.5457385095939313, 'recall': 0.1400620121886026, 'fscore': 0.222913898005966}
-  recon_unposed | eth3d | relief_2: {'acc': 0.8598294265945249, 'comp': 1.4232452177739134, 'overall': 1.141537322184219, 'precision': 0.003648199148753532, 'recall': 0.0027989404011338564, 'fscore': 0.0031676348587822206}
-  recon_unposed | eth3d | terrains: {'acc': 0.14887548421156624, 'comp': 0.4213102467012487, 'overall': 0.2850928654564075, 'precision': 0.8865676513791415, 'recall': 0.5468605798300608, 'fscore': 0.6764606547239322}
-
-[1;36m========================================================================================================================[0m
-[1;36m📊 SUMMARY[0m
-[1;36m========================================================================================================================[0m
-
-[1;35m🎯 POSE ESTIMATION[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-Auc3           [1;32m0.2067      [0mN/A         0.2067      N/A         N/A         N/A         
-Auc30          [1;32m0.7276      [0mN/A         0.7276      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32m0.4542      [0mN/A         0.4542      N/A         N/A         N/A         
-Overall        [1;32m2.0198      [0mN/A         2.0198      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_POSED (GT Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-
-[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
-
-====================================================================================================
-[1;32m✅ Evaluation Complete[0m
-====================================================================================================
-
-  [LoRA 8v] eth3d, seed=43
-Loading base model: facebook/vggt-1b
-Loading LoRA weights: ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora.pt
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora_peft
-Loaded camera token
-[INFO] Total inference tasks: 11
-Inference:   0%|          | 0/11 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   9%|▉         | 1/11 [00:04<00:44,  4.41s/it]Inference:  18%|█▊        | 2/11 [00:08<00:39,  4.41s/it]Inference:  27%|██▋       | 3/11 [00:12<00:34,  4.29s/it]Inference:  36%|███▋      | 4/11 [00:16<00:28,  4.09s/it]Inference:  45%|████▌     | 5/11 [00:20<00:24,  4.00s/it]Inference:  55%|█████▍    | 6/11 [00:24<00:19,  3.96s/it]Inference:  64%|██████▎   | 7/11 [00:28<00:16,  4.07s/it]Inference:  73%|███████▎  | 8/11 [00:32<00:11,  3.93s/it]Inference:  82%|████████▏ | 9/11 [00:36<00:08,  4.08s/it]Inference:  91%|█████████ | 10/11 [00:40<00:04,  4.01s/it]Inference: 100%|██████████| 11/11 [00:44<00:00,  3.97s/it]Inference: 100%|██████████| 11/11 [00:44<00:00,  4.05s/it]
-[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
-  [Sampling] courtyard: 38 -> 8 frames (seed=43)
-    indices: [4, 10, 14, 22, 24, 27, 31, 35]
-[ETH3D] electro: 39/45 images (filtered 6, missing 0)
-  [Sampling] electro: 39 -> 8 frames (seed=43)
-    indices: [10, 14, 15, 20, 25, 32, 34, 36]
-[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
-  [Sampling] kicker: 31 -> 8 frames (seed=43)
-    indices: [7, 12, 17, 18, 23, 26, 27, 30]
-[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
-  [Sampling] pipes: 14 -> 8 frames (seed=43)
-    indices: [1, 3, 6, 8, 9, 10, 12, 13]
-[ETH3D] relief: 19/31 images (filtered 12, missing 0)
-  [Sampling] relief: 19 -> 8 frames (seed=43)
-    indices: [0, 2, 3, 6, 8, 12, 15, 16]
-[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
-  [Sampling] delivery_area: 40 -> 8 frames (seed=43)
-    indices: [0, 10, 15, 20, 21, 25, 27, 30]
-[ETH3D] facade: 76/76 images (filtered 0, missing 0)
-  [Sampling] facade: 76 -> 8 frames (seed=43)
-    indices: [23, 28, 33, 39, 49, 50, 56, 70]
-[ETH3D] office: 26/26 images (filtered 0, missing 0)
-  [Sampling] office: 26 -> 8 frames (seed=43)
-    indices: [7, 12, 16, 17, 19, 20, 23, 25]
-[ETH3D] playground: 32/38 images (filtered 6, missing 0)
-  [Sampling] playground: 32 -> 8 frames (seed=43)
-    indices: [1, 5, 7, 10, 12, 23, 27, 28]
-[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
-  [Sampling] relief_2: 20 -> 8 frames (seed=43)
-    indices: [0, 2, 3, 5, 6, 8, 13, 17]
-[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
-  [Sampling] terrains: 42 -> 8 frames (seed=43)
-    indices: [0, 10, 15, 16, 21, 26, 30, 35]
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d scenes:   0%|          | 0/11 [00:00<?, ?it/s][A
-                                                    [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 42.47it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d fusion:   0%|          | 0/11 [00:00<?, ?it/s][A
-eth3d fusion:   9%|▉         | 1/11 [00:17<02:59, 17.93s/it][A
-eth3d fusion:  18%|█▊        | 2/11 [00:29<02:07, 14.17s/it][A
-eth3d fusion:  45%|████▌     | 5/11 [00:41<00:40,  6.72s/it][A
-eth3d fusion:  55%|█████▍    | 6/11 [00:46<00:32,  6.53s/it][A
-eth3d fusion:  64%|██████▎   | 7/11 [01:03<00:36,  9.23s/it][A
-eth3d fusion:  82%|████████▏ | 9/11 [01:10<00:13,  6.67s/it][A
-eth3d fusion:  91%|█████████ | 10/11 [01:23<00:08,  8.30s/it][Aeth3d fusion: 100%|██████████| 11/11 [01:23<00:00,  7.60s/it]
-Datasets (recon_unposed eval): 100%|██████████| 1/1 [01:53<00:00, 113.61s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [01:53<00:00, 113.61s/it]
-  recon_unposed | eth3d | courtyard: {'acc': 0.38473305714135336, 'comp': 0.5570466697113585, 'overall': 0.47088986342635597, 'precision': 0.27525991493692975, 'recall': 0.2818017513893558, 'fscore': 0.2784924212361002}
-  recon_unposed | eth3d | electro: {'acc': 0.6492672216127257, 'comp': 5.388281323216813, 'overall': 3.0187742724147695, 'precision': 0.5801992337164751, 'recall': 0.1944435019770067, 'fscore': 0.29127226177938964}
-  recon_unposed | eth3d | kicker: {'acc': 0.05391101916050512, 'comp': 0.4468003854283308, 'overall': 0.25035570229441795, 'precision': 0.9740159686230565, 'recall': 0.5106488430711716, 'fscore': 0.6700234606390706}
-  recon_unposed | eth3d | pipes: {'acc': 0.12962037758719577, 'comp': 0.7531849507888828, 'overall': 0.4414026641880393, 'precision': 0.9158576051779935, 'recall': 0.4167852062588905, 'fscore': 0.5728705360535571}
-  recon_unposed | eth3d | relief: {'acc': 0.43446380469175294, 'comp': 1.1803479528699632, 'overall': 0.807405878780858, 'precision': 0.03875968992248062, 'recall': 0.015246311010215664, 'fscore': 0.021884319409397092}
-  recon_unposed | eth3d | delivery_area: {'acc': 0.9890541236504059, 'comp': 2.8641052259246096, 'overall': 1.9265796747875077, 'precision': 0.03664389883699465, 'recall': 0.0046422320455542605, 'fscore': 0.008240514565972471}
-  recon_unposed | eth3d | facade: {'acc': 0.22764232286163197, 'comp': 2.6503734355491564, 'overall': 1.4390078792053942, 'precision': 0.6364390719381968, 'recall': 0.3145612270660918, 'fscore': 0.42102837534603355}
-  recon_unposed | eth3d | office: {'acc': 0.4471172260310695, 'comp': 0.8509987810261357, 'overall': 0.6490580035286027, 'precision': 0.17121951219512196, 'recall': 0.04303107555711837, 'fscore': 0.0687770320111451}
-  recon_unposed | eth3d | playground: {'acc': 0.09168675315195919, 'comp': 3.618747586410387, 'overall': 1.855217169781173, 'precision': 0.9785522788203753, 'recall': 0.18724404401552652, 'fscore': 0.31433979054114314}
-  recon_unposed | eth3d | relief_2: {'acc': 0.20398963007502735, 'comp': 0.518181535759385, 'overall': 0.36108558291720616, 'precision': 0.8067508023717566, 'recall': 0.44259314903846153, 'fscore': 0.5715998027732573}
-  recon_unposed | eth3d | terrains: {'acc': 0.4243774100456009, 'comp': 2.1841229846267964, 'overall': 1.3042501973361986, 'precision': 0.38361774744027305, 'recall': 0.09038188857202033, 'fscore': 0.14629587817867842}
-
-[1;36m========================================================================================================================[0m
-[1;36m📊 SUMMARY[0m
-[1;36m========================================================================================================================[0m
-
-[1;35m🎯 POSE ESTIMATION[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-Auc3           [1;32m0.2738      [0mN/A         0.2738      N/A         N/A         N/A         
-Auc30          [1;32m0.7228      [0mN/A         0.7228      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32m0.3059      [0mN/A         0.3059      N/A         N/A         N/A         
-Overall        [1;32m1.1385      [0mN/A         1.1385      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_POSED (GT Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-
-[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
-
-====================================================================================================
-[1;32m✅ Evaluation Complete[0m
-====================================================================================================
-
-  [LoRA 8v] eth3d, seed=44
-Loading base model: facebook/vggt-1b
-Loading LoRA weights: ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora.pt
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora_peft
-Loaded camera token
-[INFO] Total inference tasks: 11
-Inference:   0%|          | 0/11 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   9%|▉         | 1/11 [00:04<00:43,  4.32s/it]Inference:  18%|█▊        | 2/11 [00:08<00:36,  4.02s/it]Inference:  27%|██▋       | 3/11 [00:12<00:32,  4.10s/it]Inference:  36%|███▋      | 4/11 [00:16<00:27,  3.99s/it]Inference:  45%|████▌     | 5/11 [00:20<00:23,  4.00s/it]Inference:  55%|█████▍    | 6/11 [00:24<00:20,  4.01s/it]Inference:  64%|██████▎   | 7/11 [00:28<00:16,  4.13s/it]Inference:  73%|███████▎  | 8/11 [00:32<00:12,  4.08s/it]Inference:  82%|████████▏ | 9/11 [00:37<00:08,  4.23s/it]Inference:  91%|█████████ | 10/11 [00:41<00:04,  4.12s/it]Inference: 100%|██████████| 11/11 [00:44<00:00,  3.99s/it]Inference: 100%|██████████| 11/11 [00:44<00:00,  4.06s/it]
-[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
-  [Sampling] courtyard: 38 -> 8 frames (seed=44)
-    indices: [6, 13, 15, 17, 22, 25, 28, 32]
-[ETH3D] electro: 39/45 images (filtered 6, missing 0)
-  [Sampling] electro: 39 -> 8 frames (seed=44)
-    indices: [6, 13, 15, 17, 23, 25, 29, 38]
-[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
-  [Sampling] kicker: 31 -> 8 frames (seed=44)
-    indices: [1, 2, 14, 15, 20, 28, 29, 30]
-[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
-  [Sampling] pipes: 14 -> 8 frames (seed=44)
-    indices: [0, 3, 4, 5, 7, 9, 10, 11]
-[ETH3D] relief: 19/31 images (filtered 12, missing 0)
-  [Sampling] relief: 19 -> 8 frames (seed=44)
-    indices: [2, 7, 8, 9, 10, 12, 14, 15]
-[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
-  [Sampling] delivery_area: 40 -> 8 frames (seed=44)
-    indices: [6, 13, 15, 17, 23, 27, 30, 39]
-[ETH3D] facade: 76/76 images (filtered 0, missing 0)
-  [Sampling] facade: 76 -> 8 frames (seed=44)
-    indices: [0, 5, 16, 26, 34, 53, 63, 65]
-[ETH3D] office: 26/26 images (filtered 0, missing 0)
-  [Sampling] office: 26 -> 8 frames (seed=44)
-    indices: [6, 10, 11, 15, 19, 20, 21, 25]
-[ETH3D] playground: 32/38 images (filtered 6, missing 0)
-  [Sampling] playground: 32 -> 8 frames (seed=44)
-    indices: [1, 2, 13, 14, 15, 20, 29, 30]
-[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
-  [Sampling] relief_2: 20 -> 8 frames (seed=44)
-    indices: [2, 7, 8, 9, 10, 12, 14, 15]
-[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
-  [Sampling] terrains: 42 -> 8 frames (seed=44)
-    indices: [6, 17, 19, 25, 28, 29, 31, 32]
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d scenes:   0%|          | 0/11 [00:00<?, ?it/s][A
-                                                    [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 42.27it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d fusion:   0%|          | 0/11 [00:00<?, ?it/s][A
-eth3d fusion:   9%|▉         | 1/11 [00:24<04:04, 24.41s/it][A
-eth3d fusion:  18%|█▊        | 2/11 [00:24<01:31, 10.21s/it][A
-eth3d fusion:  27%|██▋       | 3/11 [00:27<00:54,  6.85s/it][A
-eth3d fusion:  45%|████▌     | 5/11 [00:37<00:34,  5.76s/it][A
-eth3d fusion:  55%|█████▍    | 6/11 [00:54<00:45,  9.17s/it][A
-eth3d fusion:  64%|██████▎   | 7/11 [01:00<00:32,  8.16s/it][A
-eth3d fusion:  73%|███████▎  | 8/11 [01:00<00:17,  5.85s/it][A
-eth3d fusion:  82%|████████▏ | 9/11 [01:33<00:27, 13.74s/it][Aeth3d fusion: 100%|██████████| 11/11 [01:33<00:00,  8.50s/it]
-Datasets (recon_unposed eval): 100%|██████████| 1/1 [02:05<00:00, 125.74s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [02:05<00:00, 125.74s/it]
-  recon_unposed | eth3d | courtyard: {'acc': 0.5468352966367083, 'comp': 1.357669275469056, 'overall': 0.9522522860528821, 'precision': 0.32082067665235153, 'recall': 0.15483095220370108, 'fscore': 0.20886282244920856}
-  recon_unposed | eth3d | electro: {'acc': 0.21562510858465764, 'comp': 5.159128182577093, 'overall': 2.6873766455808754, 'precision': 0.6749606482830992, 'recall': 0.2072817477858848, 'fscore': 0.31716232066425226}
-  recon_unposed | eth3d | kicker: {'acc': 0.06456771561767201, 'comp': 0.22355150709827404, 'overall': 0.14405961135797302, 'precision': 0.9881737184865556, 'recall': 0.745303068944997, 'fscore': 0.8497245655421275}
-  recon_unposed | eth3d | pipes: {'acc': 0.1965677193579151, 'comp': 1.2424095262446448, 'overall': 0.71948862280128, 'precision': 0.7085889570552147, 'recall': 0.24067956583294006, 'fscore': 0.3593143108109963}
-  recon_unposed | eth3d | relief: {'acc': 0.3138990306569727, 'comp': 0.709074455495653, 'overall': 0.5114867430763128, 'precision': 0.34014973740082693, 'recall': 0.1337313757871622, 'fscore': 0.19198356334665365}
-  recon_unposed | eth3d | delivery_area: {'acc': 3.201522354745053, 'comp': 6.7410332123776895, 'overall': 4.971277783561371, 'precision': 0.0060078723845038325, 'recall': 0.00013217897032582115, 'fscore': 0.00025866701750239154}
-  recon_unposed | eth3d | facade: {'acc': 0.439767027301686, 'comp': 2.845988619683664, 'overall': 1.642877823492675, 'precision': 0.3272328006187092, 'recall': 0.07391199249953541, 'fscore': 0.12058702353792047}
-  recon_unposed | eth3d | office: {'acc': 0.12141371804933249, 'comp': 0.3566046466344002, 'overall': 0.23900918234186636, 'precision': 0.8654750705550329, 'recall': 0.48735148406330836, 'fscore': 0.6235693091843354}
-  recon_unposed | eth3d | playground: {'acc': 0.3823138269733843, 'comp': 2.731823755102959, 'overall': 1.5570687910381718, 'precision': 0.8443337484433375, 'recall': 0.18317343699846642, 'fscore': 0.3010383126608788}
-  recon_unposed | eth3d | relief_2: {'acc': 0.22980145733871785, 'comp': 1.2113275363228786, 'overall': 0.7205644968307983, 'precision': 0.7177126054321752, 'recall': 0.1906466869999558, 'fscore': 0.30126742046616767}
-  recon_unposed | eth3d | terrains: {'acc': 0.7416730384326157, 'comp': 4.226802191077226, 'overall': 2.484237614754921, 'precision': 0.0, 'recall': 0.0, 'fscore': 0.0}
-
-[1;36m========================================================================================================================[0m
-[1;36m📊 SUMMARY[0m
-[1;36m========================================================================================================================[0m
-
-[1;35m🎯 POSE ESTIMATION[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-Auc3           [1;32m0.2056      [0mN/A         0.2056      N/A         N/A         N/A         
-Auc30          [1;32m0.6557      [0mN/A         0.6557      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32m0.2976      [0mN/A         0.2976      N/A         N/A         N/A         
-Overall        [1;32m1.5118      [0mN/A         1.5118      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_POSED (GT Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-
-[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
-
-====================================================================================================
-[1;32m✅ Evaluation Complete[0m
-====================================================================================================
-
-  [LoRA maxframe] eth3d, seed=42
-Loading base model: facebook/vggt-1b
-Loading LoRA weights: ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora.pt
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora_peft
-Loaded camera token
-[INFO] Total inference tasks: 11
-Inference:   0%|          | 0/11 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   9%|▉         | 1/11 [00:26<04:22, 26.27s/it]Inference:  18%|█▊        | 2/11 [00:51<03:51, 25.75s/it]Inference:  27%|██▋       | 3/11 [01:11<03:05, 23.16s/it]Inference:  36%|███▋      | 4/11 [01:19<01:59, 17.07s/it]Inference:  45%|████▌     | 5/11 [01:30<01:28, 14.80s/it]Inference:  55%|█████▍    | 6/11 [01:56<01:33, 18.64s/it]Inference:  64%|██████▎   | 7/11 [02:59<02:12, 33.04s/it]Inference:  73%|███████▎  | 8/11 [03:14<01:22, 27.50s/it]Inference:  82%|████████▏ | 9/11 [03:37<00:51, 25.91s/it]Inference:  91%|█████████ | 10/11 [03:48<00:21, 21.46s/it]Inference: 100%|██████████| 11/11 [04:16<00:00, 23.34s/it]Inference: 100%|██████████| 11/11 [04:16<00:00, 23.29s/it]
-[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
-[ETH3D] electro: 39/45 images (filtered 6, missing 0)
-[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
-[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
-[ETH3D] relief: 19/31 images (filtered 12, missing 0)
-[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
-[ETH3D] facade: 76/76 images (filtered 0, missing 0)
-[ETH3D] office: 26/26 images (filtered 0, missing 0)
-[ETH3D] playground: 32/38 images (filtered 6, missing 0)
-[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
-[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d scenes:   0%|          | 0/11 [00:00<?, ?it/s][A
-                                                    [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00, 21.95it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d fusion:   0%|          | 0/11 [00:00<?, ?it/s][A
-eth3d fusion:   9%|▉         | 1/11 [05:56<59:22, 356.29s/it][A
-eth3d fusion:  18%|█▊        | 2/11 [06:04<22:42, 151.42s/it][A
-eth3d fusion:  55%|█████▍    | 6/11 [08:59<05:42, 68.57s/it] [A
-eth3d fusion:  64%|██████▎   | 7/11 [11:48<06:00, 90.10s/it][A
-eth3d fusion: 100%|██████████| 11/11 [12:08<00:00, 43.19s/it][Aeth3d fusion: 100%|██████████| 11/11 [12:08<00:00, 66.26s/it]
-Datasets (recon_unposed eval): 100%|██████████| 1/1 [13:10<00:00, 790.61s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [13:10<00:00, 790.61s/it]
-  recon_unposed | eth3d | courtyard: {'acc': 0.27741683936285777, 'comp': 0.1974448694513108, 'overall': 0.23743085440708428, 'precision': 0.4320078709306679, 'recall': 0.6637805762747648, 'fscore': 0.5233828377236633}
-  recon_unposed | eth3d | electro: {'acc': 0.15801580905269771, 'comp': 4.744684727777522, 'overall': 2.45135026841511, 'precision': 0.8056535927058143, 'recall': 0.54994262750453, 'fscore': 0.6536802729685259}
-  recon_unposed | eth3d | kicker: {'acc': 0.05212837960417337, 'comp': 0.04799623151511189, 'overall': 0.050062305559642625, 'precision': 0.9962814417381604, 'recall': 0.9991774916331045, 'fscore': 0.9977273651377495}
-  recon_unposed | eth3d | pipes: {'acc': 0.1703803081758658, 'comp': 0.21129784113221511, 'overall': 0.19083907465404046, 'precision': 0.817429406037001, 'recall': 0.7545023696682465, 'fscore': 0.7847063510306844}
-  recon_unposed | eth3d | relief: {'acc': 0.38496789574640167, 'comp': 0.39453563882524173, 'overall': 0.3897517672858217, 'precision': 0.581145177790867, 'recall': 0.5534871074455069, 'fscore': 0.5669790427201925}
-  recon_unposed | eth3d | delivery_area: {'acc': 0.45993443507448617, 'comp': 1.2276009720097438, 'overall': 0.8437677035421149, 'precision': 0.45711472351305127, 'recall': 0.28233134553562417, 'fscore': 0.3490662006483372}
-  recon_unposed | eth3d | facade: {'acc': 0.25976003587441265, 'comp': 0.2411537546741653, 'overall': 0.250456895274289, 'precision': 0.6258979451907767, 'recall': 0.70658112234892, 'fscore': 0.6637968030602576}
-  recon_unposed | eth3d | office: {'acc': 0.0724836977905447, 'comp': 0.07411271480789136, 'overall': 0.07329820629921803, 'precision': 0.9943838180904981, 'recall': 0.9938671806553355, 'fscore': 0.9941254322500436}
-  recon_unposed | eth3d | playground: {'acc': 0.41864429225989797, 'comp': 0.6027488756697049, 'overall': 0.5106965839648014, 'precision': 0.852196059157321, 'recall': 0.7024270637148644, 'fscore': 0.7700973525175988}
-  recon_unposed | eth3d | relief_2: {'acc': 0.8152239561207545, 'comp': 1.1585558069461095, 'overall': 0.9868898815334319, 'precision': 0.05024672861947218, 'recall': 0.05542500264634275, 'fscore': 0.052708989118364934}
-  recon_unposed | eth3d | terrains: {'acc': 0.2570752844324032, 'comp': 0.11223032567750663, 'overall': 0.1846528050549549, 'precision': 0.7233650322609654, 'recall': 0.8981332654327864, 'fscore': 0.8013307191854193}
-
-[1;36m========================================================================================================================[0m
-[1;36m📊 SUMMARY[0m
-[1;36m========================================================================================================================[0m
-
-[1;35m🎯 POSE ESTIMATION[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-Auc3           [1;32m0.3001      [0mN/A         0.3001      N/A         N/A         N/A         
-Auc30          [1;32m0.8378      [0mN/A         0.8378      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32m0.6507      [0mN/A         0.6507      N/A         N/A         N/A         
-Overall        [1;32m0.5608      [0mN/A         0.5608      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_POSED (GT Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-
-[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
-
-====================================================================================================
-[1;32m✅ Evaluation Complete[0m
-====================================================================================================
-
-  [LoRA maxframe] eth3d, seed=43
-Loading base model: facebook/vggt-1b
-Loading LoRA weights: ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora.pt
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora_peft
-Loaded camera token
-[INFO] Total inference tasks: 11
-Inference:   0%|          | 0/11 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   9%|▉         | 1/11 [00:25<04:19, 25.98s/it]Inference:  18%|█▊        | 2/11 [00:51<03:49, 25.46s/it]Inference:  27%|██▋       | 3/11 [01:11<03:04, 23.09s/it]Inference:  36%|███▋      | 4/11 [01:18<01:58, 16.95s/it]Inference:  45%|████▌     | 5/11 [01:29<01:28, 14.73s/it]Inference:  55%|█████▍    | 6/11 [01:55<01:33, 18.66s/it]Inference:  64%|██████▎   | 7/11 [02:59<02:13, 33.47s/it]Inference:  73%|███████▎  | 8/11 [03:16<01:23, 27.97s/it]Inference:  82%|████████▏ | 9/11 [03:38<00:52, 26.33s/it]Inference:  91%|█████████ | 10/11 [03:50<00:21, 21.85s/it]Inference: 100%|██████████| 11/11 [04:18<00:00, 23.80s/it]Inference: 100%|██████████| 11/11 [04:18<00:00, 23.54s/it]
-[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
-[ETH3D] electro: 39/45 images (filtered 6, missing 0)
-[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
-[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
-[ETH3D] relief: 19/31 images (filtered 12, missing 0)
-[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
-[ETH3D] facade: 76/76 images (filtered 0, missing 0)
-[ETH3D] office: 26/26 images (filtered 0, missing 0)
-[ETH3D] playground: 32/38 images (filtered 6, missing 0)
-[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
-[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d scenes:   0%|          | 0/11 [00:00<?, ?it/s][A
-eth3d scenes:  64%|██████▎   | 7/11 [00:00<00:00, 69.72it/s][A
-                                                            [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00,  8.29it/s]Datasets (pose eval): 100%|██████████| 1/1 [00:00<00:00,  8.28it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d fusion:   0%|          | 0/11 [00:00<?, ?it/s][A
-eth3d fusion:   9%|▉         | 1/11 [03:07<31:13, 187.35s/it][A
-eth3d fusion:  18%|█▊        | 2/11 [03:11<11:57, 79.69s/it] [A
-eth3d fusion:  55%|█████▍    | 6/11 [05:28<03:43, 44.65s/it][A
-eth3d fusion:  64%|██████▎   | 7/11 [08:20<04:48, 72.10s/it][A
-eth3d fusion: 100%|██████████| 11/11 [08:36<00:00, 34.55s/it][Aeth3d fusion: 100%|██████████| 11/11 [08:36<00:00, 46.98s/it]
-Datasets (recon_unposed eval): 100%|██████████| 1/1 [09:36<00:00, 576.53s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [09:36<00:00, 576.53s/it]
-  recon_unposed | eth3d | courtyard: {'acc': 0.2773806087767761, 'comp': 0.19720585028885518, 'overall': 0.23729322953281565, 'precision': 0.43218838650319574, 'recall': 0.665067604903188, 'fscore': 0.5239151070120671}
-  recon_unposed | eth3d | electro: {'acc': 0.15648755679539672, 'comp': 4.737624308112868, 'overall': 2.4470559324541323, 'precision': 0.8075452911262138, 'recall': 0.5506858489782356, 'fscore': 0.6548278140611873}
-  recon_unposed | eth3d | kicker: {'acc': 0.0522803160308573, 'comp': 0.048062293444152325, 'overall': 0.050171304737504814, 'precision': 0.9963741167720342, 'recall': 0.9991492257954738, 'fscore': 0.9977597416570922}
-  recon_unposed | eth3d | pipes: {'acc': 0.16903837159685997, 'comp': 0.21107374232242057, 'overall': 0.19005605695964028, 'precision': 0.819640252795333, 'recall': 0.756488909863143, 'fscore': 0.7867994273657735}
-  recon_unposed | eth3d | relief: {'acc': 0.3850384857033545, 'comp': 0.39294630432407546, 'overall': 0.38899239501371496, 'precision': 0.582346375643331, 'recall': 0.5568745992488779, 'fscore': 0.5693257264528518}
-  recon_unposed | eth3d | delivery_area: {'acc': 0.46258474341166034, 'comp': 1.2270234691719044, 'overall': 0.8448041062917824, 'precision': 0.45659345404300644, 'recall': 0.28355989804587933, 'fscore': 0.34985072461389705}
-  recon_unposed | eth3d | facade: {'acc': 0.25997783365537686, 'comp': 0.24188871022121303, 'overall': 0.25093327193829496, 'precision': 0.6261691947940063, 'recall': 0.7049008656799777, 'fscore': 0.6632065742884413}
-  recon_unposed | eth3d | office: {'acc': 0.07238684277833117, 'comp': 0.07417951272340251, 'overall': 0.07328317775086685, 'precision': 0.9939875160638884, 'recall': 0.9938903784449035, 'fscore': 0.9939389448810819}
-  recon_unposed | eth3d | playground: {'acc': 0.41763497338400196, 'comp': 0.6029110225865569, 'overall': 0.5102729979852795, 'precision': 0.8524721961677609, 'recall': 0.7032517432759356, 'fscore': 0.7707055768051192}
-  recon_unposed | eth3d | relief_2: {'acc': 0.8134248578880507, 'comp': 1.1528953132338091, 'overall': 0.9831600855609299, 'precision': 0.049999467751035226, 'recall': 0.05507985930923139, 'fscore': 0.05241684975169243}
-  recon_unposed | eth3d | terrains: {'acc': 0.25775864707735374, 'comp': 0.1122633756038657, 'overall': 0.1850110113406097, 'precision': 0.722168723266074, 'recall': 0.8976733823482606, 'fscore': 0.8004133713940234}
-
-[1;36m========================================================================================================================[0m
-[1;36m📊 SUMMARY[0m
-[1;36m========================================================================================================================[0m
-
-[1;35m🎯 POSE ESTIMATION[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-Auc3           [1;32m0.3001      [0mN/A         0.3001      N/A         N/A         N/A         
-Auc30          [1;32m0.8378      [0mN/A         0.8378      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32m0.6512      [0mN/A         0.6512      N/A         N/A         N/A         
-Overall        [1;32m0.5601      [0mN/A         0.5601      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_POSED (GT Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-
-[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
-
-====================================================================================================
-[1;32m✅ Evaluation Complete[0m
-====================================================================================================
-
-  [LoRA maxframe] eth3d, seed=44
-Loading base model: facebook/vggt-1b
-Loading LoRA weights: ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora.pt
-Loading student model: facebook/vggt-1b
-Applying PEFT LoRA (rank=16, alpha=16.0) to layers 0-23
-Total PEFT LoRA parameters: 12,582,912
-Camera token is trainable
-Student parameters: 1,269,120,428 total, 12,584,960 trainable
-Loaded and activated PEFT LoRA weights from ./checkpoints/vggt_output_distill/eth3d/epoch_0_lora_peft
-Loaded camera token
-[INFO] Total inference tasks: 11
-Inference:   0%|          | 0/11 [00:00<?, ?it/s]/home/22097845d/Depth-Anything-3/./scripts/../src/vggt/vggt/models/vggt.py:65: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
-  with torch.cuda.amp.autocast(enabled=False):
-Inference:   9%|▉         | 1/11 [00:25<04:17, 25.77s/it]Inference:  18%|█▊        | 2/11 [00:51<03:50, 25.58s/it]Inference:  27%|██▋       | 3/11 [01:11<03:05, 23.19s/it]Inference:  36%|███▋      | 4/11 [01:19<01:58, 16.98s/it]Inference:  45%|████▌     | 5/11 [01:29<01:28, 14.77s/it]Inference:  55%|█████▍    | 6/11 [01:57<01:36, 19.22s/it]Inference:  64%|██████▎   | 7/11 [03:05<02:20, 35.05s/it]Inference:  73%|███████▎  | 8/11 [03:22<01:27, 29.27s/it]Inference:  82%|████████▏ | 9/11 [03:46<00:55, 27.60s/it]Inference:  91%|█████████ | 10/11 [03:58<00:22, 22.89s/it]Inference: 100%|██████████| 11/11 [04:26<00:00, 24.32s/it]Inference: 100%|██████████| 11/11 [04:26<00:00, 24.19s/it]
-[ETH3D] courtyard: 38/38 images (filtered 0, missing 0)
-[ETH3D] electro: 39/45 images (filtered 6, missing 0)
-[ETH3D] kicker: 31/31 images (filtered 0, missing 0)
-[ETH3D] pipes: 14/14 images (filtered 0, missing 0)
-[ETH3D] relief: 19/31 images (filtered 12, missing 0)
-[ETH3D] delivery_area: 40/44 images (filtered 4, missing 0)
-[ETH3D] facade: 76/76 images (filtered 0, missing 0)
-[ETH3D] office: 26/26 images (filtered 0, missing 0)
-[ETH3D] playground: 32/38 images (filtered 6, missing 0)
-[ETH3D] relief_2: 20/31 images (filtered 11, missing 0)
-[ETH3D] terrains: 42/42 images (filtered 0, missing 0)
-
-============================================================
-Evaluating POSE for all datasets...
-============================================================
-Datasets (pose eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d scenes:   0%|          | 0/11 [00:00<?, ?it/s][A
-eth3d scenes:  64%|██████▎   | 7/11 [00:00<00:00, 47.35it/s][A
-                                                            [ADatasets (pose eval): 100%|██████████| 1/1 [00:00<00:00,  6.21it/s]Datasets (pose eval): 100%|██████████| 1/1 [00:00<00:00,  6.21it/s]
-
-============================================================
-Evaluating RECON_UNPOSED for all datasets...
-============================================================
-Datasets (recon_unposed eval):   0%|          | 0/1 [00:00<?, ?it/s]
-eth3d fusion:   0%|          | 0/11 [00:00<?, ?it/s][A
-eth3d fusion:   9%|▉         | 1/11 [02:49<28:15, 169.58s/it][A
-eth3d fusion:  55%|█████▍    | 6/11 [04:53<03:32, 42.53s/it] [A
-eth3d fusion:  64%|██████▎   | 7/11 [07:57<04:43, 70.80s/it][A
-eth3d fusion:  73%|███████▎  | 8/11 [07:57<02:45, 55.11s/it][A
-eth3d fusion: 100%|██████████| 11/11 [08:06<00:00, 29.79s/it][Aeth3d fusion: 100%|██████████| 11/11 [08:06<00:00, 44.27s/it]
-Datasets (recon_unposed eval): 100%|██████████| 1/1 [09:03<00:00, 543.90s/it]Datasets (recon_unposed eval): 100%|██████████| 1/1 [09:03<00:00, 543.90s/it]
-  recon_unposed | eth3d | courtyard: {'acc': 0.2769639399241121, 'comp': 0.19634818756764533, 'overall': 0.23665606374587872, 'precision': 0.4327368088180568, 'recall': 0.6677113579103162, 'fscore': 0.5251374684783356}
-  recon_unposed | eth3d | electro: {'acc': 0.15803356546432637, 'comp': 4.786564950592712, 'overall': 2.4722992580285195, 'precision': 0.805580138648645, 'recall': 0.5486551808817257, 'fscore': 0.6527458120620754}
-  recon_unposed | eth3d | kicker: {'acc': 0.05201653650478577, 'comp': 0.04758886526740926, 'overall': 0.04980270088609752, 'precision': 0.9961704673891364, 'recall': 0.9991982820329277, 'fscore': 0.9976820774761175}
-  recon_unposed | eth3d | pipes: {'acc': 0.1690425186504756, 'comp': 0.21171954545284194, 'overall': 0.19038103205165877, 'precision': 0.8202630297126157, 'recall': 0.75484175720359, 'fscore': 0.7861937718183707}
-  recon_unposed | eth3d | relief: {'acc': 0.38516737755537644, 'comp': 0.3950934604162783, 'overall': 0.39013041898582734, 'precision': 0.5807659381349726, 'recall': 0.5536701689608051, 'fscore': 0.5668944651577859}
-  recon_unposed | eth3d | delivery_area: {'acc': 0.46007804067280994, 'comp': 1.2313765152542435, 'overall': 0.8457272779635268, 'precision': 0.45613195256591266, 'recall': 0.28091310167534056, 'fscore': 0.3476950040738719}
-  recon_unposed | eth3d | facade: {'acc': 0.25902416409879525, 'comp': 0.2432936730774569, 'overall': 0.25115891858812606, 'precision': 0.6261897905410463, 'recall': 0.7018633713399058, 'fscore': 0.6618706089525735}
-  recon_unposed | eth3d | office: {'acc': 0.07239615538843219, 'comp': 0.074128104900449, 'overall': 0.0732621301444406, 'precision': 0.9941394624788242, 'recall': 0.993672276662126, 'fscore': 0.9939058146702592}
-  recon_unposed | eth3d | playground: {'acc': 0.4179726263496208, 'comp': 0.5990586843748175, 'overall': 0.5085156553622191, 'precision': 0.8511482720178373, 'recall': 0.7040954415954416, 'fscore': 0.7706697197409322}
-  recon_unposed | eth3d | relief_2: {'acc': 0.810660719809255, 'comp': 1.1557862420211809, 'overall': 0.9832234809152179, 'precision': 0.050554120134099205, 'recall': 0.055879870586580394, 'fscore': 0.0530837502490269}
-  recon_unposed | eth3d | terrains: {'acc': 0.2579370540713944, 'comp': 0.11218731415500864, 'overall': 0.18506218411320152, 'precision': 0.7213921977701505, 'recall': 0.8984951641639094, 'fscore': 0.800262310075902}
-
-[1;36m========================================================================================================================[0m
-[1;36m📊 SUMMARY[0m
-[1;36m========================================================================================================================[0m
-
-[1;35m🎯 POSE ESTIMATION[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg         HiRoom      ETH3D       DTU-64      7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-Auc3           [1;32m0.3001      [0mN/A         0.3001      N/A         N/A         N/A         
-Auc30          [1;32m0.8378      [0mN/A         0.8378      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_UNPOSED (Pred Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32m0.6506      [0mN/A         0.6506      N/A         N/A         N/A         
-Overall        [1;32m0.5624      [0mN/A         0.5624      N/A         N/A         N/A         
-
-[1;35m🏗️  RECON_POSED (GT Pose)[0m
----------------------------------------------------------------------------------------
-[1mMetric         Avg*        HiRoom      ETH3D       DTU         7Scenes     ScanNet++   [0m
----------------------------------------------------------------------------------------
-F-score        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-Overall        [1;32mN/A         [0mN/A         N/A         N/A         N/A         N/A         
-
-[36m* Avg F-score / Overall = average over HiRoom, ETH3D, 7Scenes, ScanNet++ (4 datasets)[0m
-
-====================================================================================================
-[1;32m✅ Evaluation Complete[0m
-====================================================================================================
-
-
-Benchmark complete!

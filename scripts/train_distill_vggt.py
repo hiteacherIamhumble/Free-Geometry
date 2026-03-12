@@ -54,6 +54,7 @@ def get_lr_scheduler(
     num_training_steps: int,
     warmup_steps: int,
     steps_per_epoch: int | None = None,
+    eta_min: float = 1e-6,
 ) -> torch.optim.lr_scheduler._LRScheduler:
     """Create learning rate scheduler."""
     if scheduler_type in (None, "none"):
@@ -72,7 +73,7 @@ def get_lr_scheduler(
         cosine_scheduler = CosineAnnealingLR(
             optimizer,
             T_max=num_training_steps - warmup_steps,
-            eta_min=1e-6,
+            eta_min=eta_min,
         )
         if warmup_scheduler is not None:
             return SequentialLR(
@@ -231,6 +232,64 @@ class VGGTAllTokenSoftmaxKLCosineLoss(nn.Module):
         }
 
 
+class VGGTPatchHuberCosineLoss(nn.Module):
+    """
+    Per-patch Huber + cosine loss on full VGGT tokens (DA3-style).
+    """
+
+    def __init__(
+        self,
+        student_frame_indices: List[int] = None,
+        target_layers: Optional[List[int]] = None,
+        huber_weight: float = 1.0,
+        cos_weight: float = 2.0,
+        delta: float = 1.0,
+    ):
+        super().__init__()
+        self.target_layers = target_layers or [23]
+        self.student_frame_indices = student_frame_indices or [0, 2, 4, 6]
+        self.huber_weight = huber_weight
+        self.cos_weight = cos_weight
+        self.huber = nn.SmoothL1Loss(reduction='mean', beta=delta)
+        print(
+            f"VGGTPatchHuberCosineLoss: layers={self.target_layers}, "
+            f"huber_w={huber_weight}, cos_w={cos_weight}, delta={delta}"
+        )
+
+    def forward(
+        self,
+        teacher_output: VGGTDistillationOutput,
+        student_output: VGGTDistillationOutput,
+    ) -> Tuple[torch.Tensor, Dict[str, float]]:
+        total_huber = 0.0
+        total_cos = 0.0
+
+        for layer in self.target_layers:
+            teacher_all = teacher_output.layer_features[layer]  # [B,8,P,D]
+            student_all = student_output.layer_features[layer]  # [B,4,P,D]
+            teacher_selected = teacher_all[:, self.student_frame_indices, :, :].detach()
+
+            huber = self.huber(student_all, teacher_selected)
+            teacher_norm = torch.nn.functional.normalize(teacher_selected, dim=-1)
+            student_norm = torch.nn.functional.normalize(student_all, dim=-1)
+            cos = (teacher_norm * student_norm).sum(dim=-1).mean()
+
+            total_huber = total_huber + huber
+            total_cos = total_cos + cos
+
+        n = len(self.target_layers)
+        avg_huber = total_huber / n
+        avg_cos = total_cos / n
+
+        loss = self.huber_weight * avg_huber + self.cos_weight * (1.0 - avg_cos)
+        return loss, {
+            'patch_huber': avg_huber.item(),
+            'patch_huber_cos': avg_cos.item(),
+            'patch_huber_total': loss.item(),
+            'total_loss': loss.item(),
+        }
+
+
 class VGGTCrossFrameRKDAngleLoss(nn.Module):
     """
     Cross-Frame RKD Angle-Wise Loss for VGGT distillation.
@@ -258,6 +317,7 @@ class VGGTCrossFrameRKDAngleLoss(nn.Module):
         angle3_weight: float = 1.0,
         huber_delta: float = 1.0,
         shared_chunk_size: int = 64,
+        selection_mode: str = 'topk',
     ):
         super().__init__()
         self.student_frame_indices = student_frame_indices or [0, 2, 4, 6]
@@ -271,6 +331,7 @@ class VGGTCrossFrameRKDAngleLoss(nn.Module):
         self.angle3_weight = angle3_weight
         self.huber_loss = nn.HuberLoss(reduction='none', delta=huber_delta)
         self.shared_chunk_size = shared_chunk_size
+        self.selection_mode = selection_mode
 
         # Extra frame indices (teacher-only frames)
         all_teacher_indices = set(range(num_teacher_views))
@@ -286,7 +347,7 @@ class VGGTCrossFrameRKDAngleLoss(nn.Module):
             t_idx: s_idx for s_idx, t_idx in enumerate(self.student_frame_indices)
         }
 
-        print(f"VGGTCrossFrameRKDAngleLoss: layer={target_layer}, topk={topk}")
+        print(f"VGGTCrossFrameRKDAngleLoss: layer={target_layer}, topk={topk}, selection={selection_mode}")
         print(f"  ref_samples={num_ref_samples}, shared_samples={num_shared_samples}, shared_chunk={shared_chunk_size}")
         print(f"  angle weights: a1={angle1_weight}, a2={angle2_weight}, a3={angle3_weight}")
         print(f"  extra frames (teacher-only): {self.extra_frame_indices}")
@@ -328,31 +389,58 @@ class VGGTCrossFrameRKDAngleLoss(nn.Module):
         ref_s_idx = self.teacher_to_student[self.ref_frame_teacher_idx]
         ref_s_sampled = student_feats[:, ref_s_idx, ref_perm, :]  # [B, num_ref, D]
 
-        # --- 3. Top-K search across extra frames (no grad) ---
+        # --- 3. Select patches across extra frames (no grad) ---
         with torch.no_grad():
-            # Build extra features: [B, E*P, D] — only needed temporarily for top-K
+            # Build extra features: [B, E*P, D] — only needed temporarily
             extra_t_list = [teacher_feats[:, eidx, :, :] for eidx in self.extra_frame_indices]
             extra_t = torch.cat(extra_t_list, dim=1)  # [B, E*P, D]
             del extra_t_list
 
-            ref_t_norm = torch.nn.functional.normalize(ref_t_sampled, dim=-1)
-            extra_t_norm = torch.nn.functional.normalize(extra_t, dim=-1)
+            if self.selection_mode == 'random':
+                EP = extra_t.shape[1]
+                rand_indices = torch.randint(0, EP, (B, num_ref, self.topk), device=teacher_feats.device)
+                sim_high_t = torch.zeros(B, num_ref, self.topk, D,
+                                         device=teacher_feats.device, dtype=teacher_feats.dtype)
+                for b in range(B):
+                    flat_idx = rand_indices[b].reshape(-1)
+                    sim_high_t[b] = extra_t[b, flat_idx, :].reshape(num_ref, self.topk, D)
+                del extra_t, rand_indices
 
-            # Cosine similarity: [B, num_ref, E*P]
-            sim_matrix = torch.bmm(ref_t_norm, extra_t_norm.transpose(1, 2))
-            del ref_t_norm, extra_t_norm
+            elif self.selection_mode == 'mixed':
+                ref_t_norm = torch.nn.functional.normalize(ref_t_sampled, dim=-1)
+                extra_t_norm = torch.nn.functional.normalize(extra_t, dim=-1)
+                sim_matrix = torch.bmm(ref_t_norm, extra_t_norm.transpose(1, 2))
+                del ref_t_norm, extra_t_norm
 
-            # Top-K indices: [B, num_ref, K]
-            _, topk_indices = sim_matrix.topk(self.topk, dim=-1)
-            del sim_matrix
+                k_top = self.topk // 2
+                k_bot = self.topk - k_top
+                _, topk_indices = sim_matrix.topk(k_top, dim=-1, largest=True)
+                _, botk_indices = sim_matrix.topk(k_bot, dim=-1, largest=False)
+                combined_indices = torch.cat([topk_indices, botk_indices], dim=-1)
+                del sim_matrix, topk_indices, botk_indices
 
-            # Gather top-K patches per batch element (avoids expanding extra_t)
-            sim_high_t = torch.zeros(B, num_ref, self.topk, D,
-                                     device=teacher_feats.device, dtype=teacher_feats.dtype)
-            for b in range(B):
-                flat_idx = topk_indices[b].reshape(-1)  # [num_ref*K]
-                sim_high_t[b] = extra_t[b, flat_idx, :].reshape(num_ref, self.topk, D)
-            del extra_t, topk_indices
+                sim_high_t = torch.zeros(B, num_ref, self.topk, D,
+                                         device=teacher_feats.device, dtype=teacher_feats.dtype)
+                for b in range(B):
+                    flat_idx = combined_indices[b].reshape(-1)
+                    sim_high_t[b] = extra_t[b, flat_idx, :].reshape(num_ref, self.topk, D)
+                del extra_t, combined_indices
+
+            else:
+                ref_t_norm = torch.nn.functional.normalize(ref_t_sampled, dim=-1)
+                extra_t_norm = torch.nn.functional.normalize(extra_t, dim=-1)
+                sim_matrix = torch.bmm(ref_t_norm, extra_t_norm.transpose(1, 2))
+                del ref_t_norm, extra_t_norm
+
+                _, topk_indices = sim_matrix.topk(self.topk, dim=-1)
+                del sim_matrix
+
+                sim_high_t = torch.zeros(B, num_ref, self.topk, D,
+                                         device=teacher_feats.device, dtype=teacher_feats.dtype)
+                for b in range(B):
+                    flat_idx = topk_indices[b].reshape(-1)
+                    sim_high_t[b] = extra_t[b, flat_idx, :].reshape(num_ref, self.topk, D)
+                del extra_t, topk_indices
 
         sim_high_t = sim_high_t.detach()
 
@@ -425,6 +513,288 @@ class VGGTCrossFrameRKDAngleLoss(nn.Module):
             'rkd_angle3_loss': total_angle3_loss.item(),
             'rkd_total_loss': loss.item(),
         }
+
+
+class VGGTCrossFrameRKDDistanceLoss(nn.Module):
+    """
+    Cross-Frame RKD distance-wise loss for VGGT distillation.
+
+    This mirrors DA3 distance RKD: for triplets (ref, shared, sim_high), match
+    the per-channel difference profiles for the 3 edges:
+      d1 = ref - shared
+      d2 = ref - sim_high
+      d3 = shared - sim_high
+    """
+
+    def __init__(
+        self,
+        student_frame_indices: Optional[List[int]] = None,
+        num_teacher_views: int = 8,
+        target_layer: int = 23,
+        topk: int = 4,
+        num_ref_samples: int = 256,
+        num_shared_samples: int = 256,
+        d1_weight: float = 1.0,
+        d2_weight: float = 1.0,
+        d3_weight: float = 1.0,
+        shared_chunk_size: int = 64,
+        distance_chunk_size: int = 16,
+        distance_type: str = "l2",
+        normalize_distance: bool = True,
+        temperature: float = 1.0,
+        distance_mode: str = "kl",
+        huber_beta: float = 0.5,
+        selection_mode: str = 'topk',
+    ):
+        super().__init__()
+        self.student_frame_indices = student_frame_indices or [0, 2, 4, 6]
+        self.num_teacher_views = num_teacher_views
+        self.target_layer = target_layer
+        self.topk = topk
+        self.num_ref_samples = num_ref_samples
+        self.num_shared_samples = num_shared_samples
+        self.d1_weight = d1_weight
+        self.d2_weight = d2_weight
+        self.d3_weight = d3_weight
+        self.shared_chunk_size = shared_chunk_size
+        self.distance_chunk_size = distance_chunk_size
+        self.distance_type = distance_type
+        self.normalize_distance = normalize_distance
+        self.temperature = temperature
+        self.distance_mode = distance_mode
+        self.huber_beta = huber_beta
+        self.selection_mode = selection_mode
+
+        all_teacher_indices = set(range(num_teacher_views))
+        student_set = set(self.student_frame_indices)
+        self.extra_frame_indices = sorted(all_teacher_indices - student_set)
+
+        self.ref_frame_teacher_idx = self.student_frame_indices[0]
+        self.shared_frame_teacher_indices = self.student_frame_indices[1:]
+
+        self.teacher_to_student = {
+            t_idx: s_idx for s_idx, t_idx in enumerate(self.student_frame_indices)
+        }
+
+        print(
+            f"VGGTCrossFrameRKDDistanceLoss: layer={target_layer}, topk={topk}, "
+            f"temp={temperature}, mode={distance_mode}, selection={selection_mode}"
+        )
+        print(
+            f"  ref_samples={num_ref_samples}, shared_samples={num_shared_samples}, "
+            f"shared_chunk={shared_chunk_size}, distance_chunk={distance_chunk_size}"
+        )
+        print(f"  distance weights: d1={d1_weight}, d2={d2_weight}, d3={d3_weight}")
+        print(f"  distance_type={distance_type}, normalize={normalize_distance}")
+        if distance_mode == "huber":
+            print(f"  huber_beta={huber_beta}")
+        print(f"  extra frames (teacher-only): {self.extra_frame_indices}")
+        print(f"  shared frames: {self.shared_frame_teacher_indices}")
+
+    def forward(
+        self,
+        teacher_output: VGGTDistillationOutput,
+        student_output: VGGTDistillationOutput,
+    ) -> Tuple[torch.Tensor, Dict[str, float]]:
+        teacher_feats = teacher_output.layer_features[self.target_layer]  # [B, S_t, P, D]
+        student_feats = student_output.layer_features[self.target_layer]  # [B, S_s, P, D]
+
+        B, _, P, D = teacher_feats.shape
+
+        # 1) Position subsampling.
+        num_ref = min(self.num_ref_samples, P)
+        num_shared = min(self.num_shared_samples, P)
+        ref_perm = torch.randperm(P, device=teacher_feats.device)[:num_ref]
+        shared_perm = torch.randperm(P, device=teacher_feats.device)[:num_shared]
+
+        # 2) Gather ref slices.
+        ref_t_sampled = teacher_feats[:, self.ref_frame_teacher_idx, ref_perm, :].detach()
+        ref_s_idx = self.teacher_to_student[self.ref_frame_teacher_idx]
+        ref_s_sampled = student_feats[:, ref_s_idx, ref_perm, :]
+
+        # 3) Select patches over teacher-only frames.
+        with torch.no_grad():
+            extra_t_list = [teacher_feats[:, eidx, :, :] for eidx in self.extra_frame_indices]
+            extra_t = torch.cat(extra_t_list, dim=1)  # [B, E*P, D]
+
+            if self.selection_mode == 'random':
+                EP = extra_t.shape[1]
+                rand_indices = torch.randint(0, EP, (B, num_ref, self.topk), device=teacher_feats.device)
+                sim_high_t = torch.zeros(B, num_ref, self.topk, D,
+                                         device=teacher_feats.device, dtype=teacher_feats.dtype)
+                for b in range(B):
+                    flat_idx = rand_indices[b].reshape(-1)
+                    sim_high_t[b] = extra_t[b, flat_idx, :].reshape(num_ref, self.topk, D)
+                del extra_t, rand_indices
+
+            elif self.selection_mode == 'mixed':
+                ref_t_norm = torch.nn.functional.normalize(ref_t_sampled, dim=-1)
+                extra_t_norm = torch.nn.functional.normalize(extra_t, dim=-1)
+                sim_matrix = torch.bmm(ref_t_norm, extra_t_norm.transpose(1, 2))
+                del ref_t_norm, extra_t_norm
+
+                k_top = self.topk // 2
+                k_bot = self.topk - k_top
+                _, topk_indices = sim_matrix.topk(k_top, dim=-1, largest=True)
+                _, botk_indices = sim_matrix.topk(k_bot, dim=-1, largest=False)
+                combined_indices = torch.cat([topk_indices, botk_indices], dim=-1)
+                del sim_matrix, topk_indices, botk_indices
+
+                sim_high_t = torch.zeros(B, num_ref, self.topk, D,
+                                         device=teacher_feats.device, dtype=teacher_feats.dtype)
+                for b in range(B):
+                    flat_idx = combined_indices[b].reshape(-1)
+                    sim_high_t[b] = extra_t[b, flat_idx, :].reshape(num_ref, self.topk, D)
+                del extra_t, combined_indices
+
+            else:
+                ref_t_norm = torch.nn.functional.normalize(ref_t_sampled, dim=-1)
+                extra_t_norm = torch.nn.functional.normalize(extra_t, dim=-1)
+                sim_matrix = torch.bmm(ref_t_norm, extra_t_norm.transpose(1, 2))
+                _, topk_indices = sim_matrix.topk(self.topk, dim=-1)
+
+                sim_high_t = torch.zeros(B, num_ref, self.topk, D,
+                                         device=teacher_feats.device, dtype=teacher_feats.dtype)
+                for b in range(B):
+                    flat_idx = topk_indices[b].reshape(-1)
+                    sim_high_t[b] = extra_t[b, flat_idx, :].reshape(num_ref, self.topk, D)
+                del extra_t, topk_indices
+
+        sim_high_t = sim_high_t.detach()
+
+        # 4) Chunked distance-profile matching.
+        N = min(num_ref, num_shared)
+        cs = self.distance_chunk_size
+        temperature = self.temperature
+        huber_outer = nn.SmoothL1Loss(reduction="none", beta=0.5)
+        huber_direct = nn.SmoothL1Loss(reduction="none", beta=self.huber_beta)
+
+        sum_d1 = torch.tensor(0.0, device=teacher_feats.device)
+        sum_d2 = torch.tensor(0.0, device=teacher_feats.device)
+        sum_d3 = torch.tensor(0.0, device=teacher_feats.device)
+        total_d1_elements = 0
+        total_d2_elements = 0
+        total_d3_elements = 0
+
+        ref_t_paired = ref_t_sampled[:, :N, :]
+        ref_s_paired = ref_s_sampled[:, :N, :]
+        sim_high_paired = sim_high_t[:, :N, :, :]
+
+        for shared_teacher_idx in self.shared_frame_teacher_indices:
+            shared_student_idx = self.teacher_to_student[shared_teacher_idx]
+            shared_t = teacher_feats[:, shared_teacher_idx, shared_perm[:N], :].detach()
+            shared_s = student_feats[:, shared_student_idx, shared_perm[:N], :]
+
+            for c0 in range(0, N, cs):
+                c1 = min(c0 + cs, N)
+                rt = ref_t_paired[:, c0:c1, :].detach()
+                rs = ref_s_paired[:, c0:c1, :]
+                st = shared_t[:, c0:c1, :]
+                ss = shared_s[:, c0:c1, :]
+                sh = sim_high_paired[:, c0:c1, :, :]
+
+                # d1: ref - shared
+                diff_d1_t = rt - st
+                diff_d1_s = rs - ss
+
+                if self.distance_mode == "huber":
+                    loss_d1_chunk = huber_direct(diff_d1_s, diff_d1_t).mean(dim=-1)
+                    sum_d1 = sum_d1 + loss_d1_chunk.sum()
+                    total_d1_elements += loss_d1_chunk.numel()
+                else:
+                    log_p = torch.log_softmax(diff_d1_t / temperature, dim=-1)
+                    log_q = torch.log_softmax(diff_d1_s / temperature, dim=-1)
+                    p = log_p.exp()
+                    kl_d1 = (p * (log_p - log_q)).sum(dim=-1)
+                    sum_d1 = sum_d1 + huber_outer(kl_d1, torch.zeros_like(kl_d1)).sum()
+                    total_d1_elements += kl_d1.numel()
+
+                # d2: ref - sim_high
+                diff_d2_t = rt.unsqueeze(2) - sh
+                diff_d2_s = rs.unsqueeze(2) - sh
+
+                if self.distance_mode == "huber":
+                    loss_d2_chunk = huber_direct(diff_d2_s, diff_d2_t).mean(dim=-1)
+                    sum_d2 = sum_d2 + loss_d2_chunk.sum()
+                    total_d2_elements += loss_d2_chunk.numel()
+                else:
+                    log_p = torch.log_softmax(diff_d2_t / temperature, dim=-1)
+                    log_q = torch.log_softmax(diff_d2_s / temperature, dim=-1)
+                    p = log_p.exp()
+                    kl_d2 = (p * (log_p - log_q)).sum(dim=-1)
+                    sum_d2 = sum_d2 + huber_outer(kl_d2, torch.zeros_like(kl_d2)).sum()
+                    total_d2_elements += kl_d2.numel()
+
+                # d3: shared - sim_high
+                diff_d3_t = st.unsqueeze(2) - sh
+                diff_d3_s = ss.unsqueeze(2) - sh
+
+                if self.distance_mode == "huber":
+                    loss_d3_chunk = huber_direct(diff_d3_s, diff_d3_t).mean(dim=-1)
+                    sum_d3 = sum_d3 + loss_d3_chunk.sum()
+                    total_d3_elements += loss_d3_chunk.numel()
+                else:
+                    log_p = torch.log_softmax(diff_d3_t / temperature, dim=-1)
+                    log_q = torch.log_softmax(diff_d3_s / temperature, dim=-1)
+                    p = log_p.exp()
+                    kl_d3 = (p * (log_p - log_q)).sum(dim=-1)
+                    sum_d3 = sum_d3 + huber_outer(kl_d3, torch.zeros_like(kl_d3)).sum()
+                    total_d3_elements += kl_d3.numel()
+
+        loss_d1 = sum_d1 / max(total_d1_elements, 1)
+        loss_d2 = sum_d2 / max(total_d2_elements, 1)
+        loss_d3 = sum_d3 / max(total_d3_elements, 1)
+
+        loss = self.d1_weight * loss_d1 + self.d2_weight * loss_d2 + self.d3_weight * loss_d3
+        return loss, {
+            "rkd_dist_d1_loss": loss_d1.item(),
+            "rkd_dist_d2_loss": loss_d2.item(),
+            "rkd_dist_d3_loss": loss_d3.item(),
+            "rkd_dist_total_loss": loss.item(),
+        }
+
+
+class VGGTOutputDistillLoss(nn.Module):
+    """Output-level distillation loss for VGGT: pose_enc L1 + depth L1."""
+
+    def __init__(
+        self,
+        student_frame_indices: List[int],
+        camera_weight: float = 5.0,
+        depth_weight: float = 1.0,
+    ):
+        super().__init__()
+        self.student_frame_indices = student_frame_indices
+        self.camera_weight = camera_weight
+        self.depth_weight = depth_weight
+
+    def forward(
+        self,
+        teacher_preds: Dict[str, torch.Tensor],
+        student_preds: Dict[str, torch.Tensor],
+    ) -> Tuple[torch.Tensor, Dict[str, float]]:
+        device = next(iter(student_preds.values())).device
+        total_loss = torch.tensor(0.0, device=device)
+        details: Dict[str, float] = {}
+
+        # Camera loss: L1 on pose_enc [B, S, 9]
+        if "pose_enc" in teacher_preds and "pose_enc" in student_preds:
+            t_pose = teacher_preds["pose_enc"][:, self.student_frame_indices].detach()
+            s_pose = student_preds["pose_enc"]
+            cam_loss = (t_pose - s_pose).abs().clamp(max=100).mean()
+            total_loss = total_loss + self.camera_weight * cam_loss
+            details["output_cam_loss"] = cam_loss.item()
+
+        # Depth loss: L1 on depth [B, S, H, W, 1]
+        if "depth" in teacher_preds and "depth" in student_preds:
+            t_depth = teacher_preds["depth"][:, self.student_frame_indices].detach()
+            s_depth = student_preds["depth"]
+            depth_loss = (t_depth - s_depth).abs().clamp(max=100).mean()
+            total_loss = total_loss + self.depth_weight * depth_loss
+            details["output_depth_loss"] = depth_loss.item()
+
+        details["output_total_loss"] = total_loss.item()
+        return total_loss, details
 
 
 def save_checkpoint(
@@ -504,6 +874,8 @@ def train_epoch(
     args,
     writer: Optional[SummaryWriter] = None,
     rkd_criterion: Optional[nn.Module] = None,
+    rkd_distance_criterion: Optional[nn.Module] = None,
+    output_criterion: Optional[nn.Module] = None,
 ) -> int:
     """Train for one epoch."""
     student.train()
@@ -513,6 +885,7 @@ def train_epoch(
     log_interval = args.log_interval
     save_interval = args.save_interval
     grad_accum_steps = args.gradient_accumulation_steps
+    use_output_loss = output_criterion is not None and args.output_weight > 0.0
 
     total_loss = 0.0
     num_batches = 0
@@ -527,12 +900,18 @@ def train_epoch(
         with autocast(enabled=args.use_amp):
             # Teacher forward (no grad)
             with torch.no_grad():
-                teacher_output = teacher(teacher_images)
+                if use_output_loss:
+                    teacher_output, teacher_preds = teacher.forward_with_preds(teacher_images)
+                else:
+                    teacher_output = teacher(teacher_images)
 
             # Student forward
-            student_output = student(student_images)
+            if use_output_loss:
+                student_output, student_preds = student.forward_with_preds(student_images)
+            else:
+                student_output = student(student_images)
 
-            # Compute loss
+            # Compute feature loss
             loss, loss_details = criterion(teacher_output, student_output)
 
             # Add cross-frame RKD loss if enabled
@@ -542,6 +921,26 @@ def train_epoch(
                 loss_details['rkd_weighted'] = (args.rkd_weight * rkd_loss).item()
                 loss = loss + args.rkd_weight * rkd_loss
                 loss_details.update(rkd_details)
+                loss_details['total_loss'] = loss.item()
+
+            # Add cross-frame RKD distance loss if enabled
+            if rkd_distance_criterion is not None:
+                rkd_dist_loss, rkd_dist_details = rkd_distance_criterion(teacher_output, student_output)
+                if 'base_loss' not in loss_details:
+                    loss_details['base_loss'] = loss.item()
+                loss_details['rkd_dist_weighted'] = (args.rkd_distance_weight * rkd_dist_loss).item()
+                loss = loss + args.rkd_distance_weight * rkd_dist_loss
+                loss_details.update(rkd_dist_details)
+                loss_details['total_loss'] = loss.item()
+
+            # Add output-level distillation loss if enabled
+            if use_output_loss:
+                output_loss, output_details = output_criterion(teacher_preds, student_preds)
+                if 'base_loss' not in loss_details:
+                    loss_details['base_loss'] = loss.item()
+                loss_details['output_weighted'] = (args.output_weight * output_loss).item()
+                loss = loss + args.output_weight * output_loss
+                loss_details.update(output_details)
                 loss_details['total_loss'] = loss.item()
 
             loss = loss / grad_accum_steps
@@ -622,6 +1021,8 @@ def evaluate(
     criterion: nn.Module,
     args,
     rkd_criterion: Optional[nn.Module] = None,
+    rkd_distance_criterion: Optional[nn.Module] = None,
+    output_criterion: Optional[nn.Module] = None,
 ) -> Dict[str, float]:
     """Evaluate on validation set."""
     student.eval()
@@ -631,14 +1032,20 @@ def evaluate(
     total_loss = 0.0
     total_details = {}
     num_batches = 0
+    use_output_loss = output_criterion is not None and args.output_weight > 0.0
 
     for batch in val_loader:
         teacher_images = batch['teacher_images'].to(device)
         student_images = batch['student_images'].to(device)
 
         with autocast(enabled=args.use_amp):
-            teacher_output = teacher(teacher_images)
-            student_output = student(student_images)
+            if use_output_loss:
+                teacher_output, teacher_preds = teacher.forward_with_preds(teacher_images)
+                student_output, student_preds = student.forward_with_preds(student_images)
+            else:
+                teacher_output = teacher(teacher_images)
+                student_output = student(student_images)
+
             loss, loss_details = criterion(teacher_output, student_output)
 
             if rkd_criterion is not None:
@@ -647,6 +1054,24 @@ def evaluate(
                 loss_details['rkd_weighted'] = (args.rkd_weight * rkd_loss).item()
                 loss = loss + args.rkd_weight * rkd_loss
                 loss_details.update(rkd_details)
+                loss_details['total_loss'] = loss.item()
+
+            if rkd_distance_criterion is not None:
+                rkd_dist_loss, rkd_dist_details = rkd_distance_criterion(teacher_output, student_output)
+                if 'base_loss' not in loss_details:
+                    loss_details['base_loss'] = loss.item()
+                loss_details['rkd_dist_weighted'] = (args.rkd_distance_weight * rkd_dist_loss).item()
+                loss = loss + args.rkd_distance_weight * rkd_dist_loss
+                loss_details.update(rkd_dist_details)
+                loss_details['total_loss'] = loss.item()
+
+            if use_output_loss:
+                output_loss, output_details = output_criterion(teacher_preds, student_preds)
+                if 'base_loss' not in loss_details:
+                    loss_details['base_loss'] = loss.item()
+                loss_details['output_weighted'] = (args.output_weight * output_loss).item()
+                loss = loss + args.output_weight * output_loss
+                loss_details.update(output_details)
                 loss_details['total_loss'] = loss.item()
 
         total_loss += loss.item()
@@ -730,6 +1155,10 @@ def main():
                         help='LR scheduler type')
     parser.add_argument('--warmup_steps', type=int, default=0,
                         help='Warmup steps for LR scheduler')
+    parser.add_argument('--warmup_ratio', type=float, default=None,
+                        help='Warmup ratio (0-1) of total steps. Overrides --warmup_steps if set.')
+    parser.add_argument('--eta_min', type=float, default=1e-6,
+                        help='Minimum LR for cosine scheduler')
     parser.add_argument('--weight_decay', type=float, default=1e-5,
                         help='Weight decay')
     parser.add_argument('--max_grad_norm', type=float, default=1.0,
@@ -756,6 +1185,14 @@ def main():
                         help='Weight for full-token softmax KL term')
     parser.add_argument('--all_token_cos_weight', type=float, default=2.0,
                         help='Weight for full-token softmax cosine term')
+    parser.add_argument('--patch_huber_cosine', action='store_true',
+                        help='DA3-style patch Huber + cosine loss on full token')
+    parser.add_argument('--patch_huber_weight', type=float, default=1.0,
+                        help='Weight for patch Huber term')
+    parser.add_argument('--patch_huber_cos_weight', type=float, default=2.0,
+                        help='Weight for patch cosine term')
+    parser.add_argument('--patch_huber_delta', type=float, default=1.0,
+                        help='Huber delta (beta) for patch Huber loss')
     parser.add_argument('--combined_token_softmax_kl_cosine', action='store_true',
                         help='Use combined frame+global per-token softmax KL + cosine')
     parser.add_argument('--frame_kl_weight', type=float, default=1.0,
@@ -786,6 +1223,41 @@ def main():
                         help='Weight for angle 3 (vertex=shared)')
     parser.add_argument('--rkd_shared_chunk_size', type=int, default=64,
                         help='Chunk size for shared positions to bound memory')
+    parser.add_argument('--rkd_selection_mode', type=str, default='topk',
+                        choices=['topk', 'random', 'mixed'],
+                        help='Patch selection mode for RKD: topk, random, mixed (top+bottom)')
+    parser.add_argument('--use_rkd_distance', action='store_true',
+                        help='Enable RKD distance-wise loss alongside angle-wise RKD')
+    parser.add_argument('--rkd_distance_weight', type=float, default=1.0,
+                        help='Weight for RKD distance-wise loss')
+    parser.add_argument('--rkd_distance_chunk_size', type=int, default=16,
+                        help='Chunk size for RKD distance computation')
+    parser.add_argument('--rkd_distance_type', type=str, default='l2', choices=['l2', 'cosine'],
+                        help='Distance metric setting (kept for parity with DA3)')
+    parser.add_argument('--rkd_normalize_distance', action='store_true', default=True,
+                        help='Normalize distances by mean (parity with DA3)')
+    parser.add_argument('--rkd_no_normalize_distance', action='store_true',
+                        help='Disable distance normalization')
+    parser.add_argument('--rkd_d1_weight', type=float, default=1.0,
+                        help='Weight for distance edge d1 (ref-shared)')
+    parser.add_argument('--rkd_d2_weight', type=float, default=1.0,
+                        help='Weight for distance edge d2 (ref-sim_high)')
+    parser.add_argument('--rkd_d3_weight', type=float, default=1.0,
+                        help='Weight for distance edge d3 (shared-sim_high)')
+    parser.add_argument('--rkd_distance_temperature', type=float, default=1.0,
+                        help='Temperature for RKD distance softmax KL mode')
+    parser.add_argument('--rkd_distance_mode', type=str, default='kl', choices=['kl', 'huber'],
+                        help='Distance RKD mode: softmax KL or direct Huber')
+    parser.add_argument('--rkd_distance_huber_beta', type=float, default=0.5,
+                        help='Huber beta when rkd_distance_mode=huber')
+
+    # Output-level distillation loss arguments
+    parser.add_argument('--output_weight', type=float, default=0.0,
+                        help='Weight for output-level distillation loss (0 = disabled)')
+    parser.add_argument('--output_camera_weight', type=float, default=5.0,
+                        help='Weight for camera pose_enc L1 loss within output loss')
+    parser.add_argument('--output_depth_weight', type=float, default=1.0,
+                        help='Weight for depth L1 loss within output loss')
 
     # Other arguments
     parser.add_argument('--seed', type=int, default=42,
@@ -794,6 +1266,9 @@ def main():
                         help='Debug mode (small batch, few steps)')
 
     args = parser.parse_args()
+
+    if args.rkd_no_normalize_distance:
+        args.rkd_normalize_distance = False
 
     # Debug mode overrides
     if args.debug:
@@ -884,7 +1359,16 @@ def main():
 
     # Create loss function
     target_layer = args.output_layers[-1]  # Use last output layer for loss
-    if args.all_token_softmax_kl_cosine:
+    if args.patch_huber_cosine:
+        print("\nUsing VGGTPatchHuberCosineLoss (DA3-style patch Huber + cosine)")
+        criterion = VGGTPatchHuberCosineLoss(
+            student_frame_indices=student_indices,
+            target_layers=args.output_layers,
+            huber_weight=args.patch_huber_weight,
+            cos_weight=args.patch_huber_cos_weight,
+            delta=args.patch_huber_delta,
+        )
+    elif args.all_token_softmax_kl_cosine:
         print("\nUsing VGGTAllTokenSoftmaxKLCosineLoss (full 2048-dim softmax KL + cosine)")
         criterion = VGGTAllTokenSoftmaxKLCosineLoss(
             student_frame_indices=student_indices,
@@ -918,6 +1402,42 @@ def main():
             angle2_weight=args.rkd_angle2_weight,
             angle3_weight=args.rkd_angle3_weight,
             shared_chunk_size=args.rkd_shared_chunk_size,
+            selection_mode=args.rkd_selection_mode,
+        )
+    rkd_distance_criterion = None
+    if args.use_rkd_distance:
+        print(
+            f"\nAdding VGGTCrossFrameRKDDistanceLoss "
+            f"(weight={args.rkd_distance_weight}, mode={args.rkd_distance_mode})"
+        )
+        rkd_distance_criterion = VGGTCrossFrameRKDDistanceLoss(
+            student_frame_indices=student_indices,
+            num_teacher_views=args.num_views,
+            target_layer=target_layer,
+            topk=args.rkd_topk,
+            num_ref_samples=args.rkd_num_ref_samples,
+            num_shared_samples=args.rkd_num_shared_samples,
+            d1_weight=args.rkd_d1_weight,
+            d2_weight=args.rkd_d2_weight,
+            d3_weight=args.rkd_d3_weight,
+            shared_chunk_size=args.rkd_shared_chunk_size,
+            distance_chunk_size=args.rkd_distance_chunk_size,
+            distance_type=args.rkd_distance_type,
+            normalize_distance=args.rkd_normalize_distance,
+            temperature=args.rkd_distance_temperature,
+            distance_mode=args.rkd_distance_mode,
+            huber_beta=args.rkd_distance_huber_beta,
+            selection_mode=args.rkd_selection_mode,
+        )
+
+    # Create optional output-level distillation loss
+    output_criterion = None
+    if args.output_weight > 0.0:
+        print(f"\nAdding VGGTOutputDistillLoss (weight={args.output_weight}, cam={args.output_camera_weight}, depth={args.output_depth_weight})")
+        output_criterion = VGGTOutputDistillLoss(
+            student_frame_indices=student_indices,
+            camera_weight=args.output_camera_weight,
+            depth_weight=args.output_depth_weight,
         )
 
     # Create optimizer (only LoRA params)
@@ -929,12 +1449,17 @@ def main():
 
     # Create scheduler
     num_training_steps = len(train_loader) * args.epochs
+    warmup_steps = args.warmup_steps
+    if args.warmup_ratio is not None:
+        warmup_steps = int(num_training_steps * args.warmup_ratio)
+        print(f"Warmup ratio {args.warmup_ratio} -> {warmup_steps} steps (of {num_training_steps} total)")
     scheduler = get_lr_scheduler(
         optimizer,
         args.lr_scheduler,
         num_training_steps,
-        args.warmup_steps,
+        warmup_steps,
         len(train_loader),
+        eta_min=args.eta_min,
     )
 
     # Create scaler for mixed precision
@@ -969,6 +1494,8 @@ def main():
             optimizer, scheduler, scaler,
             epoch, global_step, args, writer,
             rkd_criterion=rkd_criterion,
+            rkd_distance_criterion=rkd_distance_criterion,
+            output_criterion=output_criterion,
         )
 
         # Save epoch checkpoint

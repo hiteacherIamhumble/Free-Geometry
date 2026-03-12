@@ -51,7 +51,7 @@ RKD_ANGLE2_WEIGHT=1.0
 RKD_ANGLE3_WEIGHT=1.0
 
 # Output loss (ablation_v2 settings)
-OUTPUT_WEIGHT=1.0
+OUTPUT_WEIGHT=2.0
 CAMERA_WEIGHT=5.0
 DEPTH_WEIGHT=1.0
 POINT_WEIGHT=1.0
@@ -70,7 +70,7 @@ get_training_config() {
     local DATASET=$1
     case "${DATASET}" in
         scannetpp) echo "10 1 30 39" ;;
-        hiroom)    echo "2 1 30 31" ;;
+        hiroom)    echo "2 1 30 34" ;;
         7scenes)   echo "30 1 30 59" ;;
         eth3d)     echo "5 1 30 34" ;;
     esac

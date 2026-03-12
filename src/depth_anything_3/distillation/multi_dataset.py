@@ -17,7 +17,7 @@ from depth_anything_3.distillation.benchmark_dataset import BenchmarkDistillData
 
 def create_multi_dataset(
     scannetpp_data_root: str,
-    benchmark_data_root: str = '/home/22097845d/Depth-Anything-3/workspace/benchmark_dataset',
+    benchmark_data_root: str = 'workspace/benchmark_dataset',
     num_views: int = 8,
     student_indices: List[int] = None,
     augment: bool = True,
@@ -115,7 +115,7 @@ def create_multi_dataset(
 
 def create_multi_dataloader(
     scannetpp_data_root: str,
-    benchmark_data_root: str = '/home/22097845d/Depth-Anything-3/workspace/benchmark_dataset',
+    benchmark_data_root: str = 'workspace/benchmark_dataset',
     batch_size: int = 2,
     num_workers: int = 4,
     num_views: int = 8,

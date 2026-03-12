@@ -11,6 +11,7 @@ Usage:
 """
 
 import argparse
+import json
 import os
 import sys
 
@@ -334,7 +335,14 @@ def main():
         "--seed",
         type=int,
         default=42,
-        help="Random seed for frame sampling",
+        help="Random seed for frame sampling (used if --seeds not set)",
+    )
+    parser.add_argument(
+        "--seeds",
+        type=int,
+        nargs="+",
+        default=None,
+        help="Multiple seeds for frame sampling. Runs once per seed, aggregates results with seed-tagged scene keys, per-seed means, and overall mean.",
     )
     parser.add_argument(
         "--eval_frames",
@@ -370,54 +378,274 @@ def main():
     )
     args = parser.parse_args()
 
-    # Create evaluator
-    evaluator = VGGTEvaluator(
-        work_dir=args.work_dir,
-        datas=args.datasets,
-        modes=args.modes,
-        max_frames=args.max_frames,
-        scenes=args.scenes,
-        image_size=args.image_size,
-        debug=args.debug,
-        seed=args.seed,
-        eval_frames=args.eval_frames,
-        subset_sampling=args.subset_sampling,
-        subset_ratio=args.subset_ratio,
-    )
+    # Determine seed list
+    seeds = args.seeds if args.seeds else [args.seed]
 
-    if args.print_only:
-        evaluator.print_metrics()
-        return
+    # Load model once (shared across seeds)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    api = None
 
-    if args.eval_only:
+    if not args.print_only and not args.eval_only:
+        if args.lora_path:
+            api = LoRAVGGT(
+                base_model=args.base_model,
+                lora_path=args.lora_path,
+                lora_rank=args.lora_rank,
+                lora_alpha=args.lora_alpha,
+                lora_layers_start=args.lora_layers_start,
+                image_size=args.image_size,
+            ).to(device)
+        else:
+            api = BaseVGGT(
+                model_name=args.base_model,
+                image_size=args.image_size,
+            ).to(device)
+
+    if len(seeds) == 1:
+        # Single seed: original behavior
+        evaluator = VGGTEvaluator(
+            work_dir=args.work_dir,
+            datas=args.datasets,
+            modes=args.modes,
+            max_frames=args.max_frames,
+            scenes=args.scenes,
+            image_size=args.image_size,
+            debug=args.debug,
+            seed=seeds[0],
+            eval_frames=args.eval_frames,
+            subset_sampling=args.subset_sampling,
+            subset_ratio=args.subset_ratio,
+        )
+
+        if args.print_only:
+            evaluator.print_metrics()
+            return
+        if args.eval_only:
+            metrics = evaluator.eval()
+            evaluator.print_metrics(metrics)
+            return
+
+        evaluator.infer(api)
         metrics = evaluator.eval()
         evaluator.print_metrics(metrics)
-        return
-
-    # Load model
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    if args.lora_path:
-        # Use LoRA-adapted model
-        api = LoRAVGGT(
-            base_model=args.base_model,
-            lora_path=args.lora_path,
-            lora_rank=args.lora_rank,
-            lora_alpha=args.lora_alpha,
-            lora_layers_start=args.lora_layers_start,
-            image_size=args.image_size,
-        ).to(device)
+        # Save metrics for multi-seed aggregation
+        _save_metrics(metrics, args.work_dir)
     else:
-        # Use base model
-        api = BaseVGGT(
-            model_name=args.base_model,
-            image_size=args.image_size,
-        ).to(device)
+        # Multi-seed: run inference sequentially, then eval in parallel
+        if not args.eval_only and not args.print_only:
+            _run_multi_seed_inference(args, seeds, api)
+            # Free model before launching parallel eval subprocesses
+            del api
+            api = None
+            import gc
+            torch.cuda.empty_cache()
+            gc.collect()
+            print("Model freed from GPU/CPU memory")
 
-    # Run inference and evaluation
-    evaluator.infer(api)
-    metrics = evaluator.eval()
-    evaluator.print_metrics(metrics)
+        _run_multi_seed_eval(args, seeds)
+
+
+def _save_metrics(metrics, work_dir):
+    """Save metrics to JSON for multi-seed aggregation."""
+    import json
+    metrics_file = os.path.join(work_dir, "metrics.json")
+    os.makedirs(work_dir, exist_ok=True)
+    with open(metrics_file, "w") as f:
+        json.dump(metrics, f, indent=2)
+    print(f"Saved metrics to: {metrics_file}")
+
+
+def _run_multi_seed_inference(args, seeds, api):
+    """Run inference sequentially across all seeds (GPU-bound)."""
+    for seed in seeds:
+        seed_work_dir = os.path.join(args.work_dir, f"seed{seed}")
+        print(f"\n{'='*60}")
+        print(f"[Inference] seed {seed}")
+        print(f"{'='*60}")
+
+        evaluator = VGGTEvaluator(
+            work_dir=seed_work_dir,
+            datas=args.datasets,
+            modes=args.modes,
+            max_frames=args.max_frames,
+            scenes=args.scenes,
+            image_size=args.image_size,
+            debug=args.debug,
+            seed=seed,
+            eval_frames=args.eval_frames,
+            subset_sampling=args.subset_sampling,
+            subset_ratio=args.subset_ratio,
+        )
+        evaluator.infer(api)
+
+
+def _run_multi_seed_eval(args, seeds):
+    """Run eval in sequential subprocesses across all seeds.
+
+    Each eval subprocess uses ~25-30GB RAM. Running them sequentially ensures
+    we stay within the cgroup memory limit (110GB) and avoid OOM kills.
+    """
+    import subprocess
+    import json
+
+    all_seed_metrics = {}
+
+    print(f"\n{'='*60}")
+    print(f"Running eval for {len(seeds)} seeds sequentially (subprocess isolation)")
+    print(f"{'='*60}")
+
+    for seed in seeds:
+        seed_work_dir = os.path.join(args.work_dir, f"seed{seed}")
+
+        cmd = [
+            sys.executable,
+            __file__,
+            "--base_model", args.base_model,
+            "--work_dir", seed_work_dir,
+            "--datasets", *args.datasets,
+            "--modes", *args.modes,
+            "--max_frames", str(args.max_frames),
+            "--image_size", str(args.image_size),
+            "--seed", str(seed),
+            "--eval_only",
+        ]
+
+        if args.lora_path:
+            cmd.extend(["--lora_path", args.lora_path])
+            cmd.extend(["--lora_rank", str(args.lora_rank)])
+            cmd.extend(["--lora_alpha", str(args.lora_alpha)])
+            cmd.extend(["--lora_layers_start", str(args.lora_layers_start)])
+        if args.scenes:
+            cmd.extend(["--scenes", *args.scenes])
+        if args.eval_frames:
+            cmd.extend(["--eval_frames", str(args.eval_frames)])
+        if args.subset_sampling:
+            cmd.append("--subset_sampling")
+            cmd.extend(["--subset_ratio", str(args.subset_ratio)])
+        if args.debug:
+            cmd.append("--debug")
+
+        log_file = os.path.join(args.work_dir, f"seed{seed}.log")
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
+        print(f"\n  [Eval] seed {seed} (log: {log_file})")
+        with open(log_file, "w") as fh:
+            proc = subprocess.Popen(cmd, stdout=fh, stderr=subprocess.STDOUT)
+            proc.wait()
+
+        rc = proc.returncode
+        if rc != 0:
+            print(f"  WARNING: seed {seed} eval exited with code {rc}. See {log_file}")
+        else:
+            print(f"  Seed {seed} eval complete")
+
+        metrics_file = os.path.join(seed_work_dir, "metrics.json")
+        if os.path.exists(metrics_file):
+            with open(metrics_file) as f:
+                all_seed_metrics[seed] = json.load(f)
+        else:
+            print(f"  WARNING: No metrics file found for seed {seed}")
+            all_seed_metrics[seed] = {}
+
+    print(f"\nAll {len(seeds)} seeds completed. Aggregating results...")
+
+    # Aggregate: build combined metrics with seed-tagged keys
+    _print_multi_seed_summary(all_seed_metrics, seeds, args)
+
+
+def _print_multi_seed_summary(all_seed_metrics, seeds, args):
+    """Print combined multi-seed metrics summary."""
+    # Collect all metric keys (e.g. "eth3d_pose", "eth3d_recon_unposed")
+    all_keys = set()
+    for seed_metrics in all_seed_metrics.values():
+        all_keys.update(seed_metrics.keys())
+
+    for metric_key in sorted(all_keys):
+        print(f"\n{'='*60}")
+        print(f"  {metric_key} — Multi-seed summary")
+        print(f"{'='*60}")
+
+        # Collect all scenes across seeds (excluding "mean")
+        all_scenes = set()
+        for seed in seeds:
+            if metric_key in all_seed_metrics[seed]:
+                for scene in all_seed_metrics[seed][metric_key]:
+                    if scene != "mean":
+                        all_scenes.add(scene)
+        all_scenes = sorted(all_scenes)
+
+        if not all_scenes:
+            continue
+
+        # Get metric names from first available result
+        metric_names = None
+        for seed in seeds:
+            if metric_key in all_seed_metrics[seed] and all_scenes[0] in all_seed_metrics[seed][metric_key]:
+                metric_names = list(all_seed_metrics[seed][metric_key][all_scenes[0]].keys())
+                break
+        if not metric_names:
+            continue
+
+        # Print header
+        header = f"{'scene':<30s}"
+        for name in metric_names:
+            header += f"  {name:>10s}"
+        print(header)
+        print("-" * len(header))
+
+        # Per-scene per-seed rows
+        seed_means = {seed: {name: [] for name in metric_names} for seed in seeds}
+
+        for scene in all_scenes:
+            for seed in seeds:
+                if metric_key not in all_seed_metrics[seed]:
+                    continue
+                scene_data = all_seed_metrics[seed][metric_key].get(scene)
+                if scene_data is None:
+                    continue
+
+                row_label = f"{scene}/seed{seed}"
+                row = f"{row_label:<30s}"
+                for name in metric_names:
+                    val = scene_data.get(name, float('nan'))
+                    row += f"  {val:>10.4f}"
+                    seed_means[seed][name].append(val)
+                print(row)
+
+        # Per-seed means
+        print("-" * len(header))
+        for seed in seeds:
+            row = f"{'mean/seed' + str(seed):<30s}"
+            for name in metric_names:
+                vals = seed_means[seed][name]
+                mean_val = np.mean(vals) if vals else float('nan')
+                row += f"  {mean_val:>10.4f}"
+            print(row)
+
+        # Overall mean (across all seeds)
+        print("-" * len(header))
+        row = f"{'mean/overall':<30s}"
+        for name in metric_names:
+            all_vals = []
+            for seed in seeds:
+                all_vals.extend(seed_means[seed][name])
+            mean_val = np.mean(all_vals) if all_vals else float('nan')
+            row += f"  {mean_val:>10.4f}"
+        print(row)
+
+    # Save aggregated JSON
+    agg_path = os.path.join(args.work_dir, "multi_seed_summary.json")
+    agg = {}
+    for metric_key in sorted(all_keys):
+        agg[metric_key] = {}
+        for seed in seeds:
+            if metric_key in all_seed_metrics[seed]:
+                for scene, vals in all_seed_metrics[seed][metric_key].items():
+                    agg[metric_key][f"{scene}/seed{seed}"] = vals
+    os.makedirs(os.path.dirname(agg_path), exist_ok=True)
+    with open(agg_path, "w") as f:
+        json.dump(agg, f, indent=2)
+    print(f"\nSaved multi-seed summary to: {agg_path}")
 
 
 if __name__ == "__main__":
