@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Benchmark DA3 or VGGT, including Free-Geometry LoRA variants, on multiple datasets at multiple input-view counts.
+Benchmark DA3 or VGGT Free-Geometry results on multiple datasets at multiple input-view counts.
 
 This replaces the old fixed teacher/student 8v->4v workflow with direct
 multi-view benchmarking. Each requested view count is saved as its own
@@ -10,10 +10,10 @@ experiment folder (`8v`, `16v`, `32v`, ...), including:
   - evaluator outputs under `metric_results/`
 
 Usage:
-    python scripts/benchmark_multiview_all_datasets.py --model_family da3
-    python scripts/benchmark_multiview_all_datasets.py --model_family vggt
-    python scripts/benchmark_multiview_all_datasets.py --model_family da3 --lora_path checkpoints/.../lora.pt
-    python scripts/benchmark_multiview_all_datasets.py --model_family vggt --datasets hiroom --view_counts 8 16 32
+    python scripts/benchmark_multiview_all_datasets.py --model_family da3 --results_root results
+    python scripts/benchmark_multiview_all_datasets.py --model_family vggt --results_root results
+    python scripts/benchmark_multiview_all_datasets.py --model_family da3 --lora_path checkpoints/.../epoch_3_lora.pt --work_dir results/multiview_da3_hiroom_scannetpp_lora_fixed
+    python scripts/benchmark_multiview_all_datasets.py --model_family vggt --no_lora --work_dir results/multiview_vggt_hiroom_scannetpp_base_fixed --datasets hiroom scannetpp --view_counts 8 16 32
 """
 
 import argparse
@@ -38,6 +38,7 @@ DEFAULT_VIEW_COUNTS = [8, 16, 32]
 EVAL_MODES = ["pose", "recon_unposed"]
 DEFAULT_DA3_LORA_ROOT = "checkpoints/da3_lora_final"
 DEFAULT_VGGT_LORA_ROOT = "checkpoints/vggt_lora_final"
+DEFAULT_RESULTS_ROOT = "results"
 
 
 class LoRADepthAnything3:
@@ -766,7 +767,7 @@ def write_summary_report(work_dir: str, scenes_by_dataset: Dict[str, List[str]],
 
 def _parse_args():
     parser = argparse.ArgumentParser(
-        description="Benchmark DA3 or VGGT directly at 8v/16v/32v across multiple datasets"
+        description="Benchmark DA3 or VGGT Free-Geometry results at 8v/16v/32v across multiple datasets"
     )
     parser.add_argument("--model_family", choices=["da3", "vggt"], required=True)
     parser.add_argument(
@@ -785,6 +786,12 @@ def _parse_args():
         help="Repeatable scene filter. Example: --scenes scene_a --scenes scene_b",
     )
     parser.add_argument("--seed", type=int, default=43)
+    parser.add_argument(
+        "--results_root",
+        type=str,
+        default=DEFAULT_RESULTS_ROOT,
+        help="Shared results root. Use the same directory passed to scripts/visualize_free_geometry.py",
+    )
     parser.add_argument("--work_dir", type=str, default=None)
     parser.add_argument("--model_name", type=str, default=None)
     parser.add_argument("--lora_path", type=str, default=None)
@@ -792,7 +799,7 @@ def _parse_args():
     parser.add_argument(
         "--no_lora",
         action="store_true",
-        help="Disable LoRA and benchmark the base model instead",
+        help="Disable Free-Geometry adaptation and benchmark the base model instead",
     )
     parser.add_argument("--lora_rank", type=int, default=32)
     parser.add_argument("--lora_alpha", type=float, default=32.0)
@@ -862,7 +869,7 @@ def main():
     experiments = [exp_key(v) for v in view_counts]
 
     if args.work_dir is None:
-        args.work_dir = f"./results/multiview_{args.model_family}_4datasets"
+        args.work_dir = os.path.join(args.results_root, f"multiview_{args.model_family}_4datasets")
 
     if args.model_name is None:
         args.model_name = "depth-anything/DA3-GIANT-1.1" if args.model_family == "da3" else "facebook/vggt-1b"

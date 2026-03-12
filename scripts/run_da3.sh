@@ -2,10 +2,12 @@
 set -euo pipefail
 
 # =============================================================================
-# DA3 Giant: Tuned LoRA Free-Geometry + CF Distance Loss
+# DA3 Free-Geometry training and benchmarking.
 #
-# Same as run_da3_tuned_lora.sh but adds KL-based CF distance loss
-# with T=10, Huber(beta=0.5), d3_weight=0 (d1+d2 only).
+# Active DA3 workflow:
+# - patch huber + cosine + CF angle + CF distance
+# - Free-Geometry adaptation checkpoints are saved as *_lora.pt
+# - baseline and adapted benchmarking are both supported
 # =============================================================================
 
 export HF_ENDPOINT=https://hf-mirror.com
@@ -91,9 +93,9 @@ train_single_dataset() {
 
     echo ""
     echo "============================================================"
-    echo "Training DA3 on ${DATASET} — TUNED LoRA FREE-GEOMETRY + CF DIST"
+    echo "Training DA3 Free-Geometry on ${DATASET}"
     echo "  Samples/scene: ${SAMPLES}, Seeds: ${SEEDS}, Epochs: ${DS_EPOCHS}"
-    echo "  LoRA rank=${DS_LORA_RANK}, alpha=${DS_LORA_ALPHA}, LR=${DS_LR}, cosine scheduler"
+    echo "  Adapter rank=${DS_LORA_RANK}, alpha=${DS_LORA_ALPHA}, LR=${DS_LR}, cosine scheduler"
     echo "  CF dist: weight=${CF_DIST_WEIGHT}, T=${CF_DIST_TEMP}, d1=${CF_D1_WEIGHT}, d2=${CF_D2_WEIGHT}, d3=${CF_D3_WEIGHT}"
     echo "============================================================"
 
@@ -148,7 +150,7 @@ train_single_dataset() {
 run_training() {
     echo ""
     echo "============================================================"
-    echo "Training all datasets (TUNED + CF DIST): ${ALL_DATASETS}"
+    echo "Training all DA3 Free-Geometry datasets: ${ALL_DATASETS}"
     echo "============================================================"
 
     for DATASET in ${ALL_DATASETS}; do
@@ -183,7 +185,7 @@ benchmark_lora_single() {
         BENCH_FINETUNE_ARGS="--finetune"
     fi
 
-    echo "  [LoRA epoch=${EPOCH}] ${DATASET}, max_frames=${MAX_FRAMES}, seeds: ${SEED_LIST}"
+    echo "  [Free-Geometry epoch=${EPOCH}] ${DATASET}, max_frames=${MAX_FRAMES}, seeds: ${SEED_LIST}"
     python -u ./scripts/benchmark_da3.py \
         --lora_path "${LORA_PATH}" \
         --base_model "${MODEL_NAME}" \
@@ -297,7 +299,7 @@ for mk in sorted(all_keys):
 run_lora_benchmark() {
     echo ""
     echo "============================================================"
-    echo "Benchmarking DA3 Tuned LoRA + CF Dist — all epochs"
+    echo "Benchmarking DA3 Free-Geometry checkpoints — all epochs"
     echo "  Datasets: ${ALL_DATASETS}"
     echo "  Max frames: ${MAX_FRAMES_LIST}"
     echo "  Seeds: ${LORA_SEEDS}"
@@ -334,7 +336,7 @@ run_lora_benchmark() {
         done
     done
 
-    echo "LoRA benchmark complete!"
+    echo "Free-Geometry benchmark complete!"
 }
 
 run_baseline_benchmark_seed() {
@@ -378,12 +380,12 @@ usage() {
     echo "  train_hiroom        - Train hiroom only"
     echo "  train_7scenes       - Train 7scenes only"
     echo "  train_eth3d         - Train eth3d only"
-    echo "  benchmark_lora      - Benchmark all LoRA models"
+    echo "  benchmark_lora      - Benchmark all Free-Geometry checkpoints"
     echo "  benchmark_baseline  - Benchmark original DA3"
     echo "  benchmark_all       - Both benchmarks (baseline first)"
     echo "  all                 - Train all + benchmark all (default)"
     echo ""
-    echo "Same as run_da3_tuned_lora.sh + CF distance loss (T=${CF_DIST_TEMP}, d1+d2 only)"
+    echo "Active DA3 Free-Geometry workflow with CF distance loss (T=${CF_DIST_TEMP}, d1+d2 only)"
     echo "Benchmark frames: ${MAX_FRAMES_LIST}"
 }
 
@@ -416,7 +418,7 @@ case "${COMMAND}" in
         run_lora_benchmark
         ;;
     all)
-        # Train + LoRA benchmark (seed 43, 16v only)
+        # Train + Free-Geometry benchmark (seed 43, 16v only)
         run_training
         run_lora_benchmark
         ;;
@@ -435,6 +437,6 @@ echo ""
 echo "============================================================"
 echo "Done!"
 echo "  Checkpoints: ${OUTPUT_DIR}/{dataset}/"
-echo "  LoRA bench:  ${BENCHMARK_ROOT}/lora_epoch{epoch}/frames_{max_frames}/{dataset}/"
+echo "  Free-Geometry bench: ${BENCHMARK_ROOT}/lora_epoch{epoch}/frames_{max_frames}/{dataset}/"
 echo "  Baseline:    ${BENCHMARK_ROOT}/baseline/frames_{max_frames}/{dataset}/"
 echo "============================================================"

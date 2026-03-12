@@ -2,13 +2,13 @@
 set -e
 
 # =============================================================================
-# VGGT Free-Geometry: Patch Huber + Cosine + CF on All 4 Datasets
+# VGGT Free-Geometry training and benchmarking.
 # =============================================================================
 #
-# This Free-Geometry setup:
+# Active VGGT workflow:
 # - Trains on all 4 datasets with patch huber + cosine + cross-frame CF angle + CF distance
-# - No baseline benchmark
-# - LoRA benchmark only: 4v, 8v, maxframe with seeds 42, 43, 44
+# - Free-Geometry adaptation checkpoints are saved as *_lora.pt
+# - baseline and adapted benchmarking are both supported
 #
 # Training configs (per-dataset):
 #   scannetpp: 5 samples/scene, seeds 30-34, 2 epochs (from V12)
@@ -249,7 +249,7 @@ benchmark_lora_setting() {
     local MAX_FRAMES=$(echo ${PARAMS} | cut -d' ' -f1)
     local EVAL_FRAMES=$(echo ${PARAMS} | cut -d' ' -f2)
 
-    echo "  [LoRA epoch=${EPOCH} ${SETTING}] ${DATASET}, seeds: ${SEED_LIST}"
+    echo "  [Free-Geometry epoch=${EPOCH} ${SETTING}] ${DATASET}, seeds: ${SEED_LIST}"
 
     local CMD="python ./scripts/benchmark_vggt.py \
         --lora_path ${LORA_PATH} \
@@ -298,7 +298,7 @@ run_baseline_benchmark() {
 run_lora_benchmark() {
     echo ""
     echo "============================================================"
-    echo "Benchmarking LoRA models (all epochs, seed 43 only, 16v)"
+    echo "Benchmarking Free-Geometry checkpoints (all epochs, seed 43 only, 16v)"
     echo "  Settings: 16v"
     echo "  Datasets: ${ALL_DATASETS}"
     echo "  Seeds: ${LORA_BENCHMARK_SEEDS}"
@@ -338,7 +338,7 @@ run_lora_benchmark() {
 
     echo ""
     echo "============================================================"
-    echo "LoRA benchmark complete!"
+    echo "Free-Geometry benchmark complete!"
     echo "============================================================"
 }
 
@@ -356,15 +356,15 @@ usage() {
     echo "  train_7scenes     - Train 7scenes only"
     echo "  train_eth3d       - Train eth3d only"
     echo "  benchmark_base    - Benchmark baseline VGGT (4v, 8v, maxframe)"
-    echo "  benchmark_lora    - Benchmark all LoRA models (4v, 8v, maxframe)"
-    echo "  benchmark         - Run both baseline and LoRA benchmarks"
+    echo "  benchmark_lora    - Benchmark all Free-Geometry checkpoints"
+    echo "  benchmark         - Run both baseline and Free-Geometry benchmarks"
     echo "  all               - Train all + benchmark all"
     echo ""
     echo "Key settings:"
     echo "  Datasets: ${ALL_DATASETS}"
     echo "  Loss: patch huber + cosine + cross-frame CF angle + CF distance"
-    echo "  Image size: ${IMAGE_SIZE} (DA3-style, aspect ratio preserved)"
-    echo "  Benchmark: baseline + LoRA, 4v/8v/16v/32v/64v, seeds ${BENCHMARK_SEEDS}"
+    echo "  Image size: ${IMAGE_SIZE} (Free-Geometry preprocessing, aspect ratio preserved)"
+    echo "  Benchmark: baseline + Free-Geometry, 4v/8v/16v/32v, seeds ${BENCHMARK_SEEDS}"
     echo ""
     echo "Training configs:"
     echo "  scannetpp: 5 samples/scene, seeds 30-34, 2 epochs"
@@ -403,7 +403,7 @@ case "${COMMAND}" in
         run_lora_benchmark
         ;;
     all)
-        # Train all datasets, then benchmark all LoRA epochs on 16v seed 43
+        # Train all datasets, then benchmark all Free-Geometry epochs on 16v seed 43
         run_training
         run_lora_benchmark
         ;;
@@ -423,10 +423,10 @@ echo "============================================================"
 echo "=== VGGT Experiment Complete ==="
 echo "============================================================"
 echo ""
-echo "Experiment: patch huber + cosine + CF angle + CF distance on all 4 datasets"
+echo "Experiment: Free-Geometry patch huber + cosine + CF angle + CF distance on all 4 datasets"
 echo "  Loss: patch huber (w=${PATCH_HUBER_WEIGHT}, delta=${PATCH_HUBER_DELTA}) + cosine (w=${PATCH_HUBER_COS_WEIGHT}) + CF-angle (w=${CF_WEIGHT}, topk=${CF_TOPK}) + CF-dist (w=${CF_DIST_WEIGHT}, mode=${CF_DIST_MODE})"
 echo ""
 echo "Output directories:"
 echo "  Training:    ${OUTPUT_DIR}/{dataset}"
-echo "  Benchmarks:  ${BENCHMARK_ROOT}/lora_{4v,8v,maxframe}/{dataset}/"
+echo "  Benchmarks:  ${BENCHMARK_ROOT}/lora_epoch{epoch}_16v/{dataset}/ and ${BENCHMARK_ROOT}/base_{setting}/{dataset}/"
 echo ""

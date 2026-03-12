@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Benchmark script for a Free-Geometry LoRA-tuned DepthAnything3 model.
+Benchmark script for a Free-Geometry adapted DepthAnything3 model.
 
 Usage:
     python scripts/train_da3.py \
@@ -189,7 +189,7 @@ def main():
         "--lora_path",
         type=str,
         default="checkpoints/tta/best_lora.pt",
-        help="Path to LoRA weights",
+        help="Path to Free-Geometry adapter weights",
     )
     parser.add_argument(
         "--base_model",
@@ -201,13 +201,13 @@ def main():
         "--lora_rank",
         type=int,
         default=16,
-        help="LoRA rank (must match training)",
+        help="Adapter rank (must match training)",
     )
     parser.add_argument(
         "--lora_alpha",
         type=float,
         default=16.0,
-        help="LoRA alpha (must match training)",
+        help="Adapter alpha (must match training)",
     )
     parser.add_argument(
         "--finetune",

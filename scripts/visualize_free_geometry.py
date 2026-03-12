@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Viewer for fixed-view baseline vs LoRA comparison results.
+Free-Geometry visualization for fixed-view baseline vs adapted results.
 
 This targets the regenerated fixed-input 8v/16v/32v benchmark layout:
   - baseline:
       results/multiview_da3_hiroom_scannetpp_base_fixed/{8v,16v,32v}/
       results/multiview_vggt_hiroom_scannetpp_base_fixed/{8v,16v,32v}/
-  - LoRA:
+  - adapted:
       results/multiview_da3_hiroom_scannetpp_lora_fixed/{8v,16v,32v}/
       results/multiview_vggt_hiroom_scannetpp_lora_fixed/{8v,16v,32v}/
 
 It compares:
   - original model reconstruction
-  - LoRA ("Free-Geometry") reconstruction
+  - Free-Geometry reconstruction
   - GT threshold overlays and depth-threshold maps
 
 Unlike scripts/view_pointclouds.py, HiRoom threshold visualization here uses the
@@ -42,14 +42,10 @@ import view_pointclouds as vp
 
 EXPERIMENTS: Dict[str, str] = {
     "baseline": "Original Model",
-    "lora": "LoRA (Free-Geometry)",
+    "adapted": "Free-Geometry",
 }
 NO_SCENE_SENTINEL = "__NO_SCENE_AVAILABLE__"
-DEFAULT_WORK_ROOTS = {
-    "da3": "./results/multiview_da3_hiroom_scannetpp_lora_fixed",
-    "vggt": "./results/multiview_vggt_hiroom_scannetpp_lora_fixed",
-}
-DEFAULT_VIEWER_MAX_POINTS = vp.DEFAULT_VIEWER_MAX_POINTS
+DEFAULT_VIEWER_MAX_POINTS = 1_000_000
 
 
 def _seed_tag(seed: str | int) -> str:
@@ -62,8 +58,8 @@ def _comparison_roots(model_family: str, frame_count: int) -> Dict[str, str]:
     if frame_count not in (8, 16, 32):
         raise ValueError(f"Unsupported frame_count={frame_count}. This viewer supports only 8, 16, 32.")
     baseline_root = os.path.join(PROJECT_ROOT, "results", f"multiview_{model_family}_hiroom_scannetpp_base_fixed")
-    lora_root = os.path.join(PROJECT_ROOT, "results", f"multiview_{model_family}_hiroom_scannetpp_lora_fixed")
-    return {"baseline": baseline_root, "lora": lora_root}
+    adapted_root = os.path.join(PROJECT_ROOT, "results", f"multiview_{model_family}_hiroom_scannetpp_lora_fixed")
+    return {"baseline": baseline_root, "adapted": adapted_root}
 
 
 def _run_dir(model_family: str, exp_key: str, frame_count: int, dataset_name: str, seed: str | int) -> str:
@@ -151,7 +147,7 @@ def _load_json(path: str) -> dict:
 
 
 def _load_gt_meta(model_family: str, frame_count: int, dataset_name: str, seed: str | int, scene: str) -> Optional[dict]:
-    for exp_key in ["baseline", "lora"]:
+    for exp_key in ["baseline", "adapted"]:
         meta = _load_gt_meta_for_exp(model_family, exp_key, frame_count, dataset_name, seed, scene)
         if meta is not None:
             return meta
@@ -205,7 +201,7 @@ def _metric_value(metric_json: dict, scene: str, key: str) -> Optional[float]:
 
 
 def _format_metrics_md(model_family: str, frame_count: int, dataset_name: str, seed: str | int, scene: str) -> str:
-    cols = [EXPERIMENTS["baseline"], EXPERIMENTS["lora"]]
+    cols = [EXPERIMENTS["baseline"], EXPERIMENTS["adapted"]]
     pose_jsons = {
         exp_key: _load_json(_metric_json_path(model_family, exp_key, frame_count, dataset_name, seed, "pose"))
         for exp_key in EXPERIMENTS.keys()
@@ -226,7 +222,7 @@ def _format_metrics_md(model_family: str, frame_count: int, dataset_name: str, s
         ("Overall", recon_jsons, "overall"),
     ]:
         row = [label]
-        for exp_key in ["baseline", "lora"]:
+        for exp_key in ["baseline", "adapted"]:
             row.append(fmt(_metric_value(src[exp_key], scene, key)))
         rows.append(row)
 
@@ -428,7 +424,7 @@ def _ensure_exp_vs_gt_threshold_overlay_glb(
     return out_glb
 
 
-def _ensure_lora_vs_baseline_delta_overlay_glb(
+def _ensure_adapted_vs_baseline_delta_overlay_glb(
     model_family: str,
     work_root: str,
     frame_count: int,
@@ -447,8 +443,8 @@ def _ensure_lora_vs_baseline_delta_overlay_glb(
         return None
 
     baseline_ply = _fused_ply_path(model_family, "baseline", frame_count, dataset_name, seed, scene)
-    lora_ply = _fused_ply_path(model_family, "lora", frame_count, dataset_name, seed, scene)
-    if not os.path.exists(baseline_ply) or not os.path.exists(lora_ply):
+    adapted_ply = _fused_ply_path(model_family, "adapted", frame_count, dataset_name, seed, scene)
+    if not os.path.exists(baseline_ply) or not os.path.exists(adapted_ply):
         return None
 
     out_glb = _comparison_glb_path(
@@ -456,7 +452,7 @@ def _ensure_lora_vs_baseline_delta_overlay_glb(
         frame_count,
         dataset_name,
         seed,
-        "lora_vs_baseline_delta_threshold",
+        "adapted_vs_baseline_delta_threshold",
         scene,
         viewer_max_points=viewer_max_points,
     )
@@ -480,33 +476,33 @@ def _ensure_lora_vs_baseline_delta_overlay_glb(
         return None
 
     baseline_pcd = o3d.io.read_point_cloud(baseline_ply)
-    lora_pcd = o3d.io.read_point_cloud(lora_ply)
+    adapted_pcd = o3d.io.read_point_cloud(adapted_ply)
     if down_sample is not None and down_sample > 0:
         baseline_pcd = baseline_pcd.voxel_down_sample(down_sample)
-        lora_pcd = lora_pcd.voxel_down_sample(down_sample)
+        adapted_pcd = adapted_pcd.voxel_down_sample(down_sample)
         gt_pcd = gt_pcd.voxel_down_sample(down_sample)
 
     baseline_points = np.asarray(baseline_pcd.points, dtype=np.float32)
-    lora_points = np.asarray(lora_pcd.points, dtype=np.float32)
+    adapted_points = np.asarray(adapted_pcd.points, dtype=np.float32)
     gt_points = np.asarray(gt_pcd.points, dtype=np.float32)
     baseline_points, _ = vp._cap_point_cloud_arrays(baseline_points, None, num_max_points=viewer_max_points)
-    lora_points, _ = vp._cap_point_cloud_arrays(lora_points, None, num_max_points=viewer_max_points)
+    adapted_points, _ = vp._cap_point_cloud_arrays(adapted_points, None, num_max_points=viewer_max_points)
     gt_points, _ = vp._cap_point_cloud_arrays(gt_points, None, num_max_points=viewer_max_points)
-    if baseline_points.shape[0] == 0 or lora_points.shape[0] == 0 or gt_points.shape[0] == 0:
+    if baseline_points.shape[0] == 0 or adapted_points.shape[0] == 0 or gt_points.shape[0] == 0:
         return None
 
     gt_tree = cKDTree(gt_points)
-    lora_to_gt, _ = gt_tree.query(lora_points, k=1, workers=-1)
+    adapted_to_gt, _ = gt_tree.query(adapted_points, k=1, workers=-1)
     base_to_gt, _ = gt_tree.query(baseline_points, k=1, workers=-1)
 
     base_tree = cKDTree(baseline_points)
-    _, lora_to_base_idx = base_tree.query(lora_points, k=1, workers=-1)
+    _, adapted_to_base_idx = base_tree.query(adapted_points, k=1, workers=-1)
 
-    colors = np.zeros((lora_points.shape[0], 3), dtype=np.uint8)
+    colors = np.zeros((adapted_points.shape[0], 3), dtype=np.uint8)
     thr = float(threshold)
-    for i in range(lora_points.shape[0]):
-        s_err = float(lora_to_gt[i])
-        t_err = float(base_to_gt[lora_to_base_idx[i]])
+    for i in range(adapted_points.shape[0]):
+        s_err = float(adapted_to_gt[i])
+        t_err = float(base_to_gt[adapted_to_base_idx[i]])
         s_in = s_err <= thr
         t_in = t_err <= thr
         if s_in and t_in:
@@ -521,16 +517,16 @@ def _ensure_lora_vs_baseline_delta_overlay_glb(
             colors[i] = np.array([255, 0, 0], dtype=np.uint8)
 
     A = _compute_alignment_transform_first_cam_glTF_center_by_points(gt_meta["extrinsics"][0], gt_points)
-    lora_points_t = trimesh.transform_points(lora_points, A)
+    adapted_points_t = trimesh.transform_points(adapted_points, A)
     gt_points_t = trimesh.transform_points(gt_points, A)
 
     scene_obj = trimesh.Scene()
     if scene_obj.metadata is None:
         scene_obj.metadata = {}
     scene_obj.metadata["hf_alignment"] = A
-    scene_obj.add_geometry(trimesh.points.PointCloud(vertices=lora_points_t, colors=colors))
+    scene_obj.add_geometry(trimesh.points.PointCloud(vertices=adapted_points_t, colors=colors))
 
-    scene_scale = _estimate_scene_scale(np.concatenate([lora_points_t, gt_points_t], axis=0), fallback=1.0)
+    scene_scale = _estimate_scene_scale(np.concatenate([adapted_points_t, gt_points_t], axis=0), fallback=1.0)
     _add_cameras_to_scene(
         scene=scene_obj,
         K=gt_meta["intrinsics"],
@@ -604,26 +600,26 @@ def _prepare_depth_error_galleries(model_family: str, work_root: str, frame_coun
 
     gt_metas = {
         "baseline": _load_gt_meta_for_exp(model_family, "baseline", frame_count, dataset_name, seed, scene),
-        "lora": _load_gt_meta_for_exp(model_family, "lora", frame_count, dataset_name, seed, scene),
+        "adapted": _load_gt_meta_for_exp(model_family, "adapted", frame_count, dataset_name, seed, scene),
     }
-    if gt_metas["baseline"] is None and gt_metas["lora"] is None:
+    if gt_metas["baseline"] is None and gt_metas["adapted"] is None:
         return [], [], [], "No GT meta found for this scene."
 
     pred_depths = {
         "baseline": _load_prediction_depths(model_family, "baseline", frame_count, dataset_name, seed, scene),
-        "lora": _load_prediction_depths(model_family, "lora", frame_count, dataset_name, seed, scene),
+        "adapted": _load_prediction_depths(model_family, "adapted", frame_count, dataset_name, seed, scene),
     }
     threshold, _ = vp._dataset_recon_eval_params(dataset_name)
     if threshold is None:
         threshold = 0.05
 
-    galleries = {"baseline": [], "lora": [], "lora_minus_baseline": []}
-    mae_stats = {"baseline": [], "lora": []}
-    inlier_stats = {"baseline": [], "lora": []}
-    err_by_image: Dict[str, Dict[str, np.ndarray]] = {"baseline": {}, "lora": {}}
+    galleries = {"baseline": [], "adapted": [], "adapted_minus_baseline": []}
+    mae_stats = {"baseline": [], "adapted": []}
+    inlier_stats = {"baseline": [], "adapted": []}
+    err_by_image: Dict[str, Dict[str, np.ndarray]] = {"baseline": {}, "adapted": {}}
     rgb_by_image: Dict[str, np.ndarray] = {}
 
-    for exp_key in ["baseline", "lora"]:
+    for exp_key in ["baseline", "adapted"]:
         gt_meta = gt_metas[exp_key]
         depths = pred_depths[exp_key]
         if gt_meta is None or depths is None:
@@ -672,36 +668,36 @@ def _prepare_depth_error_galleries(model_family: str, work_root: str, frame_coun
             galleries[exp_key].append(np.concatenate([rgb, err_rgb], axis=1))
 
     baseline_imgs = set(err_by_image["baseline"].keys())
-    lora_imgs = set(err_by_image["lora"].keys())
+    adapted_imgs = set(err_by_image["adapted"].keys())
     common_imgs = []
     baseline_meta = gt_metas["baseline"]
     if baseline_meta is not None:
-        common_imgs = [img for img in baseline_meta["image_files"] if img in baseline_imgs and img in lora_imgs]
+        common_imgs = [img for img in baseline_meta["image_files"] if img in baseline_imgs and img in adapted_imgs]
     if not common_imgs:
-        lora_meta = gt_metas["lora"]
-        if lora_meta is not None:
-            common_imgs = [img for img in lora_meta["image_files"] if img in baseline_imgs and img in lora_imgs]
+        adapted_meta = gt_metas["adapted"]
+        if adapted_meta is not None:
+            common_imgs = [img for img in adapted_meta["image_files"] if img in baseline_imgs and img in adapted_imgs]
 
     for img_path in common_imgs:
         rgb = rgb_by_image.get(img_path)
         b_err = err_by_image["baseline"][img_path]
-        l_err = err_by_image["lora"][img_path]
-        valid = np.isfinite(b_err) & np.isfinite(l_err)
+        a_err = err_by_image["adapted"][img_path]
+        valid = np.isfinite(b_err) & np.isfinite(a_err)
         if rgb is None or not valid.any():
             continue
         thr = float(threshold)
         b_in = b_err <= thr
-        l_in = l_err <= thr
+        a_in = a_err <= thr
         delta_rgb = np.zeros((b_err.shape[0], b_err.shape[1], 3), dtype=np.uint8)
-        delta_rgb[valid & b_in & l_in] = np.array([170, 170, 170], dtype=np.uint8)
-        both_out = valid & (~b_in) & (~l_in)
-        tied = both_out & np.isclose(l_err, b_err, rtol=1e-4, atol=1e-6)
+        delta_rgb[valid & b_in & a_in] = np.array([170, 170, 170], dtype=np.uint8)
+        both_out = valid & (~b_in) & (~a_in)
+        tied = both_out & np.isclose(a_err, b_err, rtol=1e-4, atol=1e-6)
         delta_rgb[tied] = np.array([170, 170, 170], dtype=np.uint8)
-        delta_rgb[both_out & (~tied) & (l_err < b_err)] = np.array([0, 100, 255], dtype=np.uint8)
-        delta_rgb[both_out & (~tied) & (l_err > b_err)] = np.array([255, 0, 0], dtype=np.uint8)
-        delta_rgb[valid & l_in & (~b_in)] = np.array([0, 100, 255], dtype=np.uint8)
-        delta_rgb[valid & (~l_in) & b_in] = np.array([255, 0, 0], dtype=np.uint8)
-        galleries["lora_minus_baseline"].append(np.concatenate([rgb, delta_rgb], axis=1))
+        delta_rgb[both_out & (~tied) & (a_err < b_err)] = np.array([0, 100, 255], dtype=np.uint8)
+        delta_rgb[both_out & (~tied) & (a_err > b_err)] = np.array([255, 0, 0], dtype=np.uint8)
+        delta_rgb[valid & a_in & (~b_in)] = np.array([0, 100, 255], dtype=np.uint8)
+        delta_rgb[valid & (~a_in) & b_in] = np.array([255, 0, 0], dtype=np.uint8)
+        galleries["adapted_minus_baseline"].append(np.concatenate([rgb, delta_rgb], axis=1))
 
     def _mean_or_nan(vals):
         return float(np.mean(vals)) if vals else float("nan")
@@ -709,13 +705,13 @@ def _prepare_depth_error_galleries(model_family: str, work_root: str, frame_coun
     summary = (
         f"Depth threshold coloring uses the original benchmark threshold: `{float(threshold):.4f} m`.\n\n"
         f"- Original model MAE: `{_mean_or_nan(mae_stats['baseline']):.4f}`\n"
-        f"- LoRA MAE: `{_mean_or_nan(mae_stats['lora']):.4f}`\n"
+        f"- Free-Geometry MAE: `{_mean_or_nan(mae_stats['adapted']):.4f}`\n"
         f"- Original inlier-rate (<=thr): `{_mean_or_nan(inlier_stats['baseline']):.4f}`\n"
-        f"- LoRA inlier-rate (<=thr): `{_mean_or_nan(inlier_stats['lora']):.4f}`\n"
+        f"- Free-Geometry inlier-rate (<=thr): `{_mean_or_nan(inlier_stats['adapted']):.4f}`\n"
         f"- Common frames used in delta tab: `{len(common_imgs)}`\n"
-        "- Delta panel: gray = tie or both within threshold, blue = LoRA better, red = original better."
+        "- Delta panel: gray = tie or both within threshold, blue = Free-Geometry better, red = original better."
     )
-    return galleries["baseline"], galleries["lora"], galleries["lora_minus_baseline"], summary
+    return galleries["baseline"], galleries["adapted"], galleries["adapted_minus_baseline"], summary
 
 
 def build_app(
@@ -739,9 +735,9 @@ def build_app(
     threshold_cache: Dict[str, Tuple[Optional[str], Optional[str], Optional[str], str]] = {}
     depth_error_cache: Dict[str, Tuple[List[np.ndarray], List[np.ndarray], List[np.ndarray], str]] = {}
 
-    with gr.Blocks(title="Fixed-View Baseline vs LoRA Viewer") as demo:
+    with gr.Blocks(title="Free-Geometry Visualization") as demo:
         gr.Markdown(
-            f"# Fixed-View Baseline vs LoRA Viewer\n"
+            f"# Free-Geometry Visualization\n"
             f"`{model_family}` | dataset=`{dataset_name}` | frames=`{frame_count}` | seed=`{_seed_tag(seed)}`"
         )
 
@@ -761,7 +757,7 @@ def build_app(
         with gr.Row():
             gt_model = gr.Model3D(value=None, label="GT Fused", height=480, clear_color=(1.0, 1.0, 1.0, 1.0))
             baseline_model = gr.Model3D(value=None, label=EXPERIMENTS["baseline"], height=480, clear_color=(1.0, 1.0, 1.0, 1.0))
-            lora_model = gr.Model3D(value=None, label=EXPERIMENTS["lora"], height=480, clear_color=(1.0, 1.0, 1.0, 1.0))
+            adapted_model = gr.Model3D(value=None, label=EXPERIMENTS["adapted"], height=480, clear_color=(1.0, 1.0, 1.0, 1.0))
 
         gr.Markdown("### GT Threshold Overlay")
         gr.Markdown(
@@ -771,8 +767,8 @@ def build_app(
         render_thresh_btn = gr.Button("Render Threshold Overlays")
         with gr.Row():
             baseline_gt_thresh_model = gr.Model3D(value=None, label="Original vs GT threshold overlay", height=520, clear_color=(1.0, 1.0, 1.0, 1.0))
-            lora_gt_thresh_model = gr.Model3D(value=None, label="LoRA vs GT threshold overlay", height=520, clear_color=(1.0, 1.0, 1.0, 1.0))
-            delta_thresh_model = gr.Model3D(value=None, label="LoRA vs Original delta overlay", height=520, clear_color=(1.0, 1.0, 1.0, 1.0))
+            adapted_gt_thresh_model = gr.Model3D(value=None, label="Free-Geometry vs GT threshold overlay", height=520, clear_color=(1.0, 1.0, 1.0, 1.0))
+            delta_thresh_model = gr.Model3D(value=None, label="Free-Geometry vs Original delta overlay", height=520, clear_color=(1.0, 1.0, 1.0, 1.0))
         threshold_md = gr.Markdown("Click 'Render Threshold Overlays'.")
 
         gr.Markdown("### Predicted Depth Maps")
@@ -780,16 +776,16 @@ def build_app(
         pred_depth_status_md = gr.Markdown("Predicted depth maps are lazy-loaded.")
         with gr.Tab(EXPERIMENTS["baseline"]):
             baseline_depth_gallery = gr.Gallery(value=[], columns=2, height=260, label="RGB | predicted depth")
-        with gr.Tab(EXPERIMENTS["lora"]):
-            lora_depth_gallery = gr.Gallery(value=[], columns=2, height=260, label="RGB | predicted depth")
+        with gr.Tab(EXPERIMENTS["adapted"]):
+            adapted_depth_gallery = gr.Gallery(value=[], columns=2, height=260, label="RGB | predicted depth")
 
         gr.Markdown("### Thresholded Depth Error vs GT")
         render_depth_btn = gr.Button("Render Depth Threshold Maps")
         with gr.Tab(EXPERIMENTS["baseline"]):
             baseline_err_gallery = gr.Gallery(value=[], columns=2, height=260, label="RGB | thresholded depth error")
-        with gr.Tab(EXPERIMENTS["lora"]):
-            lora_err_gallery = gr.Gallery(value=[], columns=2, height=260, label="RGB | thresholded depth error")
-        with gr.Tab("LoRA - Original"):
+        with gr.Tab(EXPERIMENTS["adapted"]):
+            adapted_err_gallery = gr.Gallery(value=[], columns=2, height=260, label="RGB | thresholded depth error")
+        with gr.Tab("Free-Geometry - Original"):
             delta_err_gallery = gr.Gallery(value=[], columns=2, height=260, label="RGB | delta threshold map")
         depth_err_md = gr.Markdown("Click 'Render Depth Threshold Maps'.")
 
@@ -799,7 +795,7 @@ def build_app(
         def _update(scene: str):
             if (not scene) or scene == NO_SCENE_SENTINEL:
                 return (
-                    "No scenes found for the resolved baseline/LoRA result roots.",
+                    "No scenes found for the resolved baseline/Free-Geometry result roots.",
                     [],
                     None,
                     None,
@@ -823,7 +819,7 @@ def build_app(
             ]
             roots = _comparison_roots(model_family, frame_count)
             info.append(f"baseline_root: `{roots['baseline']}`")
-            info.append(f"lora_root: `{roots['lora']}`")
+            info.append(f"adapted_root: `{roots['adapted']}`")
             if gt_meta:
                 info.append(f"gt_meta: `{gt_meta['meta_path']}`")
                 info.append(f"GT source: `{gt_meta['meta_source_exp']}`")
@@ -867,10 +863,10 @@ def build_app(
                 seed,
                 scene,
             )
-            lora_depth = _prepare_pred_depth_gallery(
+            adapted_depth = _prepare_pred_depth_gallery(
                 model_family,
                 work_root,
-                "lora",
+                "adapted",
                 frame_count,
                 dataset_name,
                 seed,
@@ -878,9 +874,9 @@ def build_app(
             )
             status = (
                 f"Loaded predicted depth maps for `{scene}`: "
-                f"`{len(baseline_depth)}` original panels, `{len(lora_depth)}` LoRA panels."
+                f"`{len(baseline_depth)}` original panels, `{len(adapted_depth)}` Free-Geometry panels."
             )
-            return baseline_depth, lora_depth, status
+            return baseline_depth, adapted_depth, status
 
         def _load_models(scene: str):
             if (not scene) or scene == NO_SCENE_SENTINEL:
@@ -905,14 +901,14 @@ def build_app(
                 "baseline",
                 viewer_max_points=viewer_max_points,
             )
-            lora_glb = _ensure_exp_fused_glb(
+            adapted_glb = _ensure_exp_fused_glb(
                 model_family,
                 work_root,
                 frame_count,
                 dataset_name,
                 seed,
                 scene,
-                "lora",
+                "adapted",
                 viewer_max_points=viewer_max_points,
             )
             status = (
@@ -920,7 +916,7 @@ def build_app(
                 f"`{os.path.abspath(_viewer_cache_dir(work_root, frame_count, dataset_name, seed, viewer_max_points))}` "
                 f"with a `{int(viewer_max_points):,}`-point cap."
             )
-            return gt_glb, baseline_glb, lora_glb, status
+            return gt_glb, baseline_glb, adapted_glb, status
 
         def _load_threshold_overlays(scene: str):
             if (not scene) or scene == NO_SCENE_SENTINEL:
@@ -945,18 +941,18 @@ def build_app(
                 out_name="baseline_vs_gt_threshold",
                 viewer_max_points=viewer_max_points,
             )
-            lora_glb = _ensure_exp_vs_gt_threshold_overlay_glb(
+            adapted_glb = _ensure_exp_vs_gt_threshold_overlay_glb(
                 model_family,
                 work_root,
                 frame_count,
                 dataset_name,
                 seed,
                 scene,
-                exp_key="lora",
-                out_name="lora_vs_gt_threshold",
+                exp_key="adapted",
+                out_name="adapted_vs_gt_threshold",
                 viewer_max_points=viewer_max_points,
             )
-            delta_glb = _ensure_lora_vs_baseline_delta_overlay_glb(
+            delta_glb = _ensure_adapted_vs_baseline_delta_overlay_glb(
                 model_family,
                 work_root,
                 frame_count,
@@ -965,7 +961,7 @@ def build_app(
                 scene,
                 viewer_max_points=viewer_max_points,
             )
-            out = (baseline_glb, lora_glb, delta_glb, "Rendered threshold overlays using original benchmark thresholds.")
+            out = (baseline_glb, adapted_glb, delta_glb, "Rendered threshold overlays using original benchmark thresholds.")
             threshold_cache[scene] = out
             return out
 
@@ -986,10 +982,10 @@ def build_app(
                 input_gallery,
                 gt_model,
                 baseline_model,
-                lora_model,
+                adapted_model,
                 input_status_md,
                 baseline_depth_gallery,
-                lora_depth_gallery,
+                adapted_depth_gallery,
                 pred_depth_status_md,
                 model_status_md,
                 metrics_md,
@@ -1004,10 +1000,10 @@ def build_app(
                 input_gallery,
                 gt_model,
                 baseline_model,
-                lora_model,
+                adapted_model,
                 input_status_md,
                 baseline_depth_gallery,
-                lora_depth_gallery,
+                adapted_depth_gallery,
                 pred_depth_status_md,
                 model_status_md,
                 metrics_md,
@@ -1021,31 +1017,31 @@ def build_app(
         load_depths_btn.click(
             fn=_load_pred_depths,
             inputs=[scene_dd],
-            outputs=[baseline_depth_gallery, lora_depth_gallery, pred_depth_status_md],
+            outputs=[baseline_depth_gallery, adapted_depth_gallery, pred_depth_status_md],
         )
         load_models_btn.click(
             fn=_load_models,
             inputs=[scene_dd],
-            outputs=[gt_model, baseline_model, lora_model, model_status_md],
+            outputs=[gt_model, baseline_model, adapted_model, model_status_md],
         )
         render_thresh_btn.click(
             fn=_load_threshold_overlays,
             inputs=[scene_dd],
-            outputs=[baseline_gt_thresh_model, lora_gt_thresh_model, delta_thresh_model, threshold_md],
+            outputs=[baseline_gt_thresh_model, adapted_gt_thresh_model, delta_thresh_model, threshold_md],
         )
         render_depth_btn.click(
             fn=_load_depth_errors,
             inputs=[scene_dd],
-            outputs=[baseline_err_gallery, lora_err_gallery, delta_err_gallery, depth_err_md],
+            outputs=[baseline_err_gallery, adapted_err_gallery, delta_err_gallery, depth_err_md],
         )
 
     return demo
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Viewer for 8v/16v/32v baseline vs LoRA model comparisons")
+    parser = argparse.ArgumentParser(description="Free-Geometry visualization for 8v/16v/32v benchmark results")
     parser.add_argument("--model_family", choices=["da3", "vggt"], required=True)
-    parser.add_argument("--work_root", type=str, default=None)
+    parser.add_argument("--results_root", type=str, default="results")
     parser.add_argument("--dataset", type=str, default="hiroom")
     parser.add_argument("--frames", type=int, choices=[8, 16, 32], default=8)
     parser.add_argument("--seed", type=str, default="43")
@@ -1059,7 +1055,13 @@ def main():
     if gr is None:
         raise SystemExit("Missing dependency: gradio. Install with `pip install gradio`.")
 
-    work_root = args.work_root or DEFAULT_WORK_ROOTS[args.model_family]
+    results_root = os.path.abspath(args.results_root)
+    project_root = os.path.dirname(results_root) if os.path.basename(results_root) == "results" else results_root
+
+    global PROJECT_ROOT
+    PROJECT_ROOT = project_root
+
+    work_root = os.path.join(results_root, "_visualization_cache", args.model_family)
     demo = build_app(
         model_family=args.model_family,
         work_root=work_root,
