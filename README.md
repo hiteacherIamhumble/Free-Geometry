@@ -10,6 +10,15 @@ This repository is the active Free-Geometry workflow for DA3 and VGGT:
 
 The multiview benchmark and the visualizer must use the same `results/` root.
 
+## Table of Contents
+
+- [1. Installation](#1-installation)
+- [2. Free-Geometry Training](#2-free-geometry-training)
+- [3. Free-Geometry Benchmark](#3-free-geometry-benchmark)
+- [4. All-In-One Runners](#4-all-in-one-runners)
+- [5. Shared Results Benchmark + Visualization](#5-shared-results-benchmark--visualization)
+- [Directory Summary](#directory-summary)
+
 ## 1. Installation
 
 ```bash
