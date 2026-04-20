@@ -1,242 +1,86 @@
-# Free-Geometry
+<div align="center">
 
-This repository is the active Free-Geometry workflow for DA3 and VGGT:
+<h1 style="text-align:center;">
+Free Geometry: Refining 3D Reconstruction from Longer Versions of Itself
+</h1>
 
-- training: `scripts/train_da3.py`, `scripts/train_vggt.py`
-- single-model benchmark: `scripts/benchmark_da3.py`, `scripts/benchmark_vggt.py`
-- all-in-one runners: `scripts/run_da3.sh`, `scripts/run_vggt.sh`
-- shared multiview benchmark + visualization:
-  `scripts/benchmark_multiview_all_datasets.py` and `scripts/visualize_free_geometry.py`
+_Test-time self-evolution for feed-forward 3D reconstruction without 3D ground truth_
 
-The multiview benchmark and the visualizer must use the same `results/` root.
+<p align="center">
+  <a href="https://arxiv.org/abs/2604.14048" target="_blank">
+    <img alt="Paper" src="https://img.shields.io/badge/arXiv-2604.14048-red?logo=arxiv" height="20" />
+  </a>
+  <a href="https://github.com/hiteacherIamhumble/Free-Geometry" target="_blank">
+    <img alt="Code" src="https://img.shields.io/badge/GitHub-Free--Geometry-181717?logo=github" height="20" />
+  </a>
+  <a href="./LICENSE" target="_blank">
+    <img alt="License" src="https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg" height="20" />
+  </a>
+</p>
 
-## Table of Contents
+</div>
 
-- [1. Installation](#1-installation)
-- [2. Free-Geometry Training](#2-free-geometry-training)
-- [3. Free-Geometry Benchmark](#3-free-geometry-benchmark)
-- [4. All-In-One Runners](#4-all-in-one-runners)
-- [5. Shared Results Benchmark + Visualization](#5-shared-results-benchmark--visualization)
-- [Directory Summary](#directory-summary)
+## 🔄 Updates
+- **2026.04.15:** The Free Geometry paper and code were released.
 
-## 1. Installation
+## 📦 What This Repo Provides
 
-```bash
-conda create -n Free-Geo python=3.10 -y
-conda activate Free-Geo
+| Component | Description |
+| --------- | ----------- |
+| **Free Geometry Training** | Test-time self-supervised adaptation pipelines for **Depth Anything 3 (DA3)** and **VGGT** via lightweight LoRA updates |
+| **Benchmark Scripts** | Single-model evaluation entry points for camera pose and reconstruction benchmarking |
+| **All-In-One Runners** | Reproducible shell runners for training, baseline benchmarking, LoRA benchmarking, and full end-to-end workflows |
+| **Shared Multiview Evaluation** | A unified multiview benchmark pipeline across datasets and view counts |
+| **Visualization Tools** | Result visualizer for comparing baseline and Free Geometry outputs from a shared `results/` root |
+| **Inference / App Utilities** | CLI and Gradio-oriented utilities for image, video, and COLMAP-based 3D reconstruction workflows |
 
-pip install xformers torch\>=2 torchvision
-pip install -e .
-pip install --no-build-isolation git+https://github.com/nerfstudio-project/gsplat.git@0b4dddf04cb687367602c01196913cde6a743d70
-pip install -e ".[app]"
-pip install -e ".[all]"
-```
+## 📝 Overview
 
-## 2. Free-Geometry Training
+Feed-forward 3D reconstruction models are efficient, but they are also rigid: once trained, they normally run in a zero-shot manner and cannot adapt to the scene they are currently reconstructing. In practice, that leaves visible errors under occlusion, specular surfaces, and other ambiguous visual conditions.
 
-### DA3
+**Free Geometry** addresses this with a simple idea: reconstructions produced from **more views** are often more reliable than reconstructions produced from fewer views. The framework turns that property into a self-supervised test-time adaptation signal by masking part of an input sequence, enforcing cross-view feature consistency between full and partial observations, and preserving the pairwise geometric relations implied by held-out frames. This makes it possible to refine foundation reconstruction models with lightweight **LoRA** updates, without using any 3D ground truth at test time.
 
-Canonical DA3 training entry point:
+The current repository is the active Free Geometry workflow for **DA3** and **VGGT**, including training scripts, benchmarking scripts, multiview evaluation, and visualization utilities.
 
-```bash
-python scripts/train_da3.py \
-  --dataset hiroom \
-  --samples_per_scene 5 \
-  --seeds_list 40 41 42 43 44 \
-  --model_name depth-anything/DA3-GIANT-1.1 \
-  --num_views 8 \
-  --patch_huber_weight 1.0 \
-  --patch_huber_cos_weight 2.0 \
-  --patch_huber_delta 1.0 \
-  --cf_weight 2.0 \
-  --cf_topk 4 \
-  --cf_num_ref_samples 256 \
-  --cf_num_shared_samples 256 \
-  --cf_angle1_weight 1.0 \
-  --cf_angle2_weight 1.0 \
-  --cf_angle3_weight 1.0 \
-  --cf_selection_mode mixed \
-  --use_cf_distance \
-  --cf_distance_weight 1.0 \
-  --cf_distance_temperature 10.0 \
-  --cf_distance_mode kl \
-  --cf_d1_weight 1.0 \
-  --cf_d2_weight 1.0 \
-  --cf_d3_weight 0.0 \
-  --epochs 5 \
-  --batch_size 4 \
-  --num_workers 2 \
-  --lr 1e-4 \
-  --lora_rank 32 \
-  --lora_alpha 32 \
-  --lr_scheduler cosine \
-  --warmup_ratio 0.15 \
-  --eta_min 1e-7 \
-  --weight_decay 1e-5 \
-  --output_dir checkpoints/da3_hiroom
-```
+## 🌟 Why Free Geometry?
 
-### VGGT
+<p align="center">
+  <img src="assets/teaser.png" width="100%" alt="Free Geometry teaser figure"/>
+</p>
 
-Canonical VGGT training entry point:
+The core benefit of Free Geometry is that it improves scene-specific reconstructions using only the test sequence itself. Instead of relying on external labels or expensive optimization-heavy reconstruction pipelines, it uses longer-view consistency as supervision and adapts quickly through low-rank updates. According to the arXiv paper, this refinement takes **less than 2 minutes per dataset on a single GPU** and improves both pose accuracy and point-map quality across four benchmarks.
 
-```bash
-python scripts/train_vggt.py \
-  --dataset hiroom \
-  --samples_per_scene 5 \
-  --seeds_list 40 41 42 43 44 \
-  --model_name facebook/vggt-1b \
-  --num_views 8 \
-  --image_size 504 \
-  --output_layers 4 11 17 23 \
-  --patch_huber_weight 1.0 \
-  --patch_huber_cos_weight 2.0 \
-  --patch_huber_delta 1.0 \
-  --cf_weight 2.0 \
-  --cf_topk 4 \
-  --cf_num_ref_samples 256 \
-  --cf_num_shared_samples 256 \
-  --cf_angle1_weight 1.0 \
-  --cf_angle2_weight 1.0 \
-  --cf_angle3_weight 1.0 \
-  --cf_selection_mode mixed \
-  --use_cf_distance \
-  --cf_distance_weight 1.0 \
-  --cf_distance_chunk_size 16 \
-  --cf_distance_type l2 \
-  --cf_distance_temperature 1.0 \
-  --cf_distance_mode kl \
-  --cf_distance_huber_beta 0.5 \
-  --cf_d1_weight 1.0 \
-  --cf_d2_weight 1.0 \
-  --cf_d3_weight 0.0 \
-  --epochs 3 \
-  --batch_size 2 \
-  --num_workers 2 \
-  --lr 1e-4 \
-  --lora_rank 32 \
-  --lora_alpha 32 \
-  --lora_layers_start 0 \
-  --lr_scheduler cosine \
-  --warmup_ratio 0.15 \
-  --eta_min 1e-8 \
-  --weight_decay 1e-5 \
-  --output_dir checkpoints/vggt_hiroom
-```
+## 🧠 Free Geometry Pipeline
 
-Notes:
+<p align="center">
+  <img src="assets/arch.png" width="100%" alt="Free Geometry architecture figure"/>
+</p>
 
-- `scripts/run_da3.sh` and `scripts/run_vggt.sh` are the easiest way to reproduce the repo’s tuned dataset settings.
-- Adapter checkpoints are saved as `epoch_*_lora.pt` and `latest_lora.pt`.
+Free Geometry builds a self-supervised task from a testing sequence by comparing reconstructions from **full observations** against reconstructions from **partial observations**. The training objective combines cross-view feature consistency with constraints that preserve the geometry implied by the held-out views. In this repository, that logic is exposed through dedicated DA3 and VGGT training scripts, LoRA checkpointing, and matching benchmark pipelines.
 
-## 3. Free-Geometry Benchmark
+## 📊 Qualitative Results
 
-### DA3 benchmark
+<p align="center">
+  <img src="assets/depth.png" width="100%" alt="Free Geometry depth refinement results"/>
+</p>
 
-```bash
-python scripts/benchmark_da3.py \
-  --lora_path checkpoints/da3_hiroom/epoch_5_lora.pt \
-  --base_model depth-anything/DA3-GIANT-1.1 \
-  --lora_rank 32 \
-  --lora_alpha 32 \
-  --datasets hiroom \
-  --modes pose recon_unposed \
-  --max_frames 16 \
-  --seeds 43 \
-  --work_dir workspace/benchmark_da3_hiroom
-```
+<p align="center">
+  <img src="assets/points.png" width="100%" alt="Free Geometry point-map refinement results"/>
+</p>
 
-### VGGT benchmark
+<p align="center">
+  <img src="assets/results.png" width="70%" alt="Free Geometry result summary"/>
+</p>
 
-```bash
-python scripts/benchmark_vggt.py \
-  --lora_path checkpoints/vggt_hiroom/epoch_3_lora.pt \
-  --base_model facebook/vggt-1b \
-  --lora_rank 32 \
-  --lora_alpha 32 \
-  --lora_layers_start 0 \
-  --datasets hiroom \
-  --modes pose recon_unposed \
-  --max_frames 16 \
-  --seeds 43 \
-  --image_size 504 \
-  --work_dir workspace/benchmark_vggt_hiroom
-```
+The paper reports consistent gains on four benchmark datasets, with an average improvement of **3.73%** in camera pose accuracy and **2.88%** in point-map prediction. The qualitative figures above highlight the intended effect of Free Geometry: cleaner depth structure, more stable geometry, and improved multiview consistency after adaptation.
 
-Use baseline evaluation by omitting `--lora_path` for VGGT, or by using the baseline path in the all-in-one DA3 runner.
+## 📚 Usage
 
-## 4. All-In-One Runners
+Environment setup, training, and benchmarking commands are documented in [docs/scripts.md](docs/scripts.md).
 
-### DA3
+## 🎬 Demo
 
-```bash
-bash scripts/run_da3.sh train
-bash scripts/run_da3.sh train_hiroom
-bash scripts/run_da3.sh benchmark_baseline
-bash scripts/run_da3.sh benchmark_lora
-bash scripts/run_da3.sh benchmark_all
-bash scripts/run_da3.sh all
-```
-
-Default DA3 outputs:
-
-- checkpoints: `checkpoints/all_da3_v2/{dataset}/`
-- benchmark outputs: `workspace/all_da3_v2/`
-
-### VGGT
-
-```bash
-bash scripts/run_vggt.sh train
-bash scripts/run_vggt.sh train_hiroom
-bash scripts/run_vggt.sh benchmark_base
-bash scripts/run_vggt.sh benchmark_lora
-bash scripts/run_vggt.sh benchmark
-bash scripts/run_vggt.sh all
-```
-
-Default VGGT outputs:
-
-- checkpoints: `checkpoints/all_vggt_v3/{dataset}/`
-- benchmark outputs: `workspace/all_vggt_v3/`
-
-## 5. Shared Results Benchmark + Visualization
-
-Use these two scripts together:
-
-- `scripts/benchmark_multiview_all_datasets.py`
-- `scripts/visualize_free_geometry.py`
-
-They must point to the same `results/` root.
-
-### Example: DA3 baseline and Free-Geometry results
-
-Run baseline:
-
-```bash
-python scripts/benchmark_multiview_all_datasets.py \
-  --model_family da3 \
-  --no_lora \
-  --datasets hiroom scannetpp \
-  --view_counts 8 16 32 \
-  --seed 43 \
-  --results_root results \
-  --work_dir results/multiview_da3_hiroom_scannetpp_base_fixed
-```
-
-Run Free-Geometry:
-
-```bash
-python scripts/benchmark_multiview_all_datasets.py \
-  --model_family da3 \
-  --datasets hiroom scannetpp \
-  --view_counts 8 16 32 \
-  --seed 43 \
-  --lora_path checkpoints/da3_hiroom/epoch_5_lora.pt \
-  --results_root results \
-  --work_dir results/multiview_da3_hiroom_scannetpp_lora_fixed
-```
-
-Visualize from the same `results/` root:
+### Free Geometry visualization
 
 ```bash
 python scripts/visualize_free_geometry.py \
@@ -249,76 +93,36 @@ python scripts/visualize_free_geometry.py \
   --port 7860
 ```
 
-Open:
+This opens the Gradio demo used for comparing baseline and Free Geometry outputs.
 
-```text
-http://127.0.0.1:7860
-```
-
-### Example: VGGT baseline and Free-Geometry results
-
-Run baseline:
+### DA3 Gradio app
 
 ```bash
-python scripts/benchmark_multiview_all_datasets.py \
-  --model_family vggt \
-  --no_lora \
-  --datasets hiroom scannetpp \
-  --view_counts 8 16 32 \
-  --seed 43 \
-  --results_root results \
-  --work_dir results/multiview_vggt_hiroom_scannetpp_base_fixed
-```
-
-Run Free-Geometry:
-
-```bash
-python scripts/benchmark_multiview_all_datasets.py \
-  --model_family vggt \
-  --datasets hiroom scannetpp \
-  --view_counts 8 16 32 \
-  --seed 43 \
-  --lora_path checkpoints/vggt_hiroom/epoch_3_lora.pt \
-  --lora_rank 32 \
-  --lora_alpha 32 \
-  --lora_layers_start 0 \
-  --results_root results \
-  --work_dir results/multiview_vggt_hiroom_scannetpp_lora_fixed
-```
-
-Visualize from the same `results/` root:
-
-```bash
-python scripts/visualize_free_geometry.py \
-  --model_family vggt \
-  --dataset hiroom \
-  --frames 16 \
-  --seed 43 \
-  --results_root results \
+python -m depth_anything_3.cli gradio \
+  --model-dir <MODEL_DIR> \
+  --workspace-dir workspace/gradio \
+  --gallery-dir workspace/gallery \
   --host 127.0.0.1 \
   --port 7860
 ```
 
-## Directory Summary
+This launches the interactive DA3 demo.
 
-```text
-results/
-  multiview_da3_hiroom_scannetpp_base_fixed/
-    8v/
-    16v/
-    32v/
-  multiview_da3_hiroom_scannetpp_lora_fixed/
-    8v/
-    16v/
-    32v/
-  multiview_vggt_hiroom_scannetpp_base_fixed/
-    8v/
-    16v/
-    32v/
-  multiview_vggt_hiroom_scannetpp_lora_fixed/
-    8v/
-    16v/
-    32v/
+## 🙏 Acknowledgement
+
+Free Geometry is built around adapting strong feed-forward 3D reconstruction backbones, especially **Depth Anything 3** and **VGGT**. This repository also depends on the broader open-source 3D vision ecosystem, including packages such as **gsplat**.
+
+## 📚 Citation
+
+If you find Free Geometry useful, please consider citing the paper:
+
+```bibtex
+@misc{dai2026freegeometryrefining3d,
+  title={Free Geometry: Refining 3D Reconstruction from Longer Versions of Itself},
+  author={Dai, Yuhang and Yang, Xingyi},
+  year={2026},
+  eprint={2604.14048},
+  archivePrefix={arXiv},
+  url={https://arxiv.org/abs/2604.14048}
+}
 ```
-
-This is the expected layout for `scripts/visualize_free_geometry.py`.
