@@ -13,6 +13,9 @@ _Test-time self-evolution for feed-forward 3D reconstruction without 3D ground t
   <a href="https://github.com/hiteacherIamhumble/Free-Geometry" target="_blank">
     <img alt="Code" src="https://img.shields.io/badge/GitHub-Free--Geometry-181717?logo=github" height="20" />
   </a>
+  <a href="https://huggingface.co/PeterDAI/Free-Geometry" target="_blank">
+    <img alt="Model Weights" src="https://img.shields.io/badge/HuggingFace-Model_Weights-yellow?logo=huggingface" height="20" />
+  </a>
   <a href="./LICENSE" target="_blank">
     <img alt="License" src="https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg" height="20" />
   </a>
